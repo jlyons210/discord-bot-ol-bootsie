@@ -1,0 +1,29 @@
+{
+  "name": "discord-bot-ol-bootsie",
+  "version": "0.1.0",
+  "description": "Ol' Bootsie is a Discord bot for my private server that interfaces with the ChatGPT API.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jlyons210/discord-bot-ol-bootsie.git"
+  },
+  "author": {
+    "name": "Jeremy Lyons",
+    "email": "jlyons210@gmail.com",
+    "url": "https://www.linkedin.com/in/jeremylyons/"
+  },
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/jlyons210/discord-bot-ol-bootsie/issues"
+  },
+  "homepage": "https://github.com/jlyons210/discord-bot-ol-bootsie#readme",
+  "dependencies": {
+    "discord.js": "^14.9.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.38.0"
+  }
+}
