@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/jlyons210/discord-bot-ol-bootsie#readme",
   "dependencies": {
-    "discord.js": "^14.9.0"
+    "discord.js": "^14.9.0",
+    "dotenv": "^16.0.3",
+    "openai": "^3.2.1"
   },
   "devDependencies": {
     "eslint": "^8.38.0"
