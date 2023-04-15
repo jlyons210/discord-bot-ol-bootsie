@@ -24,10 +24,10 @@ module.exports = {
         
         try {
             const completion = await openai.createCompletion({
-                max_tokens: 100,
+                max_tokens: 500, // TODO: bring in from .env
                 model: model,
                 prompt: prompt,
-                temperature: 0.6,
+                temperature: 0.6, // TODO: bring in from .env
             });
     
             const chat_response = `Meow. You asked: ${prompt} ${completion.data.choices[0].text}`;
