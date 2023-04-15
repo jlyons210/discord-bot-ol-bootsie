@@ -10,11 +10,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN echo "DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID} >> .env" && \
-    echo "DISCORD_GUILD_ID=${DISCORD_GUILD_ID} >> .env" && \
-    echo "DISCORD_APP_TOKEN=${DISCORD_APP_TOKEN} >> .env" && \
-    echo "OPENAI_ORG_ID=${OPENAI_ORG_ID} >> .env" && \
-    echo "OPENAI_API_KEY=${OPENAI_API_KEY} >> .env"
+RUN echo "DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID} >> /app/.env" && \
+    echo "DISCORD_GUILD_ID=${DISCORD_GUILD_ID} >> /app/.env" && \
+    echo "DISCORD_APP_TOKEN=${DISCORD_APP_TOKEN} >> /app/.env" && \
+    echo "OPENAI_ORG_ID=${OPENAI_ORG_ID} >> /app/.env" && \
+    echo "OPENAI_API_KEY=${OPENAI_API_KEY} >> /app/.env"
 
 RUN npm install --only=production
 
