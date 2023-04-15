@@ -33,12 +33,10 @@ module.exports = {
             const chat_response = `Meow. You asked: ${prompt} ${completion.data.choices[0].text}`;
             await interaction.reply(chat_response);
     
-            console.log(
-                `[INFO] ${interaction.user.username}#${interaction.user.discriminator} asked: "${prompt}" ${chat_response}`
-            )
+            console.log(`[INFO] ${interaction.user.username}#${interaction.user.discriminator} asked: "${prompt}"`);
+            console.log(chat_response);
         } catch(error) {
-            console.log(`[ERROR] ${error}`);
-            await interaction.reply("An error occurred.");
+            console.error(error);
         }
     }
 };
