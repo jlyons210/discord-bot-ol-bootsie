@@ -23,6 +23,8 @@ module.exports = {
         const model = 'text-davinci-003';
         
         try {
+            interaction.reply('Meowww...')
+
             const completion = await openai.createCompletion({
                 max_tokens: 500, // TODO: bring in from .env
                 model: model,
@@ -30,8 +32,8 @@ module.exports = {
                 temperature: 0.6, // TODO: bring in from .env
             });
     
-            const chat_response = `Meow. You asked: ${prompt} ${completion.data.choices[0].text}`;
-            await interaction.reply(chat_response);
+            const chat_response = `Meow! You asked: "${prompt}" ${completion.data.choices[0].text}`;
+            await interaction.editReply(chat_response);
     
             console.log(`[INFO] ${interaction.user.username}#${interaction.user.discriminator} asked: "${prompt}"`);
             console.log(chat_response);
