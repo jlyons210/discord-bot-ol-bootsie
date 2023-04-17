@@ -1,7 +1,6 @@
 // Import modules
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
-const util = require('util');
 
 // TODO: Dirty quit application if config isn't populated
 checkEnvironment();
@@ -65,14 +64,20 @@ async function askChatGPT(prompt) {
       temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
     });
 
-    const response = completion.data.choices[0].text.trim();
+    let response = completion.data.choices[0].text.trim();
 
-    // DEBUG
-    log(`HTTP status: ${completion.status}, text: ${completion.statusText}`, 'debug');
-    if (response == '') log(util.inspect(completion, false, null, true), 'debug');
+    if (response == '' && completion.status == 200) {
+      const tryAgainResponses = [
+        'I don\'t know what you mean.',
+        'Use your words.',
+        'That doesn\'t make any sense.',
+      ];
+
+      response = Math.floor(Math.random() * tryAgainResponses.length);
+    }
 
     // Return OpenAI API response
-    log(`OpenAI response: ${response}`, 'info');
+    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) ${response}`, 'info');
     return response;
   }
   catch (error) {
