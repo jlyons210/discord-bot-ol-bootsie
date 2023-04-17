@@ -1,6 +1,6 @@
 {
   "name": "discord-bot-ol-bootsie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Ol' Bootsie is a Discord bot for my private server that interfaces with the ChatGPT API.",
   "main": "index.js",
   "scripts": {
