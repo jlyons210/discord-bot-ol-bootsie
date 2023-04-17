@@ -61,7 +61,7 @@ $ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 * Build container image:
 ```
-$ docker build -t docker-bot-ol-bootsie:$(jq -r ".version" package.json) .
+$ docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
 * Run container:
 ```
@@ -74,7 +74,7 @@ $ docker run -d \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: text-davinci-003] \
   -e OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
-docker-bot-ol-bootsie:$(jq -r ".version" package.json)
+discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
