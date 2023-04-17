@@ -1,5 +1,5 @@
 # discord-bot-ol-bootsie
-Ol' Bootsie is a Discord bot for Discord servers that interfaces with the OpenAI API.
+Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI API.
 
 ## Requirements
 * Create an application and bot via the [Discord Developer Portal](https://discord.com/developers/).
