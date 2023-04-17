@@ -1,6 +1,7 @@
 // Import modules
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
+const util = require('util');
 
 // TODO: Dirty quit application if config isn't populated
 checkEnvironment();
@@ -68,7 +69,7 @@ async function askChatGPT(prompt) {
 
     // DEBUG
     log(`HTTP status: ${completion.status}, text: ${completion.statusText}`, 'debug');
-    if (response == '') log(completion, 'debug');
+    if (response == '') log(util.inspect(response, false, null, true), 'debug');
 
     // Return OpenAI API response
     log(`OpenAI response: ${response}`, 'info');
