@@ -1,8 +1,10 @@
+// Import modules
 const { SlashCommandBuilder } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
 require('dotenv').config();
 
 module.exports = {
+    // Discord 'chatgpt' slash-command interface
     data: new SlashCommandBuilder()
         .setName('chatgpt')
         .setDescription('Polls the ChatGPT API with specified prompt, returns response.')
@@ -12,24 +14,25 @@ module.exports = {
                 .setDescription('Question to ask Ol\' Bootsie')
                 .setRequired(true)),
 
+    // Execute 'chatgpt' slash-command logic
     async execute(interaction) {
-        const configuration = new Configuration({
+        // Set up openai library config
+        const openai = new OpenAIApi(new Configuration({
             organization: process.env.OPENAI_ORG_ID,
             apiKey: process.env.OPENAI_API_KEY,
-        });
+        }));
 
-        const openai = new OpenAIApi(configuration);
-        const prompt = interaction.options.getString('prompt');
-        const model = 'text-davinci-003';
-        
         try {
             interaction.reply('Meowww...')
 
+            const prompt = interaction.options.getString('prompt');
+
+            // Send prompt to OpenAI API
             const completion = await openai.createCompletion({
-                max_tokens: 500, // TODO: bring in from .env
-                model: model,
+                max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
+                model: process.env.OPENAI_PARAM_MODEL,
                 prompt: prompt,
-                temperature: 0.6, // TODO: bring in from .env
+                temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
             });
     
             const chat_response = `Meow! You asked: "${prompt}" ${completion.data.choices[0].text}`;

@@ -1,8 +1,10 @@
+// Import modules
 const { REST, Routes } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
 require('dotenv').config();
 
+// Scan ./commands/*.js for slash-command modules
 const commands = [];
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
@@ -17,6 +19,7 @@ for (const file of commandFiles) {
 	}
 }
 
+// Register commands with Discord server
 (async () => {
 	try {
 		console.log(`Started refreshing ${commands.length} application (/) commands.`);
