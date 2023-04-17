@@ -11,28 +11,62 @@ Ol' Bootsie is a Discord bot for Discord servers that interfaces with the OpenAI
 ### Local execution
 * Requires `git`, `nodejs`, and `npm` packages
 * Clone this repo:
-    * `$ git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git`, or
-    * `$ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git`
+```
+$ git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
+```
+or...
+```
+$ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
+```
 * Install dependencies:
-    * `<package_directory>/ $ npm install`
+```
+$ npm install
+```
 * Run:
-    * `$ node .`
+```
+$ node .
+```
 
 ### Container execution from Docker Hub
 * Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
 * Pull image from Docker Hub:
-    * `$ docker pull jlyons210/discord-bot-ol-bootsie:latest`
-    * `$ docker run -d docker-bot-ol-bootsie:latest`
+
+```
+$ docker pull jlyons210/discord-bot-ol-bootsie:latest
+```
+
+* Run container:
+```
+$ docker run -d \
+  -e DISCORD_CLIENT_ID=[insert value] \
+  -e DISCORD_GUILD_ID=[insert value] \
+  -e DISCORD_APP_TOKEN=[insert value] \
+  -e OPENAI_ORG_ID=[insert value] \
+  -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
+  -e OPENAI_PARAM_MODEL=[insert value - suggested starter: text-davinci-003] \
+  -e OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
+discord-bot-ol-bootsie:latest
+```
 
 ### Container execution from source
 * Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
 * Clone this repo:
-    * `$ git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git`, or
-    * `$ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git`
+```
+$ git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
+```
+or...
+```
+$ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
+```
 * Build container image:
-    * `$ docker build \[build-arg\] -t docker-bot-ol-bootsie:$(jq -r ".version" package.json) .`:
+```
+$ docker build \[build-arg\] -t docker-bot-ol-bootsie:$(jq -r ".version" package.json) .
+```
 * Run container:
-    * `$ docker run -d docker-bot-ol-bootsie:$(jq -r ".version" package.json)`
+```
+$ docker run -d docker-bot-ol-bootsie:$(jq -r ".version" package.json)
+```
 
 ## Version history
 
