@@ -110,7 +110,7 @@ function checkEnvironment() {
 
 // Centralized logging function
 function log(message, type) {
-  const timestamp = new Date().toUTCString();
+  const timestamp = new Date().toISOString();
 
   if (type == 'error') {
     console.error(`${timestamp} - ${type.toUpperCase()} - ${message}`);
