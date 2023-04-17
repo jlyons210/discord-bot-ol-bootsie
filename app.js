@@ -73,7 +73,8 @@ async function askChatGPT(prompt) {
         'That doesn\'t make any sense.',
       ];
 
-      response = Math.floor(Math.random() * tryAgainResponses.length);
+      const tryAgainResponse = Math.floor(Math.random() * tryAgainResponses.length);
+      response = tryAgainResponses[tryAgainResponse];
     }
 
     // Return OpenAI API response
