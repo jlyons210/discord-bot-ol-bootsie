@@ -17,7 +17,10 @@ RUN echo DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID} >> .env && \
     echo DISCORD_GUILD_ID=${DISCORD_GUILD_ID} >> .env && \
     echo DISCORD_APP_TOKEN=${DISCORD_APP_TOKEN} >> .env && \
     echo OPENAI_ORG_ID=${OPENAI_ORG_ID} >> .env && \
-    echo OPENAI_API_KEY=${OPENAI_API_KEY} >> .env
+    echo OPENAI_API_KEY=${OPENAI_API_KEY} >> .env && \
+    echo OPENAI_PARAM_MAX_TOKENS=${OPENAI_PARAM_MAX_TOKENS} >> .env && \
+    echo OPENAI_PARAM_MODEL=${OPENAI_PARAM_MODEL} >> .env && \
+    echo OPENAI_PARAM_TEMPERATURE=${OPENAI_PARAM_TEMPERATURE} >> .env
 
 RUN npm install --only=production
 
