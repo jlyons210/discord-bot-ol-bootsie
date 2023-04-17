@@ -6,4 +6,4 @@ COPY . .
 
 RUN npm install --only=production
 
-CMD [ "node", "." ]
+ENTRYPOINT [ "node", "." ]
