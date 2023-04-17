@@ -73,8 +73,7 @@ client.on(Events.MessageCreate, async message => {
 
         // Send a response back to the same channel
         const gptResponse = await askChatGPT(prompt);
-        const response = `Hey ${message.author.toString()}! ${gptResponse}`;
-        message.channel.send(response);
+        message.channel.send(gptResponse);
     }
 });
 
