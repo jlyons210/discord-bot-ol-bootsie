@@ -69,7 +69,7 @@ async function askChatGPT(prompt) {
 
     // DEBUG
     log(`HTTP status: ${completion.status}, text: ${completion.statusText}`, 'debug');
-    if (response == '') log(util.inspect(response, false, null, true), 'debug');
+    if (response == '') log(util.inspect(completion, false, null, true), 'debug');
 
     // Return OpenAI API response
     log(`OpenAI response: ${response}`, 'info');
