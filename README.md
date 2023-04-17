@@ -61,11 +61,20 @@ $ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 * Build container image:
 ```
-$ docker build \[build-arg\] -t docker-bot-ol-bootsie:$(jq -r ".version" package.json) .
+$ docker build -t docker-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
 * Run container:
 ```
-$ docker run -d docker-bot-ol-bootsie:$(jq -r ".version" package.json)
+$ docker run -d \
+  -e DISCORD_CLIENT_ID=[insert value] \
+  -e DISCORD_GUILD_ID=[insert value] \
+  -e DISCORD_APP_TOKEN=[insert value] \
+  -e OPENAI_ORG_ID=[insert value] \
+  -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
+  -e OPENAI_PARAM_MODEL=[insert value - suggested starter: text-davinci-003] \
+  -e OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
+docker-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
