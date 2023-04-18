@@ -1,7 +1,6 @@
 // Import modules
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
-const util = require('util');
 
 // Ensure all required environment variables are set
 checkEnvironment();
@@ -15,7 +14,6 @@ const discordClient = new Client({
   ],
 });
 
-// Create Discord client
 const token = process.env.DISCORD_APP_TOKEN;
 discordClient.login(token);
 
@@ -70,9 +68,6 @@ async function askChatGPT(prompt) {
   let response = '';
 
   try {
-    // DEBUG
-    log('Sending payload to OpenAI API...', 'debug');
-
     // Send payload to OpenAI API
     const completion = await openAiClient.createChatCompletion({
       max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
@@ -80,15 +75,9 @@ async function askChatGPT(prompt) {
       messages: messages,
       temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
     });
-
-    // DEBUG
-    log('Payload sent.', 'debug');
-
     // Assign response
     response = completion.data.choices[0].message.content.trim();
-
-    // DEBUG
-    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) ${util.inspect(response, false, null, true)}`, 'debug');
+    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) "${response}"`, 'info');
 
     // Sometimes an empty response comes back if the prompt is garbage
     // You can't publish an empty message to Discord's API
@@ -99,8 +88,6 @@ async function askChatGPT(prompt) {
         'That doesn\'t make any sense.',
         'Could you repeat that, but better?',
       ];
-
-      log(`${util.inspect(response, false, null, true)}`, 'debug');
 
       // Pick a random tryAgainResponse
       const tryAgainResponse = Math.floor(Math.random() * tryAgainResponses.length);
