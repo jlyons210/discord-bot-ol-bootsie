@@ -38,11 +38,13 @@ docker pull jlyons210/discord-bot-ol-bootsie:latest
 * Run container:
 ```
 docker run -d \
+  -e BOT_THREAD_MODE=[channel|user] \
+  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
+  -e DISCORD_APP_TOKEN=[insert value] \
   -e DISCORD_CLIENT_ID=[insert value] \
   -e DISCORD_GUILD_ID=[insert value] \
-  -e DISCORD_APP_TOKEN=[insert value] \
-  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
@@ -67,11 +69,13 @@ docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 * Run container:
 ```
 docker run -d \
+  -e BOT_THREAD_MODE=[channel|user] \
+  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
+  -e DISCORD_APP_TOKEN=[insert value] \
   -e DISCORD_CLIENT_ID=[insert value] \
   -e DISCORD_GUILD_ID=[insert value] \
-  -e DISCORD_APP_TOKEN=[insert value] \
-  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
@@ -80,6 +84,12 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.1
+* Added package `name:version` to startup logging.
+* Added conversational continuity.
+  * Requires new environment variables `BOT_THREAD_MODE=[channel|user]` and `BOT_THREAD_RETAIN_SEC=[seconds]`
+  * Experimental: Added Discord username to OpenAI prompt under optional `name` field.
 
 ### 0.4.0
 * Updated app.js to support `gpt-3.5-turbo`.
