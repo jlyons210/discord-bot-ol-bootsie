@@ -1,6 +1,7 @@
 // Import modules
 const { Client, Events, GatewayIntentBits } = require('discord.js');
 const { Configuration, OpenAIApi } = require('openai');
+const util = require('util');
 
 // Ensure all required environment variables are set
 checkEnvironment();
@@ -52,21 +53,25 @@ discordClient.on(Events.MessageCreate, async message => {
 
 // Poll OpenAI API
 async function askChatGPT(prompt) {
+  log(`OpenAI prompt: ${prompt}`, 'info');
+
+  // Construct message payload
+  const messages = [
+    {
+      role: 'system',
+      content: process.env.OPENAI_PARAM_SYSTEM_PROMPT,
+    },
+    {
+      role: 'user',
+      content: prompt,
+    },
+  ];
+
+  let response = '';
 
   try {
-    log(`OpenAI prompt: ${prompt}`, 'info');
-
-    // Construct message payload
-    const messages = [
-      {
-        role: 'system',
-        content: process.env.OPENAI_PARAM_SYSTEM_PROMPT,
-      },
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ];
+    // DEBUG
+    log('Sending payload to OpenAI API...', 'debug');
 
     // Send payload to OpenAI API
     const completion = await openAiClient.createChatCompletion({
@@ -76,8 +81,14 @@ async function askChatGPT(prompt) {
       temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
     });
 
+    // DEBUG
+    log('Payload sent.', 'debug');
+
     // Assign response
-    let response = completion.data.choices[0].message.content.trim();
+    response = completion.data.choices[0].message.content.trim();
+
+    // DEBUG
+    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) ${util.inspect(response, false, null, true)}`, 'debug');
 
     // Sometimes an empty response comes back if the prompt is garbage
     // You can't publish an empty message to Discord's API
@@ -89,13 +100,14 @@ async function askChatGPT(prompt) {
         'Could you repeat that, but better?',
       ];
 
+      log(`${util.inspect(response, false, null, true)}`, 'debug');
+
       // Pick a random tryAgainResponse
       const tryAgainResponse = Math.floor(Math.random() * tryAgainResponses.length);
       response = tryAgainResponses[tryAgainResponse];
     }
 
     // Return OpenAI API response
-    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) ${response}`, 'info');
     return response;
   }
   catch (error) {
