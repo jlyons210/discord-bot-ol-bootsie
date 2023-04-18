@@ -27,11 +27,13 @@ const openAiClient = new OpenAIApi(new Configuration({
 
 // Discord authentication complete
 discordClient.once(Events.ClientReady, c => {
-  log(`${name}:${version} ready! Logged in as ${c.user.tag}`, 'info');
+  logStartupEnvironment();
+  log(`Logged in as ${c.user.tag}`, 'info');
+  log(`${name}:${version} ready!`, 'info');
 });
 
 // Initialize prompt history
-const promptHistory = [];
+const chatHistory = [];
 
 // Discord channel message listener
 discordClient.on(Events.MessageCreate, async message => {
@@ -59,12 +61,12 @@ discordClient.on(Events.MessageCreate, async message => {
       // Assign thread signature {guild}:{channel}[:{user}]
       const threadSignature = getThreadSignature(message);
 
-      // Add prompt to prompt history
-      promptHistory.push(
+      // Add prompt to chat history
+      chatHistory.push(
         {
           threadSignature: threadSignature,
           role: 'user',
-          prompt: prompt,
+          content: prompt,
           username: message.author.username,
           ttl: message.createdTimestamp + parseInt(process.env.BOT_THREAD_RETAIN_SEC) * 1000,
         },
@@ -74,7 +76,18 @@ discordClient.on(Events.MessageCreate, async message => {
       const payload = constructPromptPayload(threadSignature);
 
       // Poll OpenAI API and send message to Discord channel
-      message.channel.send(await askChatGPT(payload));
+      const response = await requestChatCompletion(payload);
+
+      // Add response to chat history
+      chatHistory.push({
+        threadSignature: threadSignature,
+        role: 'assistant',
+        content: response,
+        // username: -- Including an 'assistant' username causes subsequent requests to fail
+        ttl: message.createdTimestamp + parseInt(process.env.BOT_THREAD_RETAIN_SEC) * 1000,
+      });
+
+      message.channel.send(response);
     }
   }
   catch (error) {
@@ -82,32 +95,55 @@ discordClient.on(Events.MessageCreate, async message => {
   }
 });
 
-// Poll OpenAI API
-async function askChatGPT(payload) {
+// Request chat completion from OpenAI API
+async function requestChatCompletion(payload) {
+  let completion;
   let response;
+  let retryRequest = true;
 
-  try {
-    // Send payload to OpenAI API
-    const completion = await openAiClient.createChatCompletion({
-      max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
-      model: process.env.OPENAI_PARAM_MODEL,
-      messages: payload,
-      temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
-    });
+  while (retryRequest) {
+    try {
+      // Send payload to OpenAI API
+      completion = await openAiClient.createChatCompletion({
+        max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
+        model: process.env.OPENAI_PARAM_MODEL,
+        messages: payload,
+        temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
+      });
 
-    // Assign response
-    response = completion.data.choices[0].message.content.trim();
-    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) "${response}"`, 'debug');
+      // Assign response
+      response = completion.data.choices[0].message.content.trim();
+      log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) "${response}"`, 'debug');
 
-    // Sometimes an empty response comes back if the prompt is garbage
-    // You can't publish an empty message to Discord's API
-    if (response == '' && completion.status == 200) response = generateTryAgainMessage();
+      // Response error handling
+      if (response == '') {
+        if (completion.status == 200) {
+          // Bad user prompt, usually
+          response = generateTryAgainMessage();
+          retryRequest = false;
+        }
+        else if (completion.status >= 500) {
+          // Server error
+          retryRequest = true;
+        }
+        else if (completion.status >= 400) {
+          // Bad request
+          retryRequest = false;
+        }
+      }
+      else {
+        // Request was successful
+        retryRequest = false;
+      }
+    }
+    catch (error) {
+      log(`payload = ${util.inspect(payload, false, null, true)}`, 'error');
+      log(`completion = ${util.inspect(completion, false, null, true)}`, 'error');
+      log(error, 'error');
+    }
 
     // Return OpenAI API response
     return response;
-  }
-  catch (error) {
-    log(error, 'error');
   }
 }
 
@@ -144,6 +180,27 @@ function checkEnvironment() {
     log('Environment variables are not configured correctly. See documentation on GitHub.', 'error');
     throw (new Error('Configuration error exit.'));
   }
+}
+
+// Log environment variables (at startup)
+function logStartupEnvironment() {
+  // Environment variables with secrets are not logged
+  const safeEnvVars = [
+    'BOT_THREAD_MODE',
+    'BOT_THREAD_RETAIN_SEC',
+    'DISCORD_CLIENT_ID',
+    'DISCORD_GUILD_ID',
+    'OPENAI_PARAM_MAX_TOKENS',
+    'OPENAI_PARAM_MODEL',
+    'OPENAI_PARAM_SYSTEM_PROMPT',
+    'OPENAI_PARAM_TEMPERATURE',
+  ];
+
+  // Log startup config
+  log('Startup config (secrets excluded):', 'info');
+  safeEnvVars.forEach(envVar => {
+    log(`${envVar} = ${process.env[envVar]}`, 'info');
+  });
 }
 
 // Centralized logging function
@@ -183,11 +240,11 @@ function constructPromptPayload(threadSignature) {
   ];
 
   // Add previous messages matching thread signature
-  promptHistory.forEach(history => {
+  chatHistory.forEach(history => {
     if (history.threadSignature == threadSignature) {
       payload.push({
-        role: 'user',
-        content: history.prompt,
+        role: history.role,
+        content: history.content,
         name: history.username,
       });
     }
@@ -225,11 +282,12 @@ function getThreadSignature(message) {
 function pruneOldThreadMessages(threadSignature) {
   const evalCurrentTime = new Date().getTime();
 
-  let i = promptHistory.length - 1;
+  let i = chatHistory.length - 1;
   while (i--) {
     // If historical prompt ttl has passed and thread signature matches, prune
-    if (promptHistory[i].ttl < evalCurrentTime && promptHistory[i].threadSignature == threadSignature) {
-      promptHistory.splice(i, 1);
+    if (chatHistory[i].ttl < evalCurrentTime && chatHistory[i].threadSignature == threadSignature) {
+      log(`Pruning promptHistory[i] = ${util.inspect(chatHistory[i], false, null, true)}`, 'debug');
+      chatHistory.splice(i, 1);
     }
   }
 }
