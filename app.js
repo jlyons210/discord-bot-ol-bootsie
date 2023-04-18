@@ -14,7 +14,6 @@ const discordClient = new Client({
   ],
 });
 
-// Create Discord client
 const token = process.env.DISCORD_APP_TOKEN;
 discordClient.login(token);
 
@@ -52,22 +51,23 @@ discordClient.on(Events.MessageCreate, async message => {
 
 // Poll OpenAI API
 async function askChatGPT(prompt) {
+  log(`OpenAI prompt: ${prompt}`, 'info');
+
+  // Construct message payload
+  const messages = [
+    {
+      role: 'system',
+      content: process.env.OPENAI_PARAM_SYSTEM_PROMPT,
+    },
+    {
+      role: 'user',
+      content: prompt,
+    },
+  ];
+
+  let response = '';
 
   try {
-    log(`OpenAI prompt: ${prompt}`, 'info');
-
-    // Construct message payload
-    const messages = [
-      {
-        role: 'system',
-        content: process.env.OPENAI_PARAM_SYSTEM_PROMPT,
-      },
-      {
-        role: 'user',
-        content: prompt,
-      },
-    ];
-
     // Send payload to OpenAI API
     const completion = await openAiClient.createChatCompletion({
       max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
@@ -75,9 +75,9 @@ async function askChatGPT(prompt) {
       messages: messages,
       temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
     });
-
     // Assign response
-    let response = completion.data.choices[0].message.content.trim();
+    response = completion.data.choices[0].message.content.trim();
+    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) "${response}"`, 'info');
 
     // Sometimes an empty response comes back if the prompt is garbage
     // You can't publish an empty message to Discord's API
@@ -95,7 +95,6 @@ async function askChatGPT(prompt) {
     }
 
     // Return OpenAI API response
-    log(`OpenAI response: HTTP ${completion.status} (${completion.statusText}) ${response}`, 'info');
     return response;
   }
   catch (error) {
