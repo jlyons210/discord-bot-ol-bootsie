@@ -155,8 +155,6 @@ function checkEnvironment() {
     'BOT_THREAD_MODE',
     'BOT_THREAD_RETAIN_SEC',
     'DISCORD_APP_TOKEN',
-    'DISCORD_CLIENT_ID',
-    'DISCORD_GUILD_ID',
     'OPENAI_API_KEY',
     'OPENAI_ORG_ID',
     'OPENAI_PARAM_MAX_TOKENS',
@@ -188,8 +186,6 @@ function logStartupEnvironment() {
   const safeEnvVars = [
     'BOT_THREAD_MODE',
     'BOT_THREAD_RETAIN_SEC',
-    'DISCORD_CLIENT_ID',
-    'DISCORD_GUILD_ID',
     'OPENAI_PARAM_MAX_TOKENS',
     'OPENAI_PARAM_MODEL',
     'OPENAI_PARAM_SYSTEM_PROMPT',
