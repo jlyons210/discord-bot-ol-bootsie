@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.4.3]
   * [0.4.2](#042-2023-04-18)
   * [0.4.1](#041-2023-04-18)
   * [0.4.0](#040-2023-04-17)
@@ -56,8 +57,6 @@ docker run -d \
   -e BOT_THREAD_MODE=[channel|user] \
   -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
   -e DISCORD_APP_TOKEN=[insert value] \
-  -e DISCORD_CLIENT_ID=[insert value] \
-  -e DISCORD_GUILD_ID=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
@@ -87,8 +86,6 @@ docker run -d \
   -e BOT_THREAD_MODE=[channel|user] \
   -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
   -e DISCORD_APP_TOKEN=[insert value] \
-  -e DISCORD_CLIENT_ID=[insert value] \
-  -e DISCORD_GUILD_ID=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
@@ -99,6 +96,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.3 (2023-04-19)
+* Removed unused `DISCORD_GUILD_ID` and `DISCORD_CLIENT_ID` environment variables - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/20).
 
 ### 0.4.2 (2023-04-18)
 * Added logging of non-sensitive startup parameters - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/15)
