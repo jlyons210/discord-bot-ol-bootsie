@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.4.20](#043-2023-04-20)
   * [0.4.3](#043-2023-04-19)
   * [0.4.2](#042-2023-04-18)
   * [0.4.1](#041-2023-04-18)
@@ -40,6 +41,17 @@ npm install
 ```
 * Run:
 ```
+ BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
+ BOT_THREAD_MODE=[channel|user] \
+ BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
+ DISCORD_APP_TOKEN=[insert value] \
+ OPENAI_API_KEY=[insert value] \
+ OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
+ OPENAI_ORG_ID=[insert value] \
+ OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
+ OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
+ OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
+ OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
 node .
 ```
 
@@ -54,10 +66,12 @@ docker pull jlyons210/discord-bot-ol-bootsie:latest
 * Run container:
 ```
 docker run -d \
+  -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
   -e BOT_THREAD_MODE=[channel|user] \
-  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
+  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
   -e DISCORD_APP_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
   -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
@@ -83,10 +97,12 @@ docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 * Run container:
 ```
 docker run -d \
+  -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
   -e BOT_THREAD_MODE=[channel|user] \
   -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
   -e DISCORD_APP_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
+  -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
   -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
@@ -97,8 +113,23 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ## Version history
 
+### 0.4.20 (2023-04-20)
+* Refactored code into multiple .js files to better group functionality - [issue #16](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/16):
+  * Discord-specific functions moved to `lib/lib-discord.js`
+  * OpenAI-specific functions moved to `lib/lib-openai.js`
+* Changed all synchronous functions to `async` with `await` calls to stop blocking the event loop (possibly causing issue #14).
+* Updated OpenAI API call retry logic:
+  * Instead of retrying indefinitely on 5XX errors, `retryRequest (bool)` was changed to `remainingRetryCount` which starts with the `OPENAI_MAX_RETRIES` environment setting.
+  * The retry loop decrements. Fatal errors (4XX) will immediately decrement the loop to `0` to prevent retry.
+* Fixed a big glitch in the `README.md` documentation:
+  * [Local execution](#local-execution) with `node` requires environment set up.
+* Added optional `BOT_LOG_DEBUG` environment setting to toggle `debug` logging level.
+* Added message collection for all messages (subject to `BOT_THREAD_RETAIN_SEC`) for upcoming features - [issue #14](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/14)
+* Bug fixes:
+  * Solved a bug in `pruneOldThreadMessages()` that would always result in one message not being pruned.
+
 ### 0.4.3 (2023-04-19)
-* Removed unused `DISCORD_GUILD_ID` and `DISCORD_CLIENT_ID` environment variables - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/20).
+* Removed unused `DISCORD_GUILD_ID` and `DISCORD_CLIENT_ID` environment settings - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/20).
 
 ### 0.4.2 (2023-04-18)
 * Added logging of non-sensitive startup parameters - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/15)
@@ -110,7 +141,7 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ### 0.4.1 (2023-04-18)
 * Added package `name:version` to startup logging.
 * Added conversational continuity.
-  * Requires new environment variables `BOT_THREAD_MODE=[channel|user]` and `BOT_THREAD_RETAIN_SEC=[seconds]`
+  * Requires new environment settings `BOT_THREAD_MODE=[channel|user]` and `BOT_THREAD_RETAIN_SEC=[seconds]`
   * ~~Experimental~~ Added Discord username to OpenAI prompt under optional `name` field.
     * This will remain in place! It allows the system prompt to treat different chat users uniquely.
 
