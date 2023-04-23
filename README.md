@@ -8,7 +8,8 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
-  * [0.4.20](#043-2023-04-20)
+  * [0.4.21](#0421-2023-04-23)
+  * [0.4.20](#0420-2023-04-20)
   * [0.4.3](#043-2023-04-19)
   * [0.4.2](#042-2023-04-18)
   * [0.4.1](#041-2023-04-18)
@@ -112,6 +113,20 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.21 (2023-04-23)
+* Added `HistoryMessageAnalysis` class that performs mood, sentiment, and tone analysis of `HistoryMessage` messages.
+* Added "break-glass" debug logging by creating a file named `DEBUG` (case-sensitive) to the app working directory. This enables debug logging without restarting the application.
+* Cleanup:
+  * Updated `Dockerfile` working directory from `/app` to `/usr/src/app`.
+  * Added `.dockerignore`
+  * Removed extraneous carriage returns in code for readability.
+  * Libraries:
+    * Moved some common bot code to `lib/lib-bot.js`.
+    * Moved more code to `lib/lib-discord.js` and `lib/lib-openai.js`.
+* Bug fixes:
+  * Fixed behavioral bug in `pruneMessageHistory()` - issue #26:
+    * Now only evaluates for expired TTL, irrespective of `threadSignature`.
 
 ### 0.4.20 (2023-04-20)
 * Refactored code into multiple .js files to better group functionality - [issue #16](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/16):
