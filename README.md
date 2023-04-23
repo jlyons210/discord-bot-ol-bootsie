@@ -8,7 +8,8 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
-  * [0.4.20](#043-2023-04-20)
+  * [0.4.21](#0421-2023-04-21)
+  * [0.4.20](#0420-2023-04-20)
   * [0.4.3](#043-2023-04-19)
   * [0.4.2](#042-2023-04-18)
   * [0.4.1](#041-2023-04-18)
@@ -112,6 +113,19 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.21 (2023-04-21)
+* Cleanup:
+  * Updated `Dockerfile` working directory from `/app` to `/usr/src/app`.
+  * Added `.dockerignore`
+  * Removed extraneous carriage returns in code for readability.
+  * Renamed libraries to `.jsm` extension.
+  * Libraries:
+    * Moved some common bot code to `lib/lib-bot.jsm`.
+    * Moved more code to `lib/lib-discord.jsm` and `lib/lib-openai.jsm`.
+* Bug fixes:
+  * Fixed behavioral bug in `pruneMessageHistory()` - issue #26:
+    * Now only evaluates for expired TTL, irrespective of `threadSignature`.
 
 ### 0.4.20 (2023-04-20)
 * Refactored code into multiple .js files to better group functionality - [issue #16](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/16):
