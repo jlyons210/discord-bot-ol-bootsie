@@ -1,10 +1,10 @@
 // Import modules
 const { name, version } = require('./package.json');
 const { Client, Events, GatewayIntentBits } = require('discord.js');
-const { log } = require('./lib/lib-bot.jsm');
-const libDiscord = require('./lib/lib-discord.jsm');
-const libOpenAi = require('./lib/lib-openai.jsm');
-const util = require('node:util');
+const { log } = require('./lib/lib-bot.js');
+const libDiscord = require('./lib/lib-discord.js');
+const libOpenAi = require('./lib/lib-openai.js');
+const util = require('util');
 
 // Ensure all required environment variables are set
 checkStartupEnviroment();
