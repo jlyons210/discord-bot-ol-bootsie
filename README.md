@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.4.24](#0424-2023-04-24)
   * [0.4.23](#0423-2023-04-23)
   * [0.4.22](#0422-2023-04-23)
   * [0.4.21](#0421-2023-04-23)
@@ -47,7 +48,7 @@ npm install
  BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
  BOT_THREAD_MODE=[channel|user] \
  BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
- DISCORD_APP_TOKEN=[insert value] \
+ DISCORD_BOT_TOKEN=[insert value] \
  OPENAI_API_KEY=[insert value] \
  OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
  OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
@@ -71,7 +72,7 @@ docker run -d \
   -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
   -e BOT_THREAD_MODE=[channel|user] \
   -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
-  -e DISCORD_APP_TOKEN=[insert value] \
+  -e DISCORD_BOT_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
@@ -101,7 +102,7 @@ docker run -d \
   -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
   -e BOT_THREAD_MODE=[channel|user] \
   -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
-  -e DISCORD_APP_TOKEN=[insert value] \
+  -e DISCORD_BOT_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
@@ -112,6 +113,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.24 (2023-04-24)
+* Issue #34 - `DISCORD_APP_TOKEN` in code actually required the Discord bot token from the Discord Developer Portal. Fixed naming for clarity.
 
 ### 0.4.23 (2023-04-23)
 * Issue #30 - `OPENAI_ORG_ID` was not fully removed from settings causing failed startup checks. Cleaned up.

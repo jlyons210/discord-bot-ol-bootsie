@@ -17,7 +17,7 @@ const discordClient = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
-discordClient.login(process.env.DISCORD_APP_TOKEN);
+discordClient.login(process.env.DISCORD_BOT_TOKEN);
 
 // Discord authentication complete
 discordClient.once(Events.ClientReady, async c => {
@@ -89,7 +89,7 @@ function checkStartupEnviroment() {
   const requiredEnvVars = [
     'BOT_THREAD_MODE',
     'BOT_THREAD_RETAIN_SEC',
-    'DISCORD_APP_TOKEN',
+    'DISCORD_BOT_TOKEN',
     'OPENAI_API_KEY',
     'OPENAI_MAX_RETRIES',
     'OPENAI_PARAM_MAX_TOKENS',
