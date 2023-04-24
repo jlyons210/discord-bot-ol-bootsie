@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.4.22](#0422-2023-04-23)
   * [0.4.21](#0421-2023-04-23)
   * [0.4.20](#0420-2023-04-20)
   * [0.4.3](#043-2023-04-19)
@@ -48,7 +49,6 @@ npm install
  DISCORD_APP_TOKEN=[insert value] \
  OPENAI_API_KEY=[insert value] \
  OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
- OPENAI_ORG_ID=[insert value] \
  OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
  OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
  OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
@@ -73,7 +73,6 @@ docker run -d \
   -e DISCORD_APP_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
-  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
@@ -104,7 +103,6 @@ docker run -d \
   -e DISCORD_APP_TOKEN=[insert value] \
   -e OPENAI_API_KEY=[insert value] \
   -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
-  -e OPENAI_ORG_ID=[insert value] \
   -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
   -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
@@ -114,8 +112,14 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ## Version history
 
+### 0.4.22 (2023-04-23)
+* FR issue #24 - Have OpenAI API generate try-again messages sent as chat responses.
+* Cleanup:
+  * Removed `OPENAI_ORG_ID` from environment settings.
+
 ### 0.4.21 (2023-04-23)
 * Added `HistoryMessageAnalysis` class that performs mood, sentiment, and tone analysis of `HistoryMessage` messages.
+* Added support for one-off prompt payloads and responses. Meant for internal use by the application for generating message analysis and things like error responses sent to chat.
 * Added "break-glass" debug logging by creating a file named `DEBUG` (case-sensitive) to the app working directory. This enables debug logging without restarting the application.
 * Cleanup:
   * Updated `Dockerfile` working directory from `/app` to `/usr/src/app`.
