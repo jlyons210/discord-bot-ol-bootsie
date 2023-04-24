@@ -92,7 +92,6 @@ function checkStartupEnviroment() {
     'DISCORD_APP_TOKEN',
     'OPENAI_API_KEY',
     'OPENAI_MAX_RETRIES',
-    'OPENAI_ORG_ID',
     'OPENAI_PARAM_MAX_TOKENS',
     'OPENAI_PARAM_MODEL',
     'OPENAI_PARAM_SYSTEM_PROMPT',
