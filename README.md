@@ -112,6 +112,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ## Version history
 
+### 0.4.23 (2023-04-23)
+* Issue #30 - `OPENAI_ORG_ID` was not fully removed from settings causing failed startup checks. Cleaned up.
+
 ### 0.4.22 (2023-04-23)
 * FR issue #24 - Have OpenAI API generate try-again messages sent as chat responses.
 * Cleanup:
