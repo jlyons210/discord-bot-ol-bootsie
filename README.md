@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.4.25](#0425-2023-04-24)
   * [0.4.24](#0424-2023-04-24)
   * [0.4.23](#0423-2023-04-23)
   * [0.4.22](#0422-2023-04-23)
@@ -113,6 +114,10 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.4.25 (2023-04-24)
+* Issue #33 - Startup configuration was a bit clunky, with a lot of required environment settings that could easily be defaults.
+  * Created `def-environment.json` to store configurable environment variables with allowed values, default values, and whether the values are required as inputs or are secrets.
 
 ### 0.4.24 (2023-04-24)
 * Issue #34 - `DISCORD_APP_TOKEN` in code actually required the Discord bot token from the Discord Developer Portal. Fixed naming for clarity.
