@@ -1,11 +1,11 @@
 // Import modules
 const { name, version } = require('./package.json');
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { ChannelType, Client, Events, GatewayIntentBits, Partials } = require('discord.js');
 const configTemplate = require('./lib/lib-config-template');
 const { log } = require('./lib/lib-bot');
 const libDiscord = require('./lib/lib-discord');
 const libOpenAi = require('./lib/lib-openai');
-const util = require('util');
+const { inspect } = require('util');
 
 // Ensure all required environment variables are set
 configTemplate.validateStartupSettings();
@@ -13,9 +13,13 @@ configTemplate.validateStartupSettings();
 // Create and authenticate Discord client
 const discordClient = new Client({
   intents: [
+    GatewayIntentBits.DirectMessages,
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+  ],
+  partials: [
+    Partials.Channel,
   ],
 });
 discordClient.login(process.env.DISCORD_BOT_TOKEN);
@@ -32,14 +36,19 @@ const messageHistory = [];
 // Discord channel message listener
 discordClient.on(Events.MessageCreate, async discordMessage => {
 
+  // Bot engagement conditions
+  const isBotAtMention = await libDiscord.botIsMentionedInMessage(discordMessage, discordClient.user.id);
+  const isDirectMessageToBot = (discordMessage.channel.type == ChannelType.DM &&
+                                discordMessage.author.id != discordClient.user.id);
+
   // Assign thread signature {guild}:{channel}[:{user}]
   const threadSignature = await libDiscord.getThreadSignature(discordMessage);
 
   // Get processed message text from discordMessage object
   const messageText = await libDiscord.getMessageText(discordMessage, discordClient.user.id);
 
-  // If bot is @-mentioned, engage and respond directly
-  if (await libDiscord.botIsMentionedInMessage(discordMessage, discordClient.user.id)) {
+  // If bot is @-mentioned, or is engaged via direct message, engage and respond directly
+  if (isBotAtMention || isDirectMessageToBot) {
 
     // Add prompt to chat history
     messageHistory.push(
@@ -48,7 +57,7 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
 
     // Construct prompt payload
     const payload = await libOpenAi.constructPromptPayload(messageHistory, threadSignature);
-    await log(`payload =\n${util.inspect(payload, false, null, true)}`, 'debug');
+    await log(`payload =\n${inspect(payload, false, null, true)}`, 'debug');
 
     // Poll OpenAI API and send message to Discord channel
     const responseText = await libOpenAi.requestChatCompletion(payload);
