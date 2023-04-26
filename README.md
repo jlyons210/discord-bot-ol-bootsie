@@ -8,7 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
-  * [0.4.25](#0425-2023-04-24)
+  * [0.5.0](#050-2023-04-25)
   * [0.4.24](#0424-2023-04-24)
   * [0.4.23](#0423-2023-04-23)
   * [0.4.22](#0422-2023-04-23)
@@ -44,18 +44,18 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 npm install
 ```
-* Run:
+* Run (variables with acceptable defaults may be omitted):
 ```
- BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
- BOT_THREAD_MODE=[channel|user] \
- BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
- DISCORD_BOT_TOKEN=[insert value] \
- OPENAI_API_KEY=[insert value] \
- OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
- OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
- OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
- OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
- OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
+ BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
+ BOT_THREAD_MODE=[channel|user - default: channel] \
+ BOT_THREAD_RETAIN_SEC=[default: 600] \
+ DISCORD_BOT_TOKEN=[bot token] \
+ OPENAI_API_KEY=[API key] \
+ OPENAI_MAX_RETRIES=[default: 5] \
+ OPENAI_PARAM_MAX_TOKENS=[default: 500] \
+ OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
+ OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
+ OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
 node .
 ```
 
@@ -67,19 +67,19 @@ node .
 docker pull jlyons210/discord-bot-ol-bootsie:latest
 ```
 
-* Run container:
+* Run container (variables with acceptable defaults may be omitted):
 ```
 docker run -d \
-  -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
-  -e BOT_THREAD_MODE=[channel|user] \
-  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 600] \
-  -e DISCORD_BOT_TOKEN=[insert value] \
-  -e OPENAI_API_KEY=[insert value] \
-  -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
-  -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
-  -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
-  -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
-  -e OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
+  -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
+  -e BOT_THREAD_MODE=[channel|user - default: channel] \
+  -e BOT_THREAD_RETAIN_SEC=[default: 600] \
+  -e DISCORD_BOT_TOKEN=[bot token] \
+  -e OPENAI_API_KEY=[API key] \
+  -e OPENAI_MAX_RETRIES=[default: 5] \
+  -e OPENAI_PARAM_MAX_TOKENS=[default: 500] \
+  -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
+  -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
+  -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
 discord-bot-ol-bootsie:latest
 ```
 
@@ -97,27 +97,34 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
-* Run container:
+* Run container (variables with acceptable defaults may be omitted):
 ```
 docker run -d \
-  -e BOT_LOG_DEBUG=[enabled|disabled|not set - this is an optional setting] \
-  -e BOT_THREAD_MODE=[channel|user] \
-  -e BOT_THREAD_RETAIN_SEC=[insert value - suggested starter: 300] \
-  -e DISCORD_BOT_TOKEN=[insert value] \
-  -e OPENAI_API_KEY=[insert value] \
-  -e OPENAI_MAX_RETRIES=[insert value - suggested starter: 5] \
-  -e OPENAI_PARAM_MAX_TOKENS=[insert value - suggested starter: 500] \
-  -e OPENAI_PARAM_MODEL=[insert value - suggested starter: gpt-3.5-turbo] \
-  -e OPENAI_PARAM_SYSTEM_PROMPT=["Add a system prompt that describes how the chat bot should behave"]
-  -e OPENAI_PARAM_TEMPERATURE=[insert value - suggested starter: 0.6] \
+  -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
+  -e BOT_THREAD_MODE=[channel|user - default: channel] \
+  -e BOT_THREAD_RETAIN_SEC=[default: 600] \
+  -e DISCORD_BOT_TOKEN=[bot token] \
+  -e OPENAI_API_KEY=[API key] \
+  -e OPENAI_MAX_RETRIES=[default: 5] \
+  -e OPENAI_PARAM_MAX_TOKENS=[default: 500] \
+  -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
+  -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
+  -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
 discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
 
-### 0.4.25 (2023-04-24)
-* Issue #33 - Startup configuration was a bit clunky, with a lot of required environment settings that could easily be defaults.
-  * Created `def-environment.json` to store configurable environment variables with allowed values, default values, and whether the values are required as inputs or are secrets.
+### 0.5.0 (2023-04-25)
+* Issue #33 - Rebuilt startup environment checking. It was clunky and not extensible.
+  * Created `.config-template.json` to store and define attributes for expected environment variables/settings.
+    * `name`: (string) The name of the environment variable, e.g. `BOT_LOG_DEBUG`.
+    * `allowedValues`: (string/list) Pre-defined acceptable input values.
+    * `defaultValue`: (string/number) Pre-defined default value, so it doesn't need to be provided at runtime!
+    * `required`: (bool) Whether or not the user must provide the value, e.g. API keys.
+    * `secret`: (bool) Whether or not the configured value is a secret - causes it to be displayed masked, e.g. API keys.
+    with allowed values, default values, and whether the values are required as inputs or are secrets.
+  * Updated `README.md` launch instructions.
 
 ### 0.4.24 (2023-04-24)
 * Issue #34 - `DISCORD_APP_TOKEN` in code actually required the Discord bot token from the Discord Developer Portal. Fixed naming for clarity.
