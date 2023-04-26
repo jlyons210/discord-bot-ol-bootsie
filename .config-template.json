@@ -1,0 +1,78 @@
+{
+  "configTemplate": [
+    {
+      "name": "BOT_LOG_DEBUG",
+      "allowedValues": [ "enabled", "disabled" ],
+      "defaultValue": "disabled",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_THREAD_MODE",
+      "allowedValues": [ "channel", "user" ],
+      "defaultValue": "channel",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_THREAD_RETAIN_SEC",
+      "allowedValues": 0,
+      "defaultValue": 600,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "DISCORD_BOT_TOKEN",
+      "allowedValues": "",
+      "defaultValue": "",
+      "required": true,
+      "secret": true
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "allowedValues": "",
+      "defaultValue": "",
+      "required": true,
+      "secret": true
+    },
+    {
+      "name": "OPENAI_MAX_RETRIES",
+      "allowedValues": 0,
+      "defaultValue": 5,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "OPENAI_PARAM_MAX_TOKENS",
+      "allowedValues": 0,
+      "defaultValue": 500,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "OPENAI_PARAM_MODEL",
+      "allowedValues":
+        [
+          "gpt-4", "gpt-4-0314", "gpt-4-32k", "gpt-4-32k-0314",
+          "gpt-3.5-turbo", "gpt-3.5-turbo-0301"
+        ],
+      "defaultValue": "gpt-3.5-turbo",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "OPENAI_PARAM_SYSTEM_PROMPT",
+      "allowedValues": "",
+      "defaultValue": "",
+      "required": true,
+      "secret": false
+    },
+    {
+      "name": "OPENAI_PARAM_TEMPERATURE",
+      "allowedValues": 0,
+      "defaultValue": 0.6,
+      "required": false,
+      "secret": false
+    }
+  ]
+}

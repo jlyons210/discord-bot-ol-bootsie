@@ -1,13 +1,14 @@
 // Import modules
 const { name, version } = require('./package.json');
 const { Client, Events, GatewayIntentBits } = require('discord.js');
+const configTemplate = require('./lib/lib-config-template');
 const { log } = require('./lib/lib-bot');
 const libDiscord = require('./lib/lib-discord');
 const libOpenAi = require('./lib/lib-openai');
 const util = require('util');
 
 // Ensure all required environment variables are set
-checkStartupEnviroment();
+configTemplate.validateStartupSettings();
 
 // Create and authenticate Discord client
 const discordClient = new Client({
@@ -21,7 +22,6 @@ discordClient.login(process.env.DISCORD_BOT_TOKEN);
 
 // Discord authentication complete
 discordClient.once(Events.ClientReady, async c => {
-  await logStartupEnvironment();
   await log(`Logged in as ${c.user.tag}`, 'info');
   await log(`${name}:${version} ready!`, 'info');
 });
@@ -69,72 +69,13 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
       new libDiscord.HistoryMessage(threadSignature, messageText, false, discordMessage.author.username, 'user'),
     );
 
-    // // Bot saw the message, what to do now?
-    // const messageSentiment = libOpenAi.analyzeMessageSentiment(message);
-    // const messageMood = libOpenAi.analyzeMessageMood(message);
-    // const messageTone = libOpenAi.analyzeMessageTone(message);
+    // Bot saw the message, what to do now?
 
   }
 
-  // Perform housekeeping
-  // Purge expired messages
+  /* Perform housekeeping
+   * - Purge expired messages
+   */
   await libDiscord.pruneOldThreadMessages(messageHistory);
 
 });
-
-// Validate environment variables
-function checkStartupEnviroment() {
-
-  // Required environment variables
-  const requiredEnvVars = [
-    'BOT_THREAD_MODE',
-    'BOT_THREAD_RETAIN_SEC',
-    'DISCORD_BOT_TOKEN',
-    'OPENAI_API_KEY',
-    'OPENAI_MAX_RETRIES',
-    'OPENAI_PARAM_MAX_TOKENS',
-    'OPENAI_PARAM_MODEL',
-    'OPENAI_PARAM_SYSTEM_PROMPT',
-    'OPENAI_PARAM_TEMPERATURE',
-  ];
-
-  let quitError = false;
-
-  // Check that each required environment variable is set
-  requiredEnvVars.forEach(envVar => {
-    if (!process.env[envVar]) {
-      log(`Environment variable not set: ${envVar}`, 'error');
-      quitError = true;
-    }
-  });
-
-  // Quit with uncaught error if any environment variable is not set
-  if (quitError) {
-    log('Environment variables are not configured correctly. See documentation on GitHub.', 'error');
-    throw (new Error('Configuration error exit.'));
-  }
-
-}
-
-// Log environment variables (at startup)
-async function logStartupEnvironment() {
-
-  // Environment variables with secrets are not logged
-  const safeEnvVars = [
-    'BOT_LOG_DEBUG',
-    'BOT_THREAD_MODE',
-    'BOT_THREAD_RETAIN_SEC',
-    'OPENAI_MAX_RETRIES',
-    'OPENAI_PARAM_MAX_TOKENS',
-    'OPENAI_PARAM_MODEL',
-    'OPENAI_PARAM_SYSTEM_PROMPT',
-    'OPENAI_PARAM_TEMPERATURE',
-  ];
-
-  // Log startup config
-  await log('Startup config (secrets excluded):', 'info');
-  safeEnvVars.forEach(async envVar => {
-    await log(`${envVar} = ${process.env[envVar]}`, 'info');
-  });
-
-}
