@@ -118,6 +118,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ## Version history
 
+### 0.6.3 (2023-04-30)
+* Issue #39 - Moved libDiscord.pruneOldThreadMessages() from the message received handler to a 15 second timer job to prevent extraneous executions and debug logging.
+
 ### 0.6.2 (2023-04-30)
 * Issue #42 - Bot now replies to the comment that prompted its response in channels.
 
