@@ -85,7 +85,12 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
     // Respond to channel
     discordResponse.forEach(async responseText => {
       try {
-        await discordMessage.channel.send(responseText);
+        if (isDirectMessageToBot) {
+          await discordMessage.channel.send(responseText);
+        }
+        else {
+          await discordMessage.reply(responseText);
+        }
       }
       catch (error) {
         log(inspect(error, false, null, true), 'error');
