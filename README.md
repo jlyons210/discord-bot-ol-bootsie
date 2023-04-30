@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.6.2](#062-2023-04-30)
   * [0.6.1](#061-2023-04-30)
   * [0.6.0](#060-2023-04-26)
   * [0.5.0](#050-2023-04-25)
@@ -116,6 +117,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.6.2 (2023-04-30)
+* Issue #42 - Bot now replies to the comment that prompted its response in channels.
 
 ### 0.6.1 (2023-04-30)
 * Issue #36 - Fixed OpenAI response >2000 characters being rejected by Discord channel.send().
