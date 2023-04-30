@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.6.1](#061-2023-04-30)
   * [0.6.0](#060-2023-04-26)
   * [0.5.0](#050-2023-04-25)
   * [0.4.24](#0424-2023-04-24)
@@ -115,6 +116,11 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.6.1 (2023-04-30)
+* Issue #36 - Fixed OpenAI response >2000 characters being rejected by Discord channel.send().
+  * Breaks multi-paragraph responses >2000 characters into a channel.send() paragraph.
+  * There are still some possibilities for issues, like long code blocks being broken, or >2000 character unbroken paragraphs being too long. Will monitor and address later if needed.
 
 ### 0.6.0 (2023-04-26)
 * Issue #9 - Added bot direct message support. You can now DM the bot, no @-mention needed!

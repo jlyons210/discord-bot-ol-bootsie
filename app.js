@@ -1,7 +1,13 @@
 // Import modules
 const { name, version } = require('./package.json');
-const { ChannelType, Client, Events, GatewayIntentBits, Partials } = require('discord.js');
 const configTemplate = require('./lib/lib-config-template');
+const {
+  ChannelType,
+  Client,
+  Events,
+  GatewayIntentBits,
+  Partials,
+} = require('discord.js');
 const { log } = require('./lib/lib-bot');
 const libDiscord = require('./lib/lib-discord');
 const libOpenAi = require('./lib/lib-openai');
@@ -18,15 +24,13 @@ const discordClient = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
-  partials: [
-    Partials.Channel,
-  ],
+  partials: [ Partials.Channel ],
 });
 discordClient.login(process.env.DISCORD_BOT_TOKEN);
 
 // Discord authentication complete
-discordClient.once(Events.ClientReady, async c => {
-  await log(`Logged in as ${c.user.tag}`, 'info');
+discordClient.once(Events.ClientReady, async client => {
+  await log(`Logged in as ${client.user.tag}`, 'info');
   await log(`${name}:${version} ready!`, 'info');
 });
 
@@ -38,8 +42,10 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
 
   // Bot engagement conditions
   const isBotAtMention = await libDiscord.botIsMentionedInMessage(discordMessage, discordClient.user.id);
-  const isDirectMessageToBot = (discordMessage.channel.type == ChannelType.DM &&
-                                discordMessage.author.id != discordClient.user.id);
+  const isDirectMessageToBot = (
+    discordMessage.channel.type == ChannelType.DM &&
+    discordMessage.author.id != discordClient.user.id
+  );
 
   // Assign thread signature {guild}:{channel}[:{user}]
   const threadSignature = await libDiscord.getThreadSignature(discordMessage);
@@ -60,31 +66,53 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
     await log(`payload =\n${inspect(payload, false, null, true)}`, 'debug');
 
     // Poll OpenAI API and send message to Discord channel
-    const responseText = await libOpenAi.requestChatCompletion(payload);
+    const openAiResponseText = await libOpenAi.requestChatCompletion(payload);
 
     // Add response to chat history
     messageHistory.push(
-      new libDiscord.HistoryMessage(threadSignature, responseText, true, process.env.OPENAI_PARAM_MODEL, 'assistant'),
+      new libDiscord.HistoryMessage(
+        threadSignature,
+        openAiResponseText,
+        true,
+        process.env.OPENAI_PARAM_MODEL,
+        'assistant',
+      ),
     );
 
-    // Send response to Discord channel
-    discordMessage.channel.send(responseText);
+    // Paginate response
+    const discordResponse = await libDiscord.paginateResponse(openAiResponseText);
+
+    // Respond to channel
+    discordResponse.forEach(async responseText => {
+      try {
+        await discordMessage.channel.send(responseText);
+      }
+      catch (error) {
+        log(inspect(error, false, null, true), 'error');
+        await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
+      }
+    });
 
   }
   else {
 
     // Add channel text to chat history
     messageHistory.push(
-      new libDiscord.HistoryMessage(threadSignature, messageText, false, discordMessage.author.username, 'user'),
+      new libDiscord.HistoryMessage(
+        threadSignature,
+        messageText,
+        false,
+        discordMessage.author.username,
+        'user',
+      ),
     );
 
     // Bot saw the message, what to do now?
 
   }
 
-  /* Perform housekeeping
-   * - Purge expired messages
-   */
+  // Perform housekeeping
+  // - Purge expired messages - opened issue #39, run on a timer job
   await libDiscord.pruneOldThreadMessages(messageHistory);
 
 });
