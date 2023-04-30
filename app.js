@@ -34,6 +34,11 @@ discordClient.once(Events.ClientReady, async client => {
   await log(`${name}:${version} ready!`, 'info');
 });
 
+// Timer jobs
+setInterval(async () => {
+  libDiscord.pruneOldThreadMessages(messageHistory);
+}, 15000);
+
 // Create history (heh)
 const messageHistory = [];
 
@@ -115,9 +120,5 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
     // Bot saw the message, what to do now?
 
   }
-
-  // Perform housekeeping
-  // - Purge expired messages - opened issue #39, run on a timer job
-  await libDiscord.pruneOldThreadMessages(messageHistory);
 
 });
