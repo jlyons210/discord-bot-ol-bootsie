@@ -1,13 +1,7 @@
 // Import modules
 const { name, version } = require('./package.json');
 const configTemplate = require('./lib/lib-config-template');
-const {
-  ChannelType,
-  Client,
-  Events,
-  GatewayIntentBits,
-  Partials,
-} = require('discord.js');
+const { ChannelType, Client, Events, GatewayIntentBits, Partials } = require('discord.js');
 const { log } = require('./lib/lib-bot');
 const libDiscord = require('./lib/lib-discord');
 const libOpenAi = require('./lib/lib-openai');
@@ -47,10 +41,8 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
 
   // Bot engagement conditions
   const isBotAtMention = await libDiscord.botIsMentionedInMessage(discordMessage, discordClient.user.id);
-  const isDirectMessageToBot = (
-    discordMessage.channel.type == ChannelType.DM &&
-    discordMessage.author.id != discordClient.user.id
-  );
+  const isOwnMessage = (discordMessage.author.id == discordClient.user.id);
+  const isDirectMessageToBot = (discordMessage.channel.type == ChannelType.DM && !isOwnMessage);
 
   // Assign thread signature {guild}:{channel}[:{user}]
   const threadSignature = await libDiscord.getThreadSignature(discordMessage);
@@ -117,7 +109,15 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
       ),
     );
 
-    // Bot saw the message, what to do now?
+    if (!isOwnMessage) {
+
+      // React to messages with configured probability
+      libDiscord.reactToMessageProbably(discordMessage, messageText);
+
+      // Engage in conversation with configured probability
+      libDiscord.engageChatProbably(discordMessage, messageHistory);
+
+    }
 
   }
 

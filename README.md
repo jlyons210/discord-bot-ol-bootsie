@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.7.0](#070-2023-04-30)
   * [0.6.4](#064-2023-04-30)
   * [0.6.3](#063-2023-04-30)
   * [0.6.2](#062-2023-04-30)
@@ -119,6 +120,12 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.7.0 (2023-04-30)
+* Issue #13 - Bots will now engage and react to channel comments, unpropmted!
+  * Added new config settings:
+    * `BOT_PCT_ENGAGE` - a decimal percentage value from 0.0-1.0 defining the probability that a bot will engage in comments.
+    * `BOT_PCT_REACT` - a decimal percentage value from 0.0-1.0 defining the probability that a bot will react to comments.
 
 ### 0.6.4 (2023-04-30)
 * Issue #46 - A bot @-mention with additional bots tagged will now strip the other bot tags instead of translating to name.
