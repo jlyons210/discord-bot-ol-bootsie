@@ -56,7 +56,7 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
   const threadSignature = await libDiscord.getThreadSignature(discordMessage);
 
   // Get processed message text from discordMessage object
-  const messageText = await libDiscord.getMessageText(discordMessage, discordClient.user.id);
+  const messageText = await libDiscord.getMessageText(discordMessage);
 
   // If bot is @-mentioned, or is engaged via direct message, engage and respond directly
   if (isBotAtMention || isDirectMessageToBot) {
