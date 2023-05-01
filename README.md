@@ -8,6 +8,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
   * [Container execution from Docker Hub](#container-execution-from-docker-hub)
   * [Container execution from source](#container-execution-from-source)
 * [Version History](#version-history)
+  * [0.6.4](#064-2023-04-30)
   * [0.6.3](#063-2023-04-30)
   * [0.6.2](#062-2023-04-30)
   * [0.6.1](#061-2023-04-30)
@@ -118,6 +119,10 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
 ## Version history
+
+### 0.6.4 (2023-04-30)
+* Issue #46 - A bot @-mention with additional bots tagged will now strip the other bot tags instead of translating to name.
+  * Sometimes bots take other bot names into consideration in their prompt responses, which is undesired behavior.
 
 ### 0.6.3 (2023-04-30)
 * Issue #39 - Moved libDiscord.pruneOldThreadMessages() from the message received handler to a 15 second timer job to prevent extraneous executions and debug logging.
