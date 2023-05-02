@@ -112,10 +112,12 @@ discordClient.on(Events.MessageCreate, async discordMessage => {
     if (!isOwnMessage) {
 
       // React to messages with configured probability
-      libDiscord.reactToMessageProbably(discordMessage, messageText);
+      libDiscord.probablyReactToMessage(discordMessage, messageText);
+
+      // TODO: do not do this in a DM chat
 
       // Engage in conversation with configured probability
-      libDiscord.engageChatProbably(discordMessage, messageHistory);
+      libDiscord.probablyEngageInConversation(discordMessage, messageHistory, threadSignature);
 
     }
 
