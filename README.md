@@ -5,8 +5,9 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 * [Requirements](#requirements)
 * [Setup](#setup)
   * [Local Execution](#local-execution)
-  * [Container execution from Docker Hub](#container-execution-from-docker-hub)
-  * [Container execution from source](#container-execution-from-source)
+  * [Obtaining the container from Docker Hub](#obtaining-the-container-from-docker-hub)
+  * [Building the container from source](#building-the-container-from-source)
+  * [Running the container](#running-the-container)
 * [Version History](#version-history)
   * [0.7.0](#070-2023-05-02)
   * [0.6.4](#064-2023-04-30)
@@ -38,7 +39,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 
 ### Local execution
 > Requires the `git`, `nodejs`, and `npm` packages.
-* Clone this repo:
+Clone this repo:
 ```
 git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
 ```
