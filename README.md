@@ -108,6 +108,8 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 * 0.2.x: [0.2.0](#020-2023-04-16)
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
+---
+
 ### 0.7.0 (2023-05-02)
 * Issue #13 - Bots will now engage and react to channel comments, unprompted!
   * Added new config settings:
