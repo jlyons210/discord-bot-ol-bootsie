@@ -1,23 +1,30 @@
 {
   "configTemplate": [
     {
+      "name": "BOT_AUTO_ENGAGE_MIN_MESSAGES",
+      "allowedValues": 0,
+      "defaultValue": 6,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_AUTO_ENGAGE_PROBABILITY",
+      "allowedValues": 0,
+      "defaultValue": 0.2,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_AUTO_REACT_PROBABILITY",
+      "allowedValues": 0,
+      "defaultValue": 0.2,
+      "required": false,
+      "secret": false
+    },
+    {
       "name": "BOT_LOG_DEBUG",
       "allowedValues": [ "enabled", "disabled" ],
       "defaultValue": "disabled",
-      "required": false,
-      "secret": false
-    },
-    {
-      "name": "BOT_PCT_ENGAGE",
-      "allowedValues": 0,
-      "defaultValue": 0.2,
-      "required": false,
-      "secret": false
-    },
-    {
-      "name": "BOT_PCT_REACT",
-      "allowedValues": 0,
-      "defaultValue": 0.2,
       "required": false,
       "secret": false
     },
