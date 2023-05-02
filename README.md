@@ -4,10 +4,11 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 ## Table of contents
 * [Requirements](#requirements)
 * [Setup](#setup)
-  * [Local Execution](#local-execution)
-  * [Obtaining the container from Docker Hub](#obtaining-the-container-from-docker-hub)
-  * [Building the container from source](#building-the-container-from-source)
-  * [Running the container](#running-the-container)
+  * [Local execution](#local-execution)
+  * [Container execution](#container-execution)
+    * [Obtaining the container from Docker Hub](#obtaining-the-container-from-docker-hub)
+    * [Building the container from source](#building-the-container-from-source)
+    * [Running the container](#running-the-container)
 * [Version History](#version-history)
   * [0.7.0](#070-2023-05-02)
   * [0.6.4](#064-2023-04-30)
@@ -71,7 +72,9 @@ Run the application:
 node .
 ```
 
-### Obtaining the container from Docker Hub
+### Container execution
+
+#### Obtaining the container from Docker Hub
 > Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
 
 Pull image from Docker Hub:
@@ -79,7 +82,7 @@ Pull image from Docker Hub:
 docker pull jlyons210/discord-bot-ol-bootsie:latest
 ```
 
-### Building the container from source
+#### Building the container from source
 > Requires the `jq` package and Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
 Clone this repo:
 ```
@@ -94,7 +97,7 @@ Build container image:
 docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
 
-### Running the container
+#### Running the container
 > Configuration settings with acceptable defaults may be omitted.
 ```
 docker run -d \
