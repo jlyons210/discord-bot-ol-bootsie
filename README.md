@@ -4,29 +4,12 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 ## Table of contents
 * [Requirements](#requirements)
 * [Setup](#setup)
-  * [Local Execution](#local-execution)
-  * [Container execution from Docker Hub](#container-execution-from-docker-hub)
-  * [Container execution from source](#container-execution-from-source)
-* [Version History](#version-history)
-  * [0.6.4](#064-2023-04-30)
-  * [0.6.3](#063-2023-04-30)
-  * [0.6.2](#062-2023-04-30)
-  * [0.6.1](#061-2023-04-30)
-  * [0.6.0](#060-2023-04-26)
-  * [0.5.0](#050-2023-04-25)
-  * [0.4.24](#0424-2023-04-24)
-  * [0.4.23](#0423-2023-04-23)
-  * [0.4.22](#0422-2023-04-23)
-  * [0.4.21](#0421-2023-04-23)
-  * [0.4.20](#0420-2023-04-20)
-  * [0.4.3](#043-2023-04-19)
-  * [0.4.2](#042-2023-04-18)
-  * [0.4.1](#041-2023-04-18)
-  * [0.4.0](#040-2023-04-17)
-  * [0.3.1](#031-2023-04-17)
-  * [0.3.0](#030-2023-04-17)
-  * [0.2.0](#020-2023-04-16)
-  * [0.1.0](#010-2023-04-14)
+  * [Local execution](#local-execution)
+  * [Container execution](#container-execution)
+    * [Obtaining the container from Docker Hub](#obtaining-the-container-from-docker-hub)
+    * [Building the container from source](#building-the-container-from-source)
+    * [Running the container](#running-the-container)
+* [Release history](#release-history)
 
 ## Requirements
 * Create an application and bot via the [Discord Developer Portal](https://discord.com/developers/).
@@ -36,8 +19,9 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 ## Setup
 
 ### Local execution
-* Requires `git`, `nodejs`, and `npm` packages
-* Clone this repo:
+> Requires the `git`, `nodejs`, and `npm` packages.
+
+Clone this repo:
 ```
 git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
 ```
@@ -45,12 +29,16 @@ or...
 ```
 git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
-* Install dependencies:
+Install dependencies:
 ```
 npm install
 ```
-* Run (variables with acceptable defaults may be omitted):
+Run the application:
+> Configuration settings with acceptable defaults may be omitted.
 ```
+ BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
+ BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
+ BOT_AUTO_REACT_PROBABILITY=[default: 0.2] \
  BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
  BOT_THREAD_MODE=[channel|user - default: channel] \
  BOT_THREAD_RETAIN_SEC=[default: 600] \
@@ -64,33 +52,19 @@ npm install
 node .
 ```
 
-### Container execution from Docker Hub
-* Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
-* Pull image from Docker Hub:
+### Container execution
 
+#### Obtaining the container from Docker Hub
+> Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
+
+Pull image from Docker Hub:
 ```
 docker pull jlyons210/discord-bot-ol-bootsie:latest
 ```
 
-* Run container (variables with acceptable defaults may be omitted):
-```
-docker run -d \
-  -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
-  -e BOT_THREAD_MODE=[channel|user - default: channel] \
-  -e BOT_THREAD_RETAIN_SEC=[default: 600] \
-  -e DISCORD_BOT_TOKEN=[bot token] \
-  -e OPENAI_API_KEY=[API key] \
-  -e OPENAI_MAX_RETRIES=[default: 5] \
-  -e OPENAI_PARAM_MAX_TOKENS=[default: 500] \
-  -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
-  -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
-  -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
-discord-bot-ol-bootsie:latest
-```
-
-### Container execution from source
-* Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
-* Clone this repo:
+#### Building the container from source
+> Requires the `jq` package and Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
+Clone this repo:
 ```
 git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
 ```
@@ -98,13 +72,18 @@ or...
 ```
 git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
-* Build container image:
+Build container image:
 ```
 docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
-* Run container (variables with acceptable defaults may be omitted):
+
+#### Running the container
+> Configuration settings with acceptable defaults may be omitted.
 ```
 docker run -d \
+  -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
+  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
+  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.2] \
   -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
   -e BOT_THREAD_MODE=[channel|user - default: channel] \
   -e BOT_THREAD_RETAIN_SEC=[default: 600] \
@@ -118,7 +97,26 @@ docker run -d \
 discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ```
 
-## Version history
+## Release history
+
+### Shortcuts:
+* 0.7.x: [0.7.0](#070-2023-05-02)
+* 0.6.x: [0.6.0](#060-2023-04-26), [0.6.1](#061-2023-04-30), [0.6.2](#062-2023-04-30), [0.6.3](#063-2023-04-30), [0.6.4](#064-2023-04-30)
+* 0.5.x: [0.5.0](#050-2023-04-25)
+* 0.4.x: [0.4.0](#040-2023-04-17), [0.4.1](#041-2023-04-18), [0.4.2](#042-2023-04-18), [0.4.3](#043-2023-04-19), [0.4.20](#0420-2023-04-20), [0.4.21](#0421-2023-04-23), [0.4.22](#0422-2023-04-23), [0.4.23](#0423-2023-04-23), [0.4.24](#0424-2023-04-24)
+* 0.3.x: [0.3.0](#030-2023-04-17), [0.3.1](#031-2023-04-17)
+* 0.2.x: [0.2.0](#020-2023-04-16)
+* 0.1.x: [0.1.0](#010-2023-04-14)
+
+---
+
+### 0.7.0 (2023-05-02)
+* Issue #13 - Bots will now engage and react to channel comments, unprompted!
+  * Added new config settings:
+    * `BOT_AUTO_ENGAGE_MIN_MESSAGES` - a minimum number of messages required for a bot to automatically engage in conversation.
+    * `BOT_AUTO_ENGAGE_PROBABILITY` - a decimal percentage value from 0.0-1.0 defining the probability that a bot will engage in comments.
+    * `BOT_AUTO_REACT_PROBABILITY` - a decimal percentage value from 0.0-1.0 defining the probability that a bot will react to comments.
+  * I expect this will be a funky release, so upgrade at your own peril. I'll be running for a while and fine-tuning the behavior.
 
 ### 0.6.4 (2023-04-30)
 * Issue #46 - A bot @-mention with additional bots tagged will now strip the other bot tags instead of translating to name.
