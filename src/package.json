@@ -1,9 +1,10 @@
 {
   "name": "discord-bot-ol-bootsie",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI API.",
   "main": "app.js",
   "scripts": {
+    "start": "ts-node .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -25,6 +26,7 @@
     "openai": "^3.2.1"
   },
   "devDependencies": {
-    "eslint": "^8.38.0"
+    "eslint": "^8.38.0",
+    "ts-node": "^10.9.1"
   }
 }
