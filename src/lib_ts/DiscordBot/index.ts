@@ -1,2 +1,2 @@
-import { DiscordBot } from '../../lib/lib-discord';
+import { DiscordBot } from './DiscordBot';
 export { DiscordBot };

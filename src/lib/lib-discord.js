@@ -6,7 +6,7 @@ const libOpenAi = require('./lib-openai');
 module.exports.DiscordBot = new class {
 
   // Global constants
-  discordMaxMessageLength: number = 2000;
+    discordMaxMessageLength = 2000;
   messageHistory = [];
 
   // Create and authenticate Discord client
@@ -25,7 +25,7 @@ module.exports.DiscordBot = new class {
     this.discordClient.login(process.env.DISCORD_BOT_TOKEN);
 
     // Prune old message history
-    setInterval(async function () {
+        setInterval(async function () {
       await this.pruneOldThreadMessages();
     }, 15000);  
 
