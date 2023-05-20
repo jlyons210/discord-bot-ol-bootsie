@@ -35,6 +35,7 @@ npm install
 ```
 Run the application:
 > Configuration settings with acceptable defaults may be omitted.
+
 ```
  BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
  BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
