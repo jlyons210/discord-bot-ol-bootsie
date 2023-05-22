@@ -35,6 +35,7 @@ npm install
 ```
 Run the application:
 > Configuration settings with acceptable defaults may be omitted.
+
 ```
  BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
  BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
@@ -64,6 +65,7 @@ docker pull jlyons210/discord-bot-ol-bootsie:latest
 
 #### Building the container from source
 > Requires the `jq` package and Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
+
 Clone this repo:
 ```
 git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
@@ -79,6 +81,7 @@ docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 
 #### Running the container
 > Configuration settings with acceptable defaults may be omitted.
+
 ```
 docker run -d \
   -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
@@ -100,7 +103,7 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 ## Release history
 
 ### Shortcuts:
-* 0.7.x: [0.7.0](#070-2023-05-02)
+* 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
 * 0.6.x: [0.6.0](#060-2023-04-26), [0.6.1](#061-2023-04-30), [0.6.2](#062-2023-04-30), [0.6.3](#063-2023-04-30), [0.6.4](#064-2023-04-30)
 * 0.5.x: [0.5.0](#050-2023-04-25)
 * 0.4.x: [0.4.0](#040-2023-04-17), [0.4.1](#041-2023-04-18), [0.4.2](#042-2023-04-18), [0.4.3](#043-2023-04-19), [0.4.20](#0420-2023-04-20), [0.4.21](#0421-2023-04-23), [0.4.22](#0422-2023-04-23), [0.4.23](#0423-2023-04-23), [0.4.24](#0424-2023-04-24)
@@ -109,6 +112,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+
+### 0.7.1 (2023-05-20)
+* Issue #52 - 429 errors were not considered retryable; fixed.
 
 ### 0.7.0 (2023-05-02)
 * Issue #13 - Bots will now engage and react to channel comments, unprompted!
