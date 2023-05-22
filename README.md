@@ -113,6 +113,9 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ---
 
+### 0.7.2 (2023-05-22)
+* Issue #52 - fixed new bug discovered after errors were handled correctly
+
 ### 0.7.1 (2023-05-20)
 * Issue #52 - 429 errors were not considered retryable; fixed.
 
