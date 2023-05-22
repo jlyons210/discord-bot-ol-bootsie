@@ -81,8 +81,6 @@ module.exports.requestChatCompletion = async function(payload) {
   while (remainingRetryCount--) {
 
     try {
-
-      // Send payload to OpenAI API
       response = await openAiClient.createChatCompletion({
         max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
         model: process.env.OPENAI_PARAM_MODEL,
@@ -90,20 +88,19 @@ module.exports.requestChatCompletion = async function(payload) {
         temperature: parseFloat(process.env.OPENAI_PARAM_TEMPERATURE),
       });
 
-      // Assign response
       responseText = response.data.choices[0].message.content;
-      await log(`response.status = ${response.status}, response.statusText = ${response.statusText}`, 'debug');
-      await log(`responseText = "${responseText}"`, 'debug');
-
+      return responseText.trim();
     }
     catch (error) {
 
       // Response error handling
       if (responseText == null || responseText.trim() == '') {
 
-        // HTTP 5XX - server error, usually temporary
-        if (error.response.status >= 500) {
-          await log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. Retrying ${remainingRetryCount} times.`, 'error');
+        // HTTP 429 - throttled, 5XX - server error, usually temporary
+        if (error.response.status == 429 || error.response.status >= 500) {
+          setTimeout(() => {
+            log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. Retrying ${remainingRetryCount} times.`, 'error');
+          }, 1000);
         }
         // HTTP 4XX - bad request
         else if (error.response.status >= 400) {
@@ -113,22 +110,6 @@ module.exports.requestChatCompletion = async function(payload) {
         }
 
       }
-    }
-
-    // HTTP 200 with an empty response
-    // Last seen when using the `text-davinci-003` model and providing a bad prompt, like ASCII art.
-    if (responseText.trim() == '' && response.status == 200) {
-
-      responseText = await this.generateTryAgainMessage();
-      remainingRetryCount = 0;
-      await log('An HTTP 200 response was received while messageText is empty. Bad prompt?', 'error');
-
-    }
-    else {
-
-      // Return OpenAI API response text
-      return responseText.trim();
-
     }
 
   }
