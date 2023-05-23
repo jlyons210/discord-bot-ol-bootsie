@@ -1,5 +1,3 @@
-// Import modules
-const configTemplate = require('../lib/lib-config-template');
+import { configTemplate } from '../src/lib_ts/ConfigTemplate';
 
-// Test configTemplate.validateStartupSettings()
 configTemplate.validateStartupSettings();

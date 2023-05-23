@@ -1,12 +1,4 @@
-// Import modules
-const libOpenAi = require('../lib/lib-openai');
+import { OpenAI } from '../src/lib_ts/OpenAI';
 
-// Test libOpenAi.generateTryAgainMessage()
-async function test_generateTryAgainMessage() {
-
-  const tryAgainMessage = await libOpenAi.generateTryAgainMessage();
-  console.log(`tryAgainMessage = ${tryAgainMessage}`);
-
-}
-
-test_generateTryAgainMessage();
+const tryAgainMessage = await OpenAI.generateTryAgainMessage();
+console.log(`tryAgainMessage = ${tryAgainMessage}`);

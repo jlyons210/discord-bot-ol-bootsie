@@ -23,10 +23,6 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 
 Clone this repo:
 ```
-git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
-```
-or...
-```
 git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 Install dependencies:
@@ -38,15 +34,15 @@ Run the application:
 
 ```
  BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
- BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
- BOT_AUTO_REACT_PROBABILITY=[default: 0.2] \
+ BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.1] \
+ BOT_AUTO_REACT_PROBABILITY=[default: 0.1] \
  BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
  BOT_THREAD_MODE=[channel|user - default: channel] \
- BOT_THREAD_RETAIN_SEC=[default: 600] \
+ BOT_THREAD_RETAIN_SEC=[default: 900] \
  DISCORD_BOT_TOKEN=[bot token] \
  OPENAI_API_KEY=[API key] \
  OPENAI_MAX_RETRIES=[default: 5] \
- OPENAI_PARAM_MAX_TOKENS=[default: 500] \
+ OPENAI_PARAM_MAX_TOKENS=[default: 600] \
  OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
  OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
  OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
@@ -64,19 +60,13 @@ docker pull jlyons210/discord-bot-ol-bootsie:latest
 ```
 
 #### Building the container from source
-> Requires the `jq` package and Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
-
 Clone this repo:
-```
-git clone git@github.com:jlyons210/discord-bot-ol-bootsie.git
-```
-or...
 ```
 git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 Build container image:
 ```
-docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
+docker build -t discord-bot-ol-bootsie:latest .
 ```
 
 #### Running the container
@@ -85,24 +75,25 @@ docker build -t discord-bot-ol-bootsie:$(jq -r ".version" package.json) .
 ```
 docker run -d \
   -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
-  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.2] \
-  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.2] \
+  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.1] \
+  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.1] \
   -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
   -e BOT_THREAD_MODE=[channel|user - default: channel] \
-  -e BOT_THREAD_RETAIN_SEC=[default: 600] \
+  -e BOT_THREAD_RETAIN_SEC=[default: 900] \
   -e DISCORD_BOT_TOKEN=[bot token] \
   -e OPENAI_API_KEY=[API key] \
   -e OPENAI_MAX_RETRIES=[default: 5] \
-  -e OPENAI_PARAM_MAX_TOKENS=[default: 500] \
+  -e OPENAI_PARAM_MAX_TOKENS=[default: 600] \
   -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
   -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
-discord-bot-ol-bootsie:$(jq -r ".version" package.json)
+discord-bot-ol-bootsie:latest -or- jlyons210/discord-bot-ol-bootsie:latest
 ```
 
 ## Release history
 
 ### Shortcuts:
+* 0.8.x: [0.8.0](#080-2023)
 * 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
 * 0.6.x: [0.6.0](#060-2023-04-26), [0.6.1](#061-2023-04-30), [0.6.2](#062-2023-04-30), [0.6.3](#063-2023-04-30), [0.6.4](#064-2023-04-30)
 * 0.5.x: [0.5.0](#050-2023-04-25)
@@ -113,8 +104,26 @@ discord-bot-ol-bootsie:$(jq -r ".version" package.json)
 
 ---
 
+### 0.8.0 (2023-??-??)
+* Issue #51 - Re-wrote entire codebase in TypeScript, and refactored using object-oriented design principals.
+  * Directory structure improved to support `tsc` builds:
+    * Moved code under `/src`
+    * Restructured `/lib`
+  * Modified dev dependencies to support TypeScript development.
+    * Using new `.eslintrc` and `.eslintignore` files.
+* Config updates:
+  * Renamed `lib-config-template.js` (configTemplate) to `./lib/Config` (Config).
+  * Moved `.config-template.json` from `./` to `./lib/ConfigTemplate/defaults.json`.
+  * Updated configuration defaults:
+    * `BOT_AUTO_ENGAGE_PROBABILITY` from `0.2` to `0.1`
+    * `BOT_AUTO_REACT_PROBABILITY` from `0.2` to `0.1`
+    * `BOT_THREAD_RETAIN_SEC` from `600` to `900`
+    * `OPENAI_PARAM_MAX_TOKENS` from `500` to `600`
+* Updated dependencies.
+* Cleaned up incorrect instructions in `README.md`.
+
 ### 0.7.2 (2023-05-22)
-* Issue #52 - fixed new bug discovered after errors were handled correctly
+* Issue #52 - fixed new bug discovered after errors were handled correctly.
 
 ### 0.7.1 (2023-05-20)
 * Issue #52 - 429 errors were not considered retryable; fixed.
