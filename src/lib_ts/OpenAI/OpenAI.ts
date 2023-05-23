@@ -3,16 +3,26 @@ import { Logger } from '../Logger';
 import * as path from 'path';
 import { inspect } from 'util';
 
+interface PromptMessage {
+  content: string;
+  name?: string;
+  role: PromptMessageRole
+}
+
+enum PromptMessageRole {
+  'assistant' = 'assistant',
+  'system' = 'system',
+  'user' = 'user',
+}
+
 export class OpenAI {
 
   // Create and authenticate OpenAI client
-  const openAiClient = new OpenAIApi(new Configuration({
-    apiKey: process.env.OPENAI_API_KEY,
-  }));
+  private const _openAiClient = new OpenAIApi(
+    new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
 
   // Construct a prompt payload using an overridable system prompt and single message
-  module.exports.constructOneOffPayload = async function(messageText, systemPromptOverride) {
-
+  export async constructOneOffPayload(messageText: string, systemPromptOverride: string) {
     const payload = await constructSystemPrompt(systemPromptOverride);
 
     payload.push({
@@ -22,7 +32,6 @@ export class OpenAI {
     });
 
     return payload;
-
   };
 
   // Construct a prompt payload using the configured system prompt and message history
@@ -50,13 +59,13 @@ export class OpenAI {
   };
 
   // Returns a system prompt using the configured or overridden system prompt
-  async function constructSystemPrompt(systemPromptOverride) {
+  async function constructSystemPrompt(systemPromptOverride): Promise<PromptMessage> {
 
-    const systemPrompt = (systemPromptOverride === undefined) ? process.env.OPENAI_PARAM_SYSTEM_PROMPT : systemPromptOverride;
-    const payload = [{
-      role: 'system',
+    const systemPrompt: string = (systemPromptOverride === undefined) ? process.env.OPENAI_PARAM_SYSTEM_PROMPT : systemPromptOverride;
+    const payload: PromptMessage = {
+      role: PromptMessageRole.system,
       content: systemPrompt,
-    }];
+    };
 
     return payload;
 
