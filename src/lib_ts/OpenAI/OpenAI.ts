@@ -84,12 +84,10 @@ export class OpenAI {
 
   // Request chat completion from OpenAI API
   module.exports.requestChatCompletion = async function(payload) {
-
-    let response, responseText;
-    let remainingRetryCount = process.env.OPENAI_MAX_RETRIES;
+    let response: string, responseText: string;
+    let remainingRetryCount: number = parseInt(process.env.OPENAI_MAX_RETRIES || '');
 
     while (remainingRetryCount--) {
-
       try {
         response = await openAiClient.createChatCompletion({
           max_tokens: parseInt(process.env.OPENAI_PARAM_MAX_TOKENS),
@@ -102,27 +100,19 @@ export class OpenAI {
         return responseText.trim();
       }
       catch (error) {
-
-        // Response error handling
         if (responseText == null || responseText.trim() == '') {
-
-          // HTTP 429 - throttled, 5XX - server error, usually temporary
           if (error.response.status == 429 || error.response.status >= 500) {
             setTimeout(() => {
-              await log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. Retrying ${remainingRetryCount} times.`, 'error');
+              await Logger.log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. Retrying ${remainingRetryCount} times.`, 'error');
             }, 1000);
           }
-          // HTTP 4XX - bad request
           else if (error.response.status >= 400) {
             remainingRetryCount = 0;
-            await log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. This indicates a bad request. Not retrying.`, 'error');
+            await Logger.log(`An HTTP ${error.response.status} (${error.response.statusText}) was returned. This indicates a bad request. Not retrying.`, 'error');
             throw new Error(inspect(error.response.data, false, null, true));
           }
-
         }
       }
-
     }
-
   }
 }
