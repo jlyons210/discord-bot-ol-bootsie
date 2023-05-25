@@ -6,7 +6,7 @@ const libOpenAi = require('./lib-openai');
 module.exports.DiscordBot = new class {
 
   // Global constants
-    discordMaxMessageLength = 2000;
+  discordMaxMessageLength = 2000;
   messageHistory = [];
 
   // Create and authenticate Discord client

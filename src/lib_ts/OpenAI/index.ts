@@ -1,2 +1,5 @@
 import { OpenAI } from './OpenAI';
-export { OpenAI };
+import { PromptMessage } from './PromptMessage';
+import { PromptMessageRole } from './PromptMessageRole';
+
+export { OpenAI, PromptMessage, PromptMessageRole };

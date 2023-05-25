@@ -1,9 +1,15 @@
 import { ChannelType, Client, Events, GatewayIntentBits, Message, Partials } from 'discord.js';
 import { EventEmitter } from 'events';
+import { HistoryMessage } from '../DiscordBot/HistoryMessage';
+import { OpenAI } from '../OpenAI';
+import { Logger } from '../Logger';
+import { inspect } from 'util';
 
 export class DiscordBot {
   public Events = new EventEmitter();
   private _discordClient: Client;
+  private _messageHistory: HistoryMessage[] = [];
+  private _discordMaxMessageLength = 2000;
 
   constructor(apiKey: string) {
     this._discordClient = this._authenticateClient(apiKey);
@@ -88,7 +94,7 @@ export class DiscordBot {
   private async _handleMessageCreate(message: Message): Promise<void> {
     // Need to descern between DM, GroupDM, and Channel messages (- message.channel.type: ChannelType)
     // The source code coming over it a soupy mess, and will be broken down more cleanly in this rewrite.
-    // Need to re-define the message history class/structure so that it is the source of truth for 
+    // Need to re-define the message history class/structure so that it is the source of truth for
     // Discord messages as well as for building OpenAI prompts.
 
     // Bot engagement conditions
@@ -106,29 +112,33 @@ export class DiscordBot {
 
     // If bot is @-mentioned, or is engaged via direct message, engage and respond directly
     if (isBotAtMention || isDirectMessageToBot) {
-
-      // Add prompt to chat history
-      messageHistory.push(
-        new libDiscord.HistoryMessage(threadSignature, messageText, true, message.author.username, 'user'),
+      this._messageHistory.push(
+        new HistoryMessage(
+          threadSignature,
+          messageText,
+          true,
+          message.author.username,
+          'user',
+        )
       );
 
       // Construct prompt payload and get chat response
-      const payload = await libOpenAi.constructPromptPayload(messageHistory, threadSignature);
-      const openAiResponseText = await libOpenAi.requestChatCompletion(payload);
+      const payload = await OpenAI.constructPromptPayload(this._messageHistory, threadSignature);
+      const openAiResponseText = await OpenAI.requestChatCompletion(payload);
 
       // Add response to chat history
-      messageHistory.push(
-        new libDiscord.HistoryMessage(
+      this._messageHistory.push(
+        new HistoryMessage(
           threadSignature,
           openAiResponseText,
           true,
-          process.env.OPENAI_PARAM_MODEL,
+          process.env.OPENAI_PARAM_MODEL || '',
           'assistant',
         ),
       );
 
       // Paginate response
-      const discordResponse = await libDiscord.paginateResponse(openAiResponseText);
+      const discordResponse = await this._paginateResponse(openAiResponseText);
 
       // Respond to channel
       discordResponse.forEach(async responseText => {
@@ -141,17 +151,15 @@ export class DiscordBot {
           }
         }
         catch (error) {
-          log(inspect(error, false, null, true), 'error');
+          await Logger.log(inspect(error, false, null, true), 'error');
           await message.channel.send('There was an issue sending my response. The error logs might have some clues.');
         }
       });
-
     }
     else {
-
       // Add channel text to chat history
-      messageHistory.push(
-        new libDiscord.HistoryMessage(
+      this._messageHistory.push(
+        new HistoryMessage(
           threadSignature,
           messageText,
           false,
@@ -162,14 +170,128 @@ export class DiscordBot {
 
       // React to messages with configured probability
       if (!isBotMessage) {
-        await probablyReactToMessage(message, messageText);
+        await this._probablyReactToMessage(message, messageText);
 
         // Engage in conversation with configured probability
         if (!isDirectMessageToBot) {
-          await probablyEngageInConversation(message, threadSignature);
+          await this._probablyEngageInConversation(message, threadSignature);
         }
+      }
+    }
+  }
+
+  /**
+   * Breaks up reponseText into multiple messages up to 2000 characters
+   *
+   * @param {string} responseText OpenAI response text
+   * @returns A Promise of responseText strings that are each <2000 characters to fit
+   *  within Discord's message size limit.
+   */
+  private async _paginateResponse(responseText: string): Promise<string[]> {
+    /*
+    * ISSUES: Potentially unresolved issues:
+    *   - Code blocks with \n\n in them could be split
+    *   - Single paragraphs longer than 2000 characters will still cause a failure
+    *
+    * Before I create a formal issue for this, I want to see how things run as they are for a bit.
+    */
+
+    const delimiter = '\n\n';
+    const paragraphs = responseText.split(delimiter);
+    const allParagraphs: string[] = [];
+    let page = '';
+
+    for (const paragraph of paragraphs) {
+      if ((page.length + paragraph.length + delimiter.length) <= this._discordMaxMessageLength) {
+        page += delimiter + paragraph;
+      }
+      else {
+        allParagraphs.push(page);
+        page = paragraph;
+      }
+    }
+
+    // Add last paragraph
+    if (page.length > 0) allParagraphs.push(page);
+
+    return allParagraphs;
+  }
+
+  // Engage with channel messages using configured probability
+  private async _probablyEngageInConversation(discordMessage: Message, threadSignature: string) {
+
+    // Roll the RNG
+    const botWillEngage = (Math.random() < parseFloat(process.env.BOT_AUTO_ENGAGE_PROBABILITY || ''));
+
+    if (botWillEngage) {
+
+      // Build a list of non-bot chat messages that haven't been used in a prompt context
+      let prompt = '', messageCount = 0;
+
+      this._messageHistory.forEach(async message => {
+        if (
+          message.threadSignature == threadSignature &&
+          message.username != this._discordClient.user?.username &&
+          !message.isPromptContext &&
+          message.ttl > 0
+        ) {
+          prompt += message.messageText + '\n';
+          messageCount++;
+        }
+      });
+
+      // There should be a minimum number of messages for a meaningful engagement
+      if (messageCount >= parseFloat(process.env.BOT_AUTO_ENGAGE_MIN_MESSAGES || '')) {
+
+        // Build a one-off prompt payload
+        const systemPrompt =
+          process.env.OPENAI_PARAM_SYSTEM_PROMPT +
+          'For the provided list of statements, provide an insight, or a question, or a concern. ' +
+          'Dont\'t ask if further help is needed.';
+        const payload = await OpenAI.constructOneOffPayload(prompt, systemPrompt);
+        const response = await OpenAI.requestChatCompletion(payload);
+
+        // Send message to chat
+        discordMessage.channel.send(response);
+
       }
 
     }
+
+  }
+
+  // React to channel messages using configured probability
+  private async _probablyReactToMessage(discordMessage: Message, messageText: string) {
+
+    // Roll the RNG
+    const botWillReact = (Math.random() < parseInt(process.env.BOT_AUTO_REACT_PROBABILITY || ''));
+
+    if (botWillReact) {
+
+      // Build a one-off prompt payload
+      const emojiPayload =
+        await OpenAI.constructOneOffPayload(
+          process.env.OPENAI_PARAM_SYSTEM_PROMPT +
+          `Respond using nothing but two emojis to the following statement: \`${messageText}\``,
+        );
+      let emojiResponse: string = await OpenAI.requestChatCompletion(emojiPayload);
+
+      // Remove non-emoji characters from response
+      emojiResponse = emojiResponse.replace(/[^\p{Emoji}\s]/gu, '');
+
+      // React to chat message
+      Array.from(emojiResponse).forEach(async emoji => {
+        try {
+          await discordMessage.react(emoji);
+        }
+        catch (error) {
+          if (typeof error === 'string') {
+            await Logger.log(error, 'error');
+          }
+        }
+      });
+
+    }
+
   }
 }

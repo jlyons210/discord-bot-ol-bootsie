@@ -1,2 +1,3 @@
 import { DiscordBot } from './DiscordBot';
-export { DiscordBot };
+import { HistoryMessage } from './HistoryMessage';
+export { DiscordBot, HistoryMessage };
