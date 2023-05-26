@@ -293,5 +293,65 @@ export class DiscordBot {
 
     }
 
+    // Moved from OpenAI module
+    // Construct a prompt payload using an overridable system prompt and single message
+    public async constructOneOffPayload(messageText: string) {
+      const payload: PromptMessage[] = [];
+      payload.push(await this.constructSystemPrompt());
+
+      payload.push({
+        role: PromptMessageRole.user,
+        name: path.basename(__filename, '.js'),
+        content: messageText,
+      });
+
+      return payload;
+    }
+
+    // Moved from OpenAI module
+    // Construct a prompt payload using the configured system prompt and message history
+    async constructPromptPayload(messageHistory: HistoryMessage[], threadSignature: string, systemPromptOverride?: string) {
+      const payload: PromptMessage[] = [];
+      payload.push(await this.constructSystemPrompt(systemPromptOverride));
+
+      messageHistory.forEach(async message => {
+        if (message.threadSignature == threadSignature && message.isPromptContext) {
+          payload.push({
+            role: message.role,
+            content: message.messageText,
+            // If name != undefined in a [role: 'assistant'] payload, OpenAI API returns a 400 error
+            name: (message.role == 'assistant') ? undefined : message.username,
+          });
+        }
+      });
+
+      return payload;
+    }
+
+    // Moved from OpenAI module
+    // Returns a system prompt using the configured or overridden system prompt
+    async constructSystemPrompt(systemPromptOverride?: string): Promise<PromptMessage> {
+      const systemPrompt: string = (systemPromptOverride === undefined) ?
+        process.env.OPENAI_PARAM_SYSTEM_PROMPT || '' :
+        systemPromptOverride;
+
+      const payload: PromptMessage = {
+        role: PromptMessageRole.system,
+        content: systemPrompt,
+      };
+
+      return payload;
+    }
+
+    // Moved from OpenAI module
+    // Generate a retry message to handle unknown issue
+    async generateTryAgainMessage() {
+      const prompt = 'In one short sentence, tell me that you don\'t understand what I meant by what I said.';
+      const payload = await this.constructOneOffPayload(prompt);
+      const responseText = await this.requestChatCompletion(payload);
+
+      return responseText;
+    }
+
   }
 }

@@ -1,4 +1,15 @@
 import { OpenAI } from './OpenAI';
-import { PromptMessage } from './PromptMessage';
-import { PromptMessageRole } from './PromptMessageRole';
-export { OpenAI, PromptMessage, PromptMessageRole };
+import { OpenAIRetriesExceededError } from './OpenAIRetriesExceeded';
+import { OpenAIUnexpectedError } from './OpenAIUnexpectedError';
+import { OpenAIBadRequestError } from './OpenAIBadRequestError';
+import { PayloadMessage } from './PayloadMessage';
+import { PayloadMessageRole } from './PayloadMessageRole';
+
+export {
+  OpenAI,
+  OpenAIBadRequestError,
+  OpenAIRetriesExceededError,
+  OpenAIUnexpectedError,
+  PayloadMessage,
+  PayloadMessageRole,
+};

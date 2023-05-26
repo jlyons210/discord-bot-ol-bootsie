@@ -10,14 +10,14 @@
     {
       "name": "BOT_AUTO_ENGAGE_PROBABILITY",
       "allowedValues": 0,
-      "defaultValue": 0.1,
+      "defaultValue": 0.05,
       "required": false,
       "secret": false
     },
     {
       "name": "BOT_AUTO_REACT_PROBABILITY",
       "allowedValues": 0,
-      "defaultValue": 0.1,
+      "defaultValue": 0.05,
       "required": false,
       "secret": false
     },

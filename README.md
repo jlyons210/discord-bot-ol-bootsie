@@ -34,8 +34,8 @@ Run the application:
 
 ```
  BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
- BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.1] \
- BOT_AUTO_REACT_PROBABILITY=[default: 0.1] \
+ BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
+ BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
  BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
  BOT_THREAD_MODE=[channel|user - default: channel] \
  BOT_THREAD_RETAIN_SEC=[default: 900] \
@@ -75,8 +75,8 @@ docker build -t discord-bot-ol-bootsie:latest .
 ```
 docker run -d \
   -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
-  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.1] \
-  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.1] \
+  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
+  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
   -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
   -e BOT_THREAD_MODE=[channel|user - default: channel] \
   -e BOT_THREAD_RETAIN_SEC=[default: 900] \
@@ -112,11 +112,11 @@ discord-bot-ol-bootsie:latest -or- jlyons210/discord-bot-ol-bootsie:latest
   * Modified dev dependencies to support TypeScript development.
     * Using new `.eslintrc` and `.eslintignore` files.
 * Config updates:
-  * Renamed `lib-config-template.js` (configTemplate) to `./lib/Config` (Config).
-  * Moved `.config-template.json` from `./` to `./lib/ConfigTemplate/defaults.json`.
+  * Renamed `lib-config-template.js` (configTemplate) to `./lib/ConfigTemplate` (Config).
+  * Moved `.config-template.json` from `./` to `./lib/ConfigTemplate/ConfigTemplate.json`.
   * Updated configuration defaults:
-    * `BOT_AUTO_ENGAGE_PROBABILITY` from `0.2` to `0.1`
-    * `BOT_AUTO_REACT_PROBABILITY` from `0.2` to `0.1`
+    * `BOT_AUTO_ENGAGE_PROBABILITY` from `0.2` to `0.05`
+    * `BOT_AUTO_REACT_PROBABILITY` from `0.2` to `0.05`
     * `BOT_THREAD_RETAIN_SEC` from `600` to `900`
     * `OPENAI_PARAM_MAX_TOKENS` from `500` to `600`
 * Updated dependencies.
