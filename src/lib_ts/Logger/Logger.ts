@@ -1,29 +1,30 @@
 import { access } from 'fs/promises';
+import { LogLevel } from '.';
 
 export class Logger {
-
-  static async log(message: string, type: string): Promise<void> {
+  /**
+   * Centralized logging function. Logs to console depending on configured logging level.
+   * @param {string} message Message string to log.
+   * @param logLevel Log level to log using LogLevel.
+   */
+  static async log(message: string, logLevel: LogLevel): Promise<void> {
     const timestamp: string = new Date().toISOString();
 
-    switch (type) {
-      case 'debug':
-        if ((process.env.BOT_LOG_DEBUG != undefined &&
+    switch (logLevel) {
+      case LogLevel.Debug:
+        if ((process.env.BOT_LOG_DEBUG !== undefined &&
           process.env.BOT_LOG_DEBUG.toLowerCase() == 'enabled') ||
           await this._breakGlassDebugEnabled()) {
-          console.log(`${timestamp} - ${type.toUpperCase()} - ${message}`);
+          console.log(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
         }
         break;
 
-      case 'error':
-        console.error(`${timestamp} - ${type.toUpperCase()} - ${message}`);
+      case LogLevel.Error:
+        console.error(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
         break;
 
-      case 'info':
-        console.log(`${timestamp} - ${type.toUpperCase()} - ${message}`);
-        break;
-
-      default:
-        console.log(`${timestamp} - ${type.toUpperCase()}_UNKNOWN_TYPE - ${message}`);
+      case LogLevel.Info:
+        console.log(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
         break;
     }
   }
@@ -42,5 +43,4 @@ export class Logger {
       return false;
     }
   }
-
 }

@@ -1,4 +1,4 @@
-import { PromptMessageRole } from './PromptMessageRole';
+import { PromptMessageRole } from '.';
 
 export interface PromptMessage {
     content: string;

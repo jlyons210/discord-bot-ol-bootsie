@@ -2,7 +2,7 @@ import { ChannelType, Client, Events, GatewayIntentBits, Message, Partials } fro
 import { EventEmitter } from 'events';
 import { HistoryMessage } from '../DiscordBot/HistoryMessage';
 import { OpenAI } from '../OpenAI';
-import { Logger } from '../Logger';
+import { LogLevel, Logger } from '../Logger';
 import { inspect } from 'util';
 
 export class DiscordBot {
@@ -151,7 +151,7 @@ export class DiscordBot {
           }
         }
         catch (error) {
-          await Logger.log(inspect(error, false, null, true), 'error');
+          await Logger.log(inspect(error, false, null, true), LogLevel.Error);
           await message.channel.send('There was an issue sending my response. The error logs might have some clues.');
         }
       });
@@ -286,7 +286,7 @@ export class DiscordBot {
         }
         catch (error) {
           if (typeof error === 'string') {
-            await Logger.log(error, 'error');
+            await Logger.log(error, LogLevel.Error);
           }
         }
       });

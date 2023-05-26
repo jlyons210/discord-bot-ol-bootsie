@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { Configuration, OpenAIApi } from 'openai';
-import { Logger } from '../Logger';
+import { LogLevel, Logger } from '../Logger';
 import * as path from 'path';
 import { inspect } from 'util';
 import { HistoryMessage } from '../DiscordBot';
-import { PromptMessage, PromptMessageRole } from './';
+import { PromptMessage, PromptMessageRole } from '.';
 
 export class OpenAI {
 
@@ -13,7 +13,7 @@ export class OpenAI {
     new Configuration({ apiKey: process.env.OPENAI_API_KEY }));
 
   // Construct a prompt payload using an overridable system prompt and single message
-  async constructOneOffPayload(messageText: string, systemPromptOverride?: string) {
+  public async constructOneOffPayload(messageText: string, systemPromptOverride?: string) {
     const payload: PromptMessage[] = [];
     payload.push(await this.constructSystemPrompt(systemPromptOverride));
 
@@ -92,12 +92,12 @@ export class OpenAI {
 
           if (apiStatus == 429 || apiStatus >= 500) {
             setTimeout(async () => {
-              await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`, 'error');
+              await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`, LogLevel.Error);
             }, 1000);
           }
           else {
             retriesLeft = 0;
-            await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. This indicates a bad request. Not retrying.`, 'error');
+            await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. This indicates a bad request. Not retrying.`, LogLevel.Error);
             throw new Error(inspect(e.response.data, false, null, true));
           }
         }

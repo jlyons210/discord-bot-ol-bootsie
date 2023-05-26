@@ -1,2 +1,3 @@
 import { Logger } from './Logger';
-export { Logger };
+import { LogLevel } from './LogLevel';
+export { Logger, LogLevel };
