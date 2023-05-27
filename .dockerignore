@@ -1,6 +1,7 @@
-node_modules
-dist
 .dockerignore
 .git
 .gitignore
+.vscode
+dist
+node_modules
 npm-debug.log

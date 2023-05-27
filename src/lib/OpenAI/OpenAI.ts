@@ -4,6 +4,7 @@ import { inspect } from 'util';
 import { Logger, LogLevel } from '../Logger';
 import {
   OpenAIBadRequestError,
+  OpenAIConfig,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
   PayloadMessage,
@@ -12,73 +13,25 @@ import {
 
 /**
  * A class interface for the OpenAI API
- * @class
  */
 export class OpenAI {
 
+  private _client: OpenAIApi;
+  private _maxRetries: number;
+  private _maxTokens: number;
+  private _model: string;
+  private _temperature: number;
+
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
-   * @param {string} apiKey The OpenAI paid membership API key that will be used to perform calls.
-   * @param model The OpenAI model to be used for calls (https://platform.openai.com/docs/models).
-   * @param maxTokens The maximum number of tokens allowed for prompts and responses
-   *   (https://platform.openai.com/docs/guides/chat/managing-tokens).
-   * @param temperature What sampling temperature to use, between 0 and 2. Higher values like 0.8
-   *   will make the output more random, while lower values like 0.2 will make it more focused and
-   *   deterministic. (https://platform.openai.com/docs/api-reference/chat/create#chat/create-temperature)
-   * @param maxRetries Maximum number of API call attempts, in case of throttling or server errors.
+   * @param config A populated OpenAIConfig
    */
-  public constructor(
-    apiKey: string,
-    model: string,
-    maxTokens: number,
-    temperature: number,
-    maxRetries: number,
-  ) {
-    this._apiKey = apiKey;
-    this._model = model;
-    this._maxRetries = maxRetries;
-    this._maxTokens = maxTokens;
-    this._temperature = temperature;
-    this._client = new OpenAIApi(new Configuration({ apiKey: this._apiKey }));
-  }
-
-  private _client: OpenAIApi;
-
-  private _maxRetries: number;
-  get maxRetries() {
-    return this._maxRetries;
-  }
-  set maxRetries(maxRetries: number) {
-    this._maxRetries = maxRetries;
-  }
-
-  private _maxTokens: number;
-  get maxTokens() {
-    return this._maxTokens;
-  }
-  set maxTokens(maxTokens: number) {
-    this._maxTokens = maxTokens;
-  }
-
-  private _model: string;
-  get model() {
-    return this._model;
-  }
-  set model(model: string) {
-    this._model = model;
-  }
-
-  private _temperature: number;
-  get temperature() {
-    return this._temperature;
-  }
-  set temperature(temperature: number) {
-    this._temperature = temperature;
-  }
-
-  private _apiKey: string;
-  set apiKey(apiKey: string) {
-    this._apiKey = apiKey;
+  public constructor(config: OpenAIConfig) {
+    this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
+    this._maxRetries = config.maxRetries;
+    this._maxTokens = config.paramMaxTokens;
+    this._model = config.paramModel;
+    this._temperature = config.paramTemperature;
   }
 
   /**

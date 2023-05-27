@@ -1,5 +1,5 @@
 {
-  "defaults": [
+  "ConfigTemplate": [
     {
       "name": "BOT_AUTO_ENGAGE_MIN_MESSAGES",
       "allowedValues": 0,
