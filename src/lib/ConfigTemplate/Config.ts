@@ -24,7 +24,7 @@ export class Config {
     let validationFailed = false;
 
     // Iterate through all settings defined in ConfigTemplate.json
-    template.forEach(async setting => {
+    template.forEach(setting => {
       const userValue = process.env[setting.name];
 
       // If the user provided a setting value
@@ -39,11 +39,11 @@ export class Config {
 
             // Log startup config
             const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-            await Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
+            Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
           }
           // ...or the user-provided value is not allowed (invalid):
           else {
-            await Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
+            Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
             validationFailed = true;
           }
         }
@@ -56,23 +56,23 @@ export class Config {
 
           // Log startup config
           const valueOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-          await Logger.log(`${setting.name} = ${valueOutput}`, LogLevel.Info);
+          Logger.log(`${setting.name} = ${valueOutput}`, LogLevel.Info);
         }
         // ...or the user-provided value doesn't match the template's value type (invalid):
         else {
-          await Logger.log(`${setting.name}=${userValue} is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
+          Logger.log(`${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
           validationFailed = true;
         }
 
       }
       // If the user did not provide a value, but the template has a default value (valid/default)
       else if (!setting.required) {
-        await Logger.log(`${setting.name} not set - using template default: ${setting.defaultValue}`, LogLevel.Info);
+        Logger.log(`${setting.name} not set - using template default: ${setting.defaultValue}`, LogLevel.Info);
         this._settings[setting.name] = setting.defaultValue;
       }
       // If the user did not provide a value, but the setting is required (invalid)
       else {
-        await Logger.log(`${setting.name} not set and is required.`, LogLevel.Error);
+        Logger.log(`${setting.name} not set and is required.`, LogLevel.Error);
         validationFailed = true;
       }
     });

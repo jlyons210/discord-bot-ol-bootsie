@@ -341,6 +341,10 @@ export class DiscordBot {
     this._discordClient.on(Events.MessageCreate, async message => {
       await this._handleMessageCreate(message);
     });
+
+    setInterval(async () => {
+      await this._pruneOldThreadMessages();
+    }, 15000);
   }
 
   /**
@@ -417,6 +421,17 @@ export class DiscordBot {
     const openAiClient = new OpenAI(this._openAiConfig);
     const responseText = await openAiClient.requestChatCompletion(payload);
     return responseText;
+  }
+
+  /**
+   * Prune messages older than retention period
+   */
+  private async _pruneOldThreadMessages(): Promise<void> {
+    let i = this._messageHistory.length;
+    while (i--) {
+      if (this._messageHistory[i].ttl <= 0) this._messageHistory.splice(i, 1);
+    }
+    await Logger.log(`messageHistory.length = ${this._messageHistory.length}`, LogLevel.Debug);
   }
 
 }
