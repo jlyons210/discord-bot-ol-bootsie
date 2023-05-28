@@ -24,7 +24,6 @@ export class Config {
     let validationFailed = false;
 
     ConfigTemplate.forEach(setting => {
-
       /*
        * All environment variables come in as strings. Setting userValue to the correct type up
        * front saves a lot of type-checking later.
@@ -35,7 +34,6 @@ export class Config {
 
       // User configured a setting, validate it
       if (userValue !== undefined) {
-
         if ((setting.allowedValues && this._isAllowedValue(userValue, setting.allowedValues)) ||
             (typeof userValue === typeof setting.allowedValues)) {
 
@@ -45,23 +43,17 @@ export class Config {
           const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
           Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
         }
-
         // User setting is invalid
         else {
-
           if (setting.allowedValues && !this._isAllowedValue(userValue, setting.allowedValues)) {
             Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
           }
           else if (typeof userValue !== typeof setting.allowedValues) {
             Logger.log(`${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
           }
-
           validationFailed = true;
-
         }
-
       }
-
       // User did not configure an optional setting, use template default
       else if (!setting.required) {
         Logger.log(`${setting.name} not set - using template default: ${setting.defaultValue}`, LogLevel.Info);
@@ -73,7 +65,6 @@ export class Config {
         Logger.log(`${setting.name} not set and is required.`, LogLevel.Error);
         validationFailed = true;
       }
-
     });
 
     // Throw an error if startup validation fails

@@ -39,4 +39,5 @@ class Main {
 
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const main = new Main();

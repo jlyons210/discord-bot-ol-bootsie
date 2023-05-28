@@ -9,17 +9,14 @@ export class Logger {
    * Centralized logging function. Logs to console depending on configured logging level.
    * @param message Message string to log.
    * @param logLevel Logs are output at LogLevel.
+   * @param debugConfigured boolean passed from application configuration
    */
-  static async log(message: string, logLevel: LogLevel): Promise<void> {
+  static async log(message: string, logLevel: LogLevel, debugConfigured = false): Promise<void> {
     const timestamp: string = new Date().toISOString();
-
-    console.log(`logLevel = ${logLevel}`);
 
     switch (logLevel) {
       case LogLevel.Debug:
-        if ((process.env.BOT_LOG_DEBUG !== undefined &&
-          process.env.BOT_LOG_DEBUG.toLowerCase() == 'enabled') ||
-          await this._breakGlassDebugEnabled()) {
+        if (debugConfigured || await this._breakGlassDebugEnabled()) {
           console.log(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
         }
         break;

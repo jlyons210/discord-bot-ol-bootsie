@@ -113,23 +113,15 @@ export class DiscordBot {
    *   Discord guild, channel, and (optionally) the user that the message was sent from.
    */
   private async _createMessageThreadSignature(discordMessage: Message): Promise<string> {
-    if (this._botConfig.Settings.BOT_THREAD_MODE) {
-      const threadMode = DiscordBotThreadMode[
-        this._botConfig.Settings.BOT_THREAD_MODE.toString().toLowerCase() as keyof typeof DiscordBotThreadMode
-      ];
+    switch (this._botConfig.Settings.BOT_THREAD_MODE) {
+      case DiscordBotThreadMode.Channel:
+        return `${discordMessage.guildId}:${discordMessage.channelId}`;
 
-      switch (threadMode) {
-        case DiscordBotThreadMode.Channel:
-          return `${discordMessage.guildId}:${discordMessage.channelId}`;
-
-        case DiscordBotThreadMode.User:
-          return `${discordMessage.guildId}:${discordMessage.channelId}:${discordMessage.author.id}`;
-      }
+      case DiscordBotThreadMode.User:
+        return `${discordMessage.guildId}:${discordMessage.channelId}:${discordMessage.author.id}`;
     }
 
-    await Logger.log(`_botConfig.Settings.BOT_THREAD_MODE = ${this._botConfig.Settings.BOT_THREAD_MODE}`, LogLevel.Info);
-    return '';
-    // throw new DiscordBotUnexpectedError('Setting a message thread signature failed because `BOT_THREAD_MODE` is not set.');
+    throw new DiscordBotUnexpectedError('Setting a message thread signature failed because `BOT_THREAD_MODE` is not set.');
   }
 
   /**
@@ -166,7 +158,6 @@ export class DiscordBot {
     // Additional attributes for HistoryMessage
     const threadSignature = await this._createMessageThreadSignature(discordMessage);
     const botThreadRetainSec = parseInt(this._botConfig.Settings.BOT_THREAD_RETAIN_SEC.toString());
-
     const discordMessageText = await this._cleanupMessageAtMentions(discordMessage);
     const discordMessageUser = discordMessage.author.username;
 
@@ -429,11 +420,13 @@ export class DiscordBot {
    * Prune messages older than retention period
    */
   private async _pruneOldThreadMessages(): Promise<void> {
+    Logger.log(`messageHistory =\n${inspect(this._messageHistory, false, null, true)}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
+
     let i = this._messageHistory.length;
     while (i--) {
       if (this._messageHistory[i].ttl <= 0) this._messageHistory.splice(i, 1);
     }
-    await Logger.log(`messageHistory.length = ${this._messageHistory.length}`, LogLevel.Debug);
+    await Logger.log(`messageHistory.length = ${this._messageHistory.length}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
   }
 
 }
