@@ -13,6 +13,8 @@ export class Logger {
   static async log(message: string, logLevel: LogLevel): Promise<void> {
     const timestamp: string = new Date().toISOString();
 
+    console.log(`logLevel = ${logLevel}`);
+
     switch (logLevel) {
       case LogLevel.Debug:
         if ((process.env.BOT_LOG_DEBUG !== undefined &&

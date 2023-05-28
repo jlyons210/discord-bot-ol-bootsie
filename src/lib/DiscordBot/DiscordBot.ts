@@ -127,7 +127,9 @@ export class DiscordBot {
       }
     }
 
-    throw new DiscordBotUnexpectedError('Setting a message thread signature failed because `BOT_THREAD_MODE` is not set.');
+    await Logger.log(`_botConfig.Settings.BOT_THREAD_MODE = ${this._botConfig.Settings.BOT_THREAD_MODE}`, LogLevel.Info);
+    return '';
+    // throw new DiscordBotUnexpectedError('Setting a message thread signature failed because `BOT_THREAD_MODE` is not set.');
   }
 
   /**
@@ -135,7 +137,7 @@ export class DiscordBot {
    * @param client Discord client object
    */
   private async _handleClientReady(client: Client): Promise<void> {
-    this.Events.emit(BotEvents.BotReady, client.user?.id);
+    this.Events.emit(BotEvents.BotReady, client.user);
   }
 
   /**
