@@ -27,6 +27,12 @@ export class Config {
     template.forEach(setting => {
       const userValue = process.env[setting.name];
 
+      console.log(
+        `  userValue = ${userValue}\n` +
+        `  typeof userValue = ${typeof userValue}\n` +
+        `  _isNumber(userValue) = ${this._isNumber(userValue)}`
+      );
+
       // If the user provided a setting value
       if (userValue) {
         // ...and the template only allows specific values (implies string type):
@@ -48,8 +54,8 @@ export class Config {
           }
         }
         // ...or the template allows any value matching its value type (valid):
-        else if ((typeof setting.allowedValues === 'number' && typeof userValue === 'number') ||
-                 (typeof setting.allowedValues === 'string' && typeof userValue !== 'number')) {
+        else if ((this._isNumber(setting.allowedValues) && this._isNumber(userValue)) ||
+                 (!this._isNumber(setting.allowedValues) && !this._isNumber(userValue))) {
           // Add to config and clear environment variable
           this._settings[setting.name] = userValue;
           process.env[setting.name] = undefined;
@@ -81,6 +87,15 @@ export class Config {
     if (validationFailed) {
       throw (new ConfigError('Startup settings are not configured correctly. See documentation on GitHub.'));
     }
+  }
+
+  /**
+   * Validates a value as numeric
+   * @param value value to validate
+   * @returns true if value is numeric
+   */
+  private _isNumber(value: string | number | undefined): boolean {
+    return (!Number.isNaN(Number(value)));
   }
 
   /**
