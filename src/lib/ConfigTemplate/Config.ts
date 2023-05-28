@@ -1,5 +1,5 @@
-import { ConfigError, ConfigSetting } from './index';
-import { ConfigTemplate as template } from './ConfigTemplate.json';
+import { ConfigError } from './index';
+import { ConfigTemplate } from './ConfigTemplate.json';
 import { LogLevel, Logger } from '../Logger';
 
 /**
@@ -8,7 +8,7 @@ import { LogLevel, Logger } from '../Logger';
  */
 export class Config {
 
-  private _settings: ConfigSetting = {};
+  private _settings: Record<string, string | number> = {};
 
   /**
    * Constructs a Config object containing the merged (provided & defaults) application configuration.
@@ -23,64 +23,57 @@ export class Config {
   private _validateStartupSettings(): void {
     let validationFailed = false;
 
-    // Iterate through all settings defined in ConfigTemplate.json
-    template.forEach(setting => {
-      const userValue = process.env[setting.name];
+    ConfigTemplate.forEach(setting => {
 
-      console.log(
-        `  userValue = ${userValue}\n` +
-        `  typeof userValue = ${typeof userValue}\n` +
-        `  _isNumber(userValue) = ${this._isNumber(userValue)}`
-      );
+      /*
+       * All environment variables come in as strings. Setting userValue to the correct type up
+       * front saves a lot of type-checking later.
+       */
+      const userValue = this._isNumber(process.env[setting.name]) ?
+        parseFloat(process.env[setting.name] || '') :
+        process.env[setting.name];
 
-      // If the user provided a setting value
-      if (userValue) {
-        // ...and the template only allows specific values (implies string type):
-        if (setting.allowedValues) {
-          // ...and that userValue is allowed (valid):
-          if (typeof setting.allowedValues === 'string' && setting.allowedValues.includes(userValue)) {
-            // Add to config and clear environment variable
-            this._settings[setting.name] = userValue;
-            process.env[setting.name] = undefined;
+      // User configured a setting, validate it
+      if (userValue !== undefined) {
 
-            // Log startup config
-            const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-            Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
-          }
-          // ...or the user-provided value is not allowed (invalid):
-          else {
-            Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
-            validationFailed = true;
-          }
-        }
-        // ...or the template allows any value matching its value type (valid):
-        else if ((this._isNumber(setting.allowedValues) && this._isNumber(userValue)) ||
-                 (!this._isNumber(setting.allowedValues) && !this._isNumber(userValue))) {
-          // Add to config and clear environment variable
+        if ((setting.allowedValues && this._isAllowedValue(userValue, setting.allowedValues)) ||
+            (typeof userValue === typeof setting.allowedValues)) {
+
           this._settings[setting.name] = userValue;
           process.env[setting.name] = undefined;
 
-          // Log startup config
-          const valueOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-          Logger.log(`${setting.name} = ${valueOutput}`, LogLevel.Info);
+          const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
+          Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
         }
-        // ...or the user-provided value doesn't match the template's value type (invalid):
+
+        // User setting is invalid
         else {
-          Logger.log(`${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
+
+          if (setting.allowedValues && !this._isAllowedValue(userValue, setting.allowedValues)) {
+            Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
+          }
+          else if (typeof userValue !== typeof setting.allowedValues) {
+            Logger.log(`${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
+          }
+
           validationFailed = true;
+
         }
 
       }
-      // If the user did not provide a value, but the template has a default value (valid/default)
+
+      // User did not configure an optional setting, use template default
       else if (!setting.required) {
         Logger.log(`${setting.name} not set - using template default: ${setting.defaultValue}`, LogLevel.Info);
         this._settings[setting.name] = setting.defaultValue;
       }
-      // If the user did not provide a value, but the setting is required (invalid)
+
+      // User did not configure a required setting
       else {
         Logger.log(`${setting.name} not set and is required.`, LogLevel.Error);
         validationFailed = true;
       }
+
     });
 
     // Throw an error if startup validation fails
@@ -99,10 +92,32 @@ export class Config {
   }
 
   /**
-   * Returns populated configuration settings
-   * @returns ConfigSetting of configuration settings
+   * Validates a user setting value against allowed values in the configuration template
+   * @param userValue string or number defined at app startup
+   * @param allowedValues Values allowed by the template allowedValues parameter
+   * @returns true if user value is valid
    */
-  get Settings(): ConfigSetting {
+  private _isAllowedValue(userValue: string | number, allowedValues: string | number | object): boolean {
+    switch (typeof allowedValues) {
+      case 'string':
+        return (typeof userValue === 'string');
+
+      case 'number':
+        return (typeof userValue === 'number');
+
+      case 'object':
+        return (allowedValues instanceof Array && allowedValues.includes(userValue));
+
+      default:
+        return false;
+    }
+  }
+
+  /**
+   * Returns populated configuration settings
+   * @returns Record of configuration settings
+   */
+  get Settings(): Record<string, string | number> {
     return this._settings;
   }
 
