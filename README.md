@@ -50,10 +50,9 @@ node .
 ```
 
 ### Container execution
-
-#### Obtaining the container from Docker Hub
 > Requires Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
 
+#### Obtaining the container from Docker Hub
 Pull image from Docker Hub:
 ```
 docker pull jlyons210/discord-bot-ol-bootsie:latest
