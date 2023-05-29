@@ -104,7 +104,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ---
 
 ### 0.8.0 (2023-05-28)
-* Issue #51 - Ported the entire codebase to TypeScript, and refactored using object-oriented design principals.
+* [Issue #51](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/51) - Ported the entire codebase to TypeScript, and refactored using object-oriented design principals.
   * Directory structure improved to support `tsc` builds:
     * Moved source code under `./src`
     * `tsc` transpilation goes to `./dist`
@@ -125,13 +125,13 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * Lots of other changes under the hood to enable faster feature development.
 
 ### 0.7.2 (2023-05-22)
-* Issue #52 - fixed new bug discovered after errors were handled correctly.
+* [Issue #52](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/52) - fixed new bug discovered after errors were handled correctly.
 
 ### 0.7.1 (2023-05-20)
-* Issue #52 - 429 errors were not considered retryable; fixed.
+* [Issue #52](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/52) - 429 errors were not considered retryable; fixed.
 
 ### 0.7.0 (2023-05-02)
-* Issue #13 - Bots will now engage and react to channel comments, unprompted!
+* [Issue #13](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/13) - Bots will now engage and react to channel comments, unprompted!
   * Added new config settings:
     * `BOT_AUTO_ENGAGE_MIN_MESSAGES` - a minimum number of messages required for a bot to automatically engage in conversation.
     * `BOT_AUTO_ENGAGE_PROBABILITY` - a decimal percentage value from 0.0-1.0 defining the probability that a bot will engage in comments.
@@ -139,25 +139,25 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
   * I expect this will be a funky release, so upgrade at your own peril. I'll be running for a while and fine-tuning the behavior.
 
 ### 0.6.4 (2023-04-30)
-* Issue #46 - A bot @-mention with additional bots tagged will now strip the other bot tags instead of translating to name.
+* [Issue #46](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/46) - A bot @-mention with additional bots tagged will now strip the other bot tags instead of translating to name.
   * Sometimes bots take other bot names into consideration in their prompt responses, which is undesired behavior.
 
 ### 0.6.3 (2023-04-30)
-* Issue #39 - Moved libDiscord.pruneOldThreadMessages() from the message received handler to a 15 second timer job to prevent extraneous executions and debug logging.
+* [Issue #39](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/39) - Moved libDiscord.pruneOldThreadMessages() from the message received handler to a 15 second timer job to prevent extraneous executions and debug logging.
 
 ### 0.6.2 (2023-04-30)
-* Issue #42 - Bot now replies to the comment that prompted its response in channels.
+* [Issue #42](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/42) - Bot now replies to the comment that prompted its response in channels.
 
 ### 0.6.1 (2023-04-30)
-* Issue #36 - Fixed OpenAI response >2000 characters being rejected by Discord channel.send().
+* [Issue #36](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/36) - Fixed OpenAI response >2000 characters being rejected by Discord channel.send().
   * Breaks multi-paragraph responses >2000 characters into a channel.send() paragraph.
   * There are still some possibilities for issues, like long code blocks being broken, or >2000 character unbroken paragraphs being too long. Will monitor and address later if needed.
 
 ### 0.6.0 (2023-04-26)
-* Issue #9 - Added bot direct message support. You can now DM the bot, no @-mention needed!
+* [Issue #9](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/9) - Added bot direct message support. You can now DM the bot, no @-mention needed!
 
 ### 0.5.0 (2023-04-25)
-* Issue #33 - Rebuilt startup environment checking. It was clunky and not extensible.
+* [Issue #33](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/33) - Rebuilt startup environment checking. It was clunky and not extensible.
   * Created `.config-template.json` to store and define attributes for expected environment variables/settings.
     * `name`: (string) The name of the environment variable, e.g. `BOT_LOG_DEBUG`.
     * `allowedValues`: (string/list) Pre-defined acceptable input values.
@@ -168,13 +168,13 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
   * Updated `README.md` launch instructions.
 
 ### 0.4.24 (2023-04-24)
-* Issue #34 - `DISCORD_APP_TOKEN` in code actually required the Discord bot token from the Discord Developer Portal. Fixed naming for clarity.
+* [Issue #34](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/34) - `DISCORD_APP_TOKEN` in code actually required the Discord bot token from the Discord Developer Portal. Fixed naming for clarity.
 
 ### 0.4.23 (2023-04-23)
-* Issue #30 - `OPENAI_ORG_ID` was not fully removed from settings causing failed startup checks. Cleaned up.
+* [Issue #30](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/30) - `OPENAI_ORG_ID` was not fully removed from settings causing failed startup checks. Cleaned up.
 
 ### 0.4.22 (2023-04-23)
-* FR issue #24 - Have OpenAI API generate try-again messages sent as chat responses.
+* FR [issue #24](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/24) - Have OpenAI API generate try-again messages sent as chat responses.
 * Cleanup:
   * Removed `OPENAI_ORG_ID` from environment settings.
 
@@ -190,14 +190,14 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
     * Moved some common bot code to `lib/lib-bot.js`.
     * Moved more code to `lib/lib-discord.js` and `lib/lib-openai.js`.
 * Bug fixes:
-  * Fixed behavioral bug in `pruneMessageHistory()` - issue #26:
+  * Fixed behavioral bug in `pruneMessageHistory()` - [issue #26](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/26):
     * Now only evaluates for expired TTL, irrespective of `threadSignature`.
 
 ### 0.4.20 (2023-04-20)
 * Refactored code into multiple .js files to better group functionality - [issue #16](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/16):
   * Discord-specific functions moved to `lib/lib-discord.js`
   * OpenAI-specific functions moved to `lib/lib-openai.js`
-* Changed all synchronous functions to `async` with `await` calls to stop blocking the event loop (possibly causing issue #14).
+* Changed all synchronous functions to `async` with `await` calls to stop blocking the event loop (possibly causing [issue #14](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/14)).
 * Updated OpenAI API call retry logic:
   * Instead of retrying indefinitely on 5XX errors, `retryRequest (bool)` was changed to `remainingRetryCount` which starts with the `OPENAI_MAX_RETRIES` environment setting.
   * The retry loop decrements. Fatal errors (4XX) will immediately decrement the loop to `0` to prevent retry.
@@ -209,7 +209,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
   * Solved a bug in `pruneOldThreadMessages()` that would always result in one message not being pruned.
 
 ### 0.4.3 (2023-04-19)
-* Removed unused `DISCORD_GUILD_ID` and `DISCORD_CLIENT_ID` environment settings - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/20).
+* Removed unused `DISCORD_GUILD_ID` and `DISCORD_CLIENT_ID` environment settings - [issue #20](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/20).
 
 ### 0.4.2 (2023-04-18)
 * Added logging of non-sensitive startup parameters - [issue #15](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/15)
