@@ -93,7 +93,7 @@ discord-bot-ol-bootsie:latest -or- jlyons210/discord-bot-ol-bootsie:latest
 ## Release history
 
 ### Shortcuts:
-* 0.8.x: [0.8.0](#080-2023)
+* 0.8.x: [0.8.0](#080-2023-05-28)
 * 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
 * 0.6.x: [0.6.0](#060-2023-04-26), [0.6.1](#061-2023-04-30), [0.6.2](#062-2023-04-30), [0.6.3](#063-2023-04-30), [0.6.4](#064-2023-04-30)
 * 0.5.x: [0.5.0](#050-2023-04-25)
@@ -104,23 +104,26 @@ discord-bot-ol-bootsie:latest -or- jlyons210/discord-bot-ol-bootsie:latest
 
 ---
 
-### 0.8.0 (2023-??-??)
-* Issue #51 - Re-wrote entire codebase in TypeScript, and refactored using object-oriented design principals.
+### 0.8.0 (2023-05-28)
+* Issue #51 - Ported the entire codebase to TypeScript, and refactored using object-oriented design principals.
   * Directory structure improved to support `tsc` builds:
-    * Moved code under `/src`
+    * Moved source code under `./src`
+    * `tsc` transpilation goes to `./dist`
     * Restructured `/lib`
   * Modified dev dependencies to support TypeScript development.
     * Using new `.eslintrc` and `.eslintignore` files.
+  * Updated `Dockerfile` to perform a multi-stage build.
 * Config updates:
-  * Renamed `lib-config-template.js` (configTemplate) to `./lib/ConfigTemplate` (Config).
+  * Renamed `lib-config-template.js` (configTemplate) to `./lib/Config` (Config).
   * Moved `.config-template.json` from `./` to `./lib/ConfigTemplate/ConfigTemplate.json`.
   * Updated configuration defaults:
     * `BOT_AUTO_ENGAGE_PROBABILITY` from `0.2` to `0.05`
     * `BOT_AUTO_REACT_PROBABILITY` from `0.2` to `0.05`
     * `BOT_THREAD_RETAIN_SEC` from `600` to `900`
     * `OPENAI_PARAM_MAX_TOKENS` from `500` to `600`
-* Updated dependencies.
+* Updated npm dependencies.
 * Cleaned up incorrect instructions in `README.md`.
+* Lots of other changes under the hood to enable faster feature development.
 
 ### 0.7.2 (2023-05-22)
 * Issue #52 - fixed new bug discovered after errors were handled correctly.
