@@ -1,13 +1,7 @@
 import {
-  OpenAIConfig,
-  PayloadMessage,
-  PayloadMessageRole,
-  OpenAI,
-} from '../OpenAI';
-
-import {
   ChannelType,
   Client,
+  DiscordAPIError,
   EmojiIdentifierResolvable,
   Events,
   GatewayIntentBits,
@@ -16,18 +10,25 @@ import {
 } from 'discord.js';
 
 import {
+  OpenAIConfig,
+  PayloadMessage,
+  PayloadMessageRole,
+  OpenAI,
+} from '../OpenAI';
+
+import {
   BotEvents,
-  DiscordBotThreadMode,
+  DiscordBotConvoMode,
   DiscordBotUnexpectedError,
   DiscordMessageType,
   HistoryMessage,
 } from './index';
 
+import { Config } from '../ConfigTemplate';
 import { EventEmitter } from 'events';
 import { inspect } from 'util';
 import { LogLevel, Logger } from '../Logger';
 import * as path from 'path';
-import { Config } from '../ConfigTemplate';
 
 /**
  * This Discord bot listens for channel events and interfaces with the OpenAI API to provide
@@ -49,12 +50,12 @@ export class DiscordBot {
   constructor(botConfig: Config) {
     this._botConfig = botConfig;
     this._openAiConfig = {
-      apiKey: this._botConfig.Settings.OPENAI_API_KEY.toString(),
-      maxRetries: parseInt(this._botConfig.Settings.OPENAI_MAX_RETRIES.toString()),
-      paramMaxTokens: parseInt(this._botConfig.Settings.OPENAI_PARAM_MAX_TOKENS.toString()),
-      paramModel: this._botConfig.Settings.OPENAI_PARAM_MODEL.toString(),
-      paramSystemPrompt: this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT.toString(),
-      paramTemperature: parseFloat(this._botConfig.Settings.OPENAI_PARAM_TEMPERATURE.toString()),
+      apiKey: String(this._botConfig.Settings.OPENAI_API_KEY),
+      maxRetries: Number(this._botConfig.Settings.OPENAI_MAX_RETRIES),
+      paramMaxTokens: Number(this._botConfig.Settings.OPENAI_PARAM_MAX_TOKENS),
+      paramModel: String(this._botConfig.Settings.OPENAI_PARAM_MODEL),
+      paramSystemPrompt: String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT),
+      paramTemperature: Number(this._botConfig.Settings.OPENAI_PARAM_TEMPERATURE),
     };
 
     this._discordClient = new Client({
@@ -66,7 +67,7 @@ export class DiscordBot {
       ],
       partials: [ Partials.Channel ],
     });
-    this._discordClient.login(this._botConfig.Settings.DISCORD_BOT_TOKEN.toString());
+    this._discordClient.login(String(this._botConfig.Settings.DISCORD_BOT_TOKEN));
 
     this._registerEventHandlers();
   }
@@ -107,21 +108,22 @@ export class DiscordBot {
   }
 
   /**
-   * Returns a message's thread signature based upon the bot's configured attention span (channel, user).
+   * Returns a message's conversation key based upon the bot's configured conversation mode
+   * (channel, user).
    * @param discordMessage Discord message from event source
    * @returns A Promise that resolves to a colon-delimited string representing the
    *   Discord guild, channel, and (optionally) the user that the message was sent from.
    */
-  private async _createMessageThreadSignature(discordMessage: Message): Promise<string> {
-    switch (this._botConfig.Settings.BOT_THREAD_MODE) {
-      case DiscordBotThreadMode.Channel:
+  private async _getConversationKey(discordMessage: Message): Promise<string> {
+    switch (this._botConfig.Settings.BOT_CONVO_MODE) {
+      case DiscordBotConvoMode.Channel:
         return `${discordMessage.guildId}:${discordMessage.channelId}`;
 
-      case DiscordBotThreadMode.User:
+      case DiscordBotConvoMode.User:
         return `${discordMessage.guildId}:${discordMessage.channelId}:${discordMessage.author.id}`;
     }
 
-    throw new DiscordBotUnexpectedError('Setting a message thread signature failed because `BOT_THREAD_MODE` is not set.');
+    throw new DiscordBotUnexpectedError('Setting a message conversation key failed because `BOT_CONVO_MODE` is not set.');
   }
 
   /**
@@ -156,8 +158,8 @@ export class DiscordBot {
     }
 
     // Additional attributes for HistoryMessage
-    const threadSignature = await this._createMessageThreadSignature(discordMessage);
-    const botThreadRetainSec = parseInt(this._botConfig.Settings.BOT_THREAD_RETAIN_SEC.toString());
+    const convoKey = await this._getConversationKey(discordMessage);
+    const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
     const discordMessageText = await this._cleanupMessageAtMentions(discordMessage);
     const discordMessageUser = discordMessage.author.username;
 
@@ -170,21 +172,21 @@ export class DiscordBot {
     if (discordMessageType === DiscordMessageType.AtMention || discordMessageType === DiscordMessageType.DirectMessage) {
       // Add Discord message to history
       this._messageHistory.push(new HistoryMessage({
+        convoKey: convoKey,
         directEngagement: true,
         payload: requestPayload,
-        threadSignature: threadSignature,
-      }, botThreadRetainSec));
+      }, convoRetainSec));
 
       // Construct prompt payload and get chat response
-      const promptPayload = await this._constructChatCompletionPayloadWithHistory(this._messageHistory, threadSignature);
+      const promptPayload = await this._constructChatCompletionPayloadWithHistory(this._messageHistory, convoKey);
       const responsePayload = await openAiClient.requestChatCompletion(promptPayload);
 
       // Add OpenAI response to history
       this._messageHistory.push(new HistoryMessage({
+        convoKey: convoKey,
         directEngagement: true,
         payload: responsePayload,
-        threadSignature: threadSignature,
-      }, botThreadRetainSec));
+      }, convoRetainSec));
 
       // Paginate response
       const discordResponse = await this._paginateResponse(responsePayload.content);
@@ -199,8 +201,8 @@ export class DiscordBot {
             await discordMessage.reply(responseText);
           }
         }
-        catch (error) {
-          await Logger.log(inspect(error, false, null, true), LogLevel.Error);
+        catch (e) {
+          await Logger.log(inspect(e, false, null, true), LogLevel.Error);
           await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
         }
       });
@@ -210,12 +212,12 @@ export class DiscordBot {
       this._messageHistory.push(new HistoryMessage({
         directEngagement: false,
         payload: requestPayload,
-        threadSignature: threadSignature,
-      }, botThreadRetainSec));
+        convoKey: convoKey,
+      }, convoRetainSec));
 
       if (discordMessageType !== DiscordMessageType.BotMessage) {
         await this._probablyReactToMessage(discordMessage);
-        await this._probablyEngageInConversation(discordMessage, threadSignature);
+        await this._probablyEngageInConversation(discordMessage, convoKey);
       }
     }
   }
@@ -223,18 +225,18 @@ export class DiscordBot {
   /**
    * Breaks up reponseText into multiple messages up to 2000 characters
    * @param responseText OpenAI response text
-   * @returns A Promise of responseText strings that are each <2000 characters to fit
-   *  within Discord's message size limit.
+   * @returns A Promise of paragraphs that are each <2000 characters to fit within Discord's
+   *   message size limit.
    */
   private async _paginateResponse(responseText: string): Promise<string[]> {
     /*
     * ISSUES: Potentially unresolved issues:
-    *   - Code blocks with \n\n in them could be split
+    *   - Code blocks with \n in them could be split
     *   - Single paragraphs longer than 2000 characters will still cause a failure
     *
     * Before I create a formal issue for this, I want to see how things run as they are for a bit.
     */
-    const delimiter = '\n\n';
+    const delimiter = '\n';
     const paragraphs = responseText.split(delimiter);
     const allParagraphs: string[] = [];
     let page = '';
@@ -252,38 +254,39 @@ export class DiscordBot {
     // Add last paragraph
     if (page.length > 0) allParagraphs.push(page);
 
+    await Logger.log(`allParagraphs =\n${allParagraphs}`, LogLevel.Debug);
     return allParagraphs;
   }
 
   /**
    * Engage with channel messages using configured probability
    * @param discordMessage Discord message from event source
-   * @param threadSignature string used as conversation key for bot interactions
+   * @param convoKey string used as conversation key for bot interactions
    */
-  private async _probablyEngageInConversation(discordMessage: Message, threadSignature: string): Promise<void> {
+  private async _probablyEngageInConversation(discordMessage: Message, convoKey: string): Promise<void> {
 
     // Roll the RNG
-    const botWillEngage = (Math.random() < parseFloat(this._botConfig.Settings.BOT_AUTO_ENGAGE_PROBABILITY.toString()));
+    const botWillEngage = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_PROBABILITY));
 
     if (botWillEngage) {
       const autoEngagePayload: HistoryMessage[] = [];
       let messageCount = 0;
 
       this._messageHistory.forEach(async message => {
-        if (message.threadSignature === threadSignature) {
+        if (message.convoKey === convoKey) {
           autoEngagePayload.push(message);
           messageCount++;
         }
       });
 
       // There should be a minimum number of messages for a meaningful engagement
-      if (messageCount >= parseFloat(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES.toString())) {
+      if (messageCount >= Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES)) {
         const systemPrompt =
           `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} For the provided list of statements, provide ` +
           'an insight, or a question, or a concern. Dont\'t ask if further help is needed.';
 
         const openAiClient = new OpenAI(this._openAiConfig);
-        const requestPayload = await this._constructChatCompletionPayloadWithHistory(autoEngagePayload, threadSignature, systemPrompt);
+        const requestPayload = await this._constructChatCompletionPayloadWithHistory(autoEngagePayload, convoKey, systemPrompt);
         const responsePayload = await openAiClient.requestChatCompletion(requestPayload);
 
         // Send message to chat
@@ -298,7 +301,7 @@ export class DiscordBot {
    * @param discordMessage Discord message from event source
    */
   private async _probablyReactToMessage(discordMessage: Message): Promise<void> {
-    const botWillReact = (Math.random() < parseInt(this._botConfig.Settings.BOT_AUTO_REACT_PROBABILITY.toString()));
+    const botWillReact = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_REACT_PROBABILITY));
 
     if (botWillReact) {
       const emojiPayload = await this._constructOneOffChatCompletionPayload(
@@ -314,9 +317,12 @@ export class DiscordBot {
         try {
           await discordMessage.react(emoji as EmojiIdentifierResolvable);
         }
-        catch (error) {
-          if (typeof error === 'string') {
-            await Logger.log(error, LogLevel.Error);
+        catch (e) {
+          if (e instanceof DiscordAPIError) {
+            await Logger.log(
+              (e.message.includes('Unknown Emoji')) ? `${e}: ${emoji}` : e.message,
+              LogLevel.Error
+            );
           }
         }
       });
@@ -336,7 +342,7 @@ export class DiscordBot {
     });
 
     setInterval(async () => {
-      await this._pruneOldThreadMessages();
+      await this._pruneOldHistoryMessages();
     }, 15000);
   }
 
@@ -363,16 +369,16 @@ export class DiscordBot {
    * Construct a complete chat completion payload using the configured system prompt and message
    * history
    * @param messageHistory HistoryMessage array containing all chat history
-   * @param threadSignature string used as conversation key for bot interactions
+   * @param convoKey string used as conversation key for bot interactions
    * @param systemPromptOverride Optional system prompt override, useful for internal functions.
    * @returns Promise of completed chat completion payload
    */
-  private async _constructChatCompletionPayloadWithHistory(messageHistory: HistoryMessage[], threadSignature: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
+  private async _constructChatCompletionPayloadWithHistory(messageHistory: HistoryMessage[], convoKey: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
     const payload: PayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
 
     messageHistory.forEach(async message => {
-      if (message.threadSignature == threadSignature && message.isDirectEngagement) {
+      if (message.convoKey == convoKey && message.isDirectEngagement) {
         payload.push({
           role: message.payload.role,
           content: message.payload.content,
@@ -392,7 +398,7 @@ export class DiscordBot {
    */
   private async _constructSystemPrompt(systemPromptOverride?: string): Promise<PayloadMessage> {
     const systemPrompt: string = (systemPromptOverride === undefined) ?
-      this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT.toString() :
+      String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT) :
       systemPromptOverride;
 
     const payload: PayloadMessage = {
@@ -404,23 +410,10 @@ export class DiscordBot {
   }
 
   /**
-   * Generate a retry message to handle unknown issue
-   * @returns string containing a generated retry message
-   * @deprecated It looks like this isn't in use by anything
-   */
-  private async _generateTryAgainMessage(): Promise<PayloadMessage> {
-    const prompt = 'In one short sentence, tell me that you don\'t understand what I meant by what I said.';
-    const payload = await this._constructOneOffChatCompletionPayload(prompt);
-    const openAiClient = new OpenAI(this._openAiConfig);
-    const responseText = await openAiClient.requestChatCompletion(payload);
-    return responseText;
-  }
-
-  /**
    * Prune messages older than retention period
    */
-  private async _pruneOldThreadMessages(): Promise<void> {
-    Logger.log(`messageHistory =\n${inspect(this._messageHistory, false, null, true)}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
+  private async _pruneOldHistoryMessages(): Promise<void> {
+    await Logger.log(`messageHistory =\n${inspect(this._messageHistory, false, null, true)}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
 
     let i = this._messageHistory.length;
     while (i--) {

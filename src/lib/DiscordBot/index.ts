@@ -1,7 +1,7 @@
 import { BotEvents } from './BotEvents';
 import { DiscordBot } from './DiscordBot';
 import { DiscordMessageType } from './DiscordMessageType';
-import { DiscordBotThreadMode } from './DiscordBotThreadMode';
+import { DiscordBotConvoMode } from './DiscordBotConvoMode';
 import { DiscordBotUnexpectedError } from './DiscordBotUnexpectedError';
 import { HistoryMessage } from './HistoryMessage';
 import { IHistoryMessage } from './IHistoryMessage';
@@ -9,7 +9,7 @@ import { IHistoryMessage } from './IHistoryMessage';
 export {
   BotEvents,
   DiscordBot,
-  DiscordBotThreadMode,
+  DiscordBotConvoMode,
   DiscordBotUnexpectedError,
   DiscordMessageType,
   HistoryMessage,

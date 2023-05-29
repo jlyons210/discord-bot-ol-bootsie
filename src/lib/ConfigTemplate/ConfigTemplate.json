@@ -22,23 +22,23 @@
       "secret": false
     },
     {
-      "name": "BOT_LOG_DEBUG",
-      "allowedValues": [ "enabled", "disabled" ],
-      "defaultValue": "disabled",
-      "required": false,
-      "secret": false
-    },
-    {
-      "name": "BOT_THREAD_MODE",
+      "name": "BOT_CONVO_MODE",
       "allowedValues": [ "channel", "user" ],
       "defaultValue": "channel",
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_THREAD_RETAIN_SEC",
+      "name": "BOT_CONVO_RETAIN_SEC",
       "allowedValues": 0,
       "defaultValue": 900,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_LOG_DEBUG",
+      "allowedValues": [ "enabled", "disabled" ],
+      "defaultValue": "disabled",
       "required": false,
       "secret": false
     },

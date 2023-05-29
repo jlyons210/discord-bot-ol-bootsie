@@ -22,4 +22,4 @@ RUN npm install --omit-dev
 
 COPY --from=build /usr/src/app/dist ./dist
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "start"]

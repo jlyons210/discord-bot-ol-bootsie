@@ -29,7 +29,7 @@ export class Config {
        * front saves a lot of type-checking later.
        */
       const userValue = this._isNumber(process.env[setting.name]) ?
-        parseFloat(process.env[setting.name] || '') :
+        Number(process.env[setting.name]) :
         process.env[setting.name];
 
       // User configured a setting, validate it
