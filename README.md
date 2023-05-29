@@ -60,6 +60,11 @@ docker pull jlyons210/discord-bot-ol-bootsie:latest
 ```
 
 #### Building the container from source
+<<<<<<< HEAD
+=======
+> Requires the `jq` package and Docker Engine - [installation instructions](https://docs.docker.com/engine/install/)
+
+>>>>>>> main
 Clone this repo:
 ```
 git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
