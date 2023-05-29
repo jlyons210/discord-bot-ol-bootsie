@@ -86,7 +86,7 @@ docker run -d \
   -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
   -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
   -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
-discord-bot-ol-bootsie:latest -or- jlyons210/discord-bot-ol-bootsie:latest
+discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:latest (pulled)
 ```
 
 ## Release history
