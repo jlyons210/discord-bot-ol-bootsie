@@ -84,7 +84,7 @@ export class OpenAI {
           }
         }
         else if (e instanceof Error) {
-          await Logger.log(`An unknown error occurred:\n${e.message}`, LogLevel.Error);
+          await Logger.log(`An unknown error occurred:\n${inspect(e, false, null, true)}`, LogLevel.Error);
         }
       }
     }

@@ -36,7 +36,7 @@ export class Logger {
    * during a troubleshooting scenario.
    * Break-glass within a container:
    *   docker exec -it <container_name> /bin/sh
-   *   /usr/src/app/src # touch DEBUG
+   *   /usr/src/app # touch DEBUG
    * @returns Returns 'true' if the DEBUG file exists for break-glass debugging.
    */
   private static async _breakGlassDebugEnabled(): Promise<boolean> {

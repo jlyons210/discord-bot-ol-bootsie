@@ -14,7 +14,7 @@ class Main {
     const config = this._loadConfiguration();
     const discordBot = new DiscordBot(config);
 
-    discordBot.Events.on(BotEvents.BotReady, async user => {
+    discordBot.Events.once(BotEvents.BotReady, async user => {
       await Logger.log(`${process.env['npm_package_name']}:${process.env['npm_package_version']} ready!`, LogLevel.Info);
       await Logger.log(`Logged in as ${user.tag}`, LogLevel.Info);
     });

@@ -36,9 +36,9 @@ Run the application:
  BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
  BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
  BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
+ BOT_CONVO_MODE=[channel|user - default: channel] \
+ BOT_CONVO_RETAIN_SEC=[default: 900] \
  BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
- BOT_THREAD_MODE=[channel|user - default: channel] \
- BOT_THREAD_RETAIN_SEC=[default: 900] \
  DISCORD_BOT_TOKEN=[bot token] \
  OPENAI_API_KEY=[API key] \
  OPENAI_MAX_RETRIES=[default: 5] \
@@ -76,9 +76,9 @@ docker run -d \
   -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
   -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
   -e BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
+  -e BOT_CONVO_MODE=[channel|user - default: channel] \
+  -e BOT_CONVO_RETAIN_SEC=[default: 900] \
   -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
-  -e BOT_THREAD_MODE=[channel|user - default: channel] \
-  -e BOT_THREAD_RETAIN_SEC=[default: 900] \
   -e DISCORD_BOT_TOKEN=[bot token] \
   -e OPENAI_API_KEY=[API key] \
   -e OPENAI_MAX_RETRIES=[default: 5] \
@@ -92,6 +92,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
 * 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
 * 0.6.x: [0.6.0](#060-2023-04-26), [0.6.1](#061-2023-04-30), [0.6.2](#062-2023-04-30), [0.6.3](#063-2023-04-30), [0.6.4](#064-2023-04-30)
@@ -102,6 +103,19 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+
+### 0.9.0 (2023-05-29)
+* [Issue #57](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/57) - Renamed thread signature to "conversation key" throughout code.
+  * Configuration variable changes:
+    * `BOT_THREAD_MODE` renamed to `BOT_CONVO_MODE`
+    * `BOT_THREAD_RETAIN_SEC` renamed to `BOT_CONVO_RETAIN_SEC`
+* [Issue #50](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/50) - Improved DiscordAPIError logging in `DiscordBot._probablyReactToMessage()`.
+* [Issue #36](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/36) - Changed pagination delimiter from `\n\n` to `\n` to resolve issues with long responses with single line breaks between paragraphs.
+* Cleanup:
+  * Changed all instances of `parseInt(*.toString())` and `parseFloat(*.toString())` to `Number(*)`.
+  * Changed all instances of `*.toString()` to `String(*)`.
+  * `app.ts/Main()` changed `discordBot.Events.on(BotEvents.BotReady, ...` to `discordBot.Events.once(BotEvents.BotReady, ...`
+  * `Dockerfile` runs `CMD ["npm", "start"]` instead of `CMD ["npm", "run", "start"]`
 
 ### 0.8.0 (2023-05-28)
 * [Issue #51](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/51) - Ported the entire codebase to TypeScript, and refactored using object-oriented design principals.
