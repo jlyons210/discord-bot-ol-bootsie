@@ -46,7 +46,7 @@ Run the application:
  OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
  OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
  OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
-node .
+npx ts-node src/app.ts
 ```
 
 ### Container execution
