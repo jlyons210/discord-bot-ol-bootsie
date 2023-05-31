@@ -1,10 +1,10 @@
 import { PayloadMessage } from '../OpenAI';
 
 /**
- * Defines a structure for passing HistoryMessage values
+ * Defines an interface for creating a new HistoryMessage
  */
 export interface IHistoryMessage {
   convoKey: string,
-  directEngagement: boolean,
+  convoRetainSec: number,
   payload: PayloadMessage,
 }

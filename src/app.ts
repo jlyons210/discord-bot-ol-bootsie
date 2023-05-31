@@ -15,8 +15,14 @@ class Main {
     const discordBot = new DiscordBot(config);
 
     discordBot.Events.once(BotEvents.BotReady, async user => {
-      await Logger.log(`${process.env['npm_package_name']}:${process.env['npm_package_version']} ready!`, LogLevel.Info);
-      await Logger.log(`Logged in as ${user.tag}`, LogLevel.Info);
+      void Logger.log({
+        message: `${process.env['npm_package_name']}:${process.env['npm_package_version']} ready!`,
+        logLevel: LogLevel.Info,
+      });
+      void Logger.log({
+        message: `Logged in as ${user.tag}`,
+        logLevel: LogLevel.Info,
+      });
     });
   }
 
@@ -31,7 +37,10 @@ class Main {
     }
     catch (e) {
       if (e instanceof ConfigError) {
-        Logger.log(e.message, LogLevel.Error);
+        Logger.log({
+          message: e.message,
+          logLevel: LogLevel.Error,
+        });
       }
     }
     process.exit(1);

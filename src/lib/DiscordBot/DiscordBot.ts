@@ -28,7 +28,6 @@ import { Config } from '../ConfigTemplate';
 import { EventEmitter } from 'events';
 import { inspect } from 'util';
 import { LogLevel, Logger } from '../Logger';
-import * as path from 'path';
 
 /**
  * This Discord bot listens for channel events and interfaces with the OpenAI API to provide
@@ -81,7 +80,7 @@ export class DiscordBot {
     let isMentioned = false;
 
     discordMessage.mentions.users.forEach(async mention => {
-      if (mention.id == this._discordClient.user?.id) isMentioned = true;
+      if (mention.id === this._discordClient.user?.id) isMentioned = true;
     });
 
     return isMentioned;
@@ -105,6 +104,60 @@ export class DiscordBot {
     });
 
     return messageText;
+  }
+
+  /**
+   * Construct a complete chat completion payload using the configured system prompt and message
+   * history
+   * @param convoKey string used as conversation key for bot interactions
+   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
+   * @returns Promise of completed chat completion payload
+   */
+  private async _constructChatCompletionPayloadFromHistory(convoKey: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
+    const payload: PayloadMessage[] = [];
+    payload.push(await this._constructSystemPrompt(systemPromptOverride));
+
+    this._messageHistory.forEach(async message => {
+      if (message.convoKey === convoKey) {
+        payload.push(message.payload);
+      }
+    });
+
+    return payload;
+  }
+
+  /**
+   * Construct a chat completion payload using an overridable system prompt and single message
+   * @param messageText string containing message text
+   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
+   * @returns Promise of completed chat completion payload
+   * @deprecated It's encouraged to strongly consider whether this is needed if used.
+   */
+  private async _constructOneOffChatCompletionPayload(messageText: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
+    const payload: PayloadMessage[] = [];
+    payload.push(await this._constructSystemPrompt(systemPromptOverride));
+    payload.push(new PayloadMessage({
+      content: messageText,
+      role: PayloadMessageRole.User,
+    }));
+    return payload;
+  }
+
+  /**
+   * Returns a system prompt using the configured or overridden system prompt.
+   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
+   * @returns Promise of PayloadMessage containing the system prompt.
+   */
+  private async _constructSystemPrompt(systemPromptOverride?: string): Promise<PayloadMessage> {
+    const systemPrompt: string =
+      (systemPromptOverride === undefined) ?
+        String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT) :
+        systemPromptOverride;
+
+    return new PayloadMessage({
+      content: systemPrompt,
+      role: PayloadMessageRole.System,
+    });
   }
 
   /**
@@ -147,10 +200,13 @@ export class DiscordBot {
     if (await this._botIsMentionedInMessage(discordMessage)) {
       discordMessageType = DiscordMessageType.AtMention;
     }
-    else if (discordMessage.author.id == this._discordClient.user?.id) {
-      discordMessageType = DiscordMessageType.BotMessage;
+    else if (discordMessage.author.bot) {
+      discordMessageType =
+        (discordMessage.author.id === this._discordClient.user?.id) ?
+          DiscordMessageType.OwnMessage :
+          DiscordMessageType.BotMessage;
     }
-    else if (discordMessage.channel.type == ChannelType.DM) {
+    else if (discordMessage.channel.type === ChannelType.DM) {
       discordMessageType = DiscordMessageType.DirectMessage;
     }
     else {
@@ -162,31 +218,30 @@ export class DiscordBot {
     const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
     const discordMessageText = await this._cleanupMessageAtMentions(discordMessage);
     const discordMessageUser = discordMessage.author.username;
-
-    const requestPayload: PayloadMessage = {
+    const requestPayload = new PayloadMessage({
       content: discordMessageText,
       name: discordMessageUser,
-      role: PayloadMessageRole.user,
-    };
+      role: PayloadMessageRole.User,
+    });
 
     if (discordMessageType === DiscordMessageType.AtMention || discordMessageType === DiscordMessageType.DirectMessage) {
       // Add Discord message to history
       this._messageHistory.push(new HistoryMessage({
         convoKey: convoKey,
-        directEngagement: true,
+        convoRetainSec: convoRetainSec,
         payload: requestPayload,
-      }, convoRetainSec));
+      }));
 
       // Construct prompt payload and get chat response
-      const promptPayload = await this._constructChatCompletionPayloadWithHistory(this._messageHistory, convoKey);
+      const promptPayload = await this._constructChatCompletionPayloadFromHistory(convoKey);
       const responsePayload = await openAiClient.requestChatCompletion(promptPayload);
 
       // Add OpenAI response to history
       this._messageHistory.push(new HistoryMessage({
         convoKey: convoKey,
-        directEngagement: true,
+        convoRetainSec: convoRetainSec,
         payload: responsePayload,
-      }, convoRetainSec));
+      }));
 
       // Paginate response
       const discordResponse = await this._paginateResponse(responsePayload.content);
@@ -202,23 +257,23 @@ export class DiscordBot {
           }
         }
         catch (e) {
-          await Logger.log(inspect(e, false, null, true), LogLevel.Error);
+          void Logger.log({
+            message: inspect(e, false, null, true),
+            logLevel: LogLevel.Error,
+          });
           await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
         }
       });
     }
-    else {
-      // Add channel text to chat history
+    else if (discordMessageType === DiscordMessageType.BotMessage || discordMessageType === DiscordMessageType.UserMessage) {
       this._messageHistory.push(new HistoryMessage({
-        directEngagement: false,
-        payload: requestPayload,
         convoKey: convoKey,
-      }, convoRetainSec));
+        convoRetainSec: convoRetainSec,
+        payload: requestPayload,
+      }));
 
-      if (discordMessageType !== DiscordMessageType.BotMessage) {
-        await this._probablyReactToMessage(discordMessage);
-        await this._probablyEngageInConversation(discordMessage, convoKey);
-      }
+      await this._probablyEngageInConversation(discordMessage, convoKey);
+      await this._probablyReactToMessage(discordMessage, convoKey);
     }
   }
 
@@ -253,8 +308,6 @@ export class DiscordBot {
 
     // Add last paragraph
     if (page.length > 0) allParagraphs.push(page);
-
-    await Logger.log(`allParagraphs =\n${allParagraphs}`, LogLevel.Debug);
     return allParagraphs;
   }
 
@@ -268,26 +321,29 @@ export class DiscordBot {
     // Roll the RNG
     const botWillEngage = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_PROBABILITY));
 
+    // Check if current conversation meets BOT_AUTO_ENGAGE_MIN_MESSAGES
     if (botWillEngage) {
-      const autoEngagePayload: HistoryMessage[] = [];
       let messageCount = 0;
-
       this._messageHistory.forEach(async message => {
-        if (message.convoKey === convoKey) {
-          autoEngagePayload.push(message);
-          messageCount++;
-        }
+        if (message.convoKey === convoKey) { messageCount++; }
       });
 
-      // There should be a minimum number of messages for a meaningful engagement
       if (messageCount >= Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES)) {
+        const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
         const systemPrompt =
           `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} For the provided list of statements, provide ` +
           'an insight, or a question, or a concern. Dont\'t ask if further help is needed.';
 
         const openAiClient = new OpenAI(this._openAiConfig);
-        const requestPayload = await this._constructChatCompletionPayloadWithHistory(autoEngagePayload, convoKey, systemPrompt);
+        const requestPayload = await this._constructChatCompletionPayloadFromHistory(convoKey, systemPrompt);
         const responsePayload = await openAiClient.requestChatCompletion(requestPayload);
+
+        // Add OpenAI response to history
+        this._messageHistory.push(new HistoryMessage({
+          convoKey: convoKey,
+          convoRetainSec: convoRetainSec,
+          payload: responsePayload,
+        }));
 
         // Send message to chat
         discordMessage.channel.send(responsePayload);
@@ -299,18 +355,19 @@ export class DiscordBot {
   /**
    * React to channel messages using configured probability
    * @param discordMessage Discord message from event source
+   * @param convoKey string used as conversation key for bot interactions
    */
-  private async _probablyReactToMessage(discordMessage: Message): Promise<void> {
+  private async _probablyReactToMessage(discordMessage: Message, convoKey: string): Promise<void> {
     const botWillReact = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_REACT_PROBABILITY));
 
     if (botWillReact) {
-      const emojiPayload = await this._constructOneOffChatCompletionPayload(
-        `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} Respond using nothing but two emojis to the ` +
-        `following statement: "${discordMessage.content}"`
-      );
+      const systemPrompt =
+        `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} You are instructed to only respond ` +
+        'to my statements using a single emoji, no words.';
 
       const openAiClient = new OpenAI(this._openAiConfig);
-      const responsePayload = await openAiClient.requestChatCompletion(emojiPayload);
+      const requestPayload = await this._constructChatCompletionPayloadFromHistory(convoKey, systemPrompt);
+      const responsePayload = await openAiClient.requestChatCompletion(requestPayload);
       const emojiResponse = responsePayload.content.replace(/[^\p{Emoji}\s]/gu, '');
 
       Array.from(emojiResponse).forEach(async emoji => {
@@ -319,14 +376,34 @@ export class DiscordBot {
         }
         catch (e) {
           if (e instanceof DiscordAPIError) {
-            await Logger.log(
-              (e.message.includes('Unknown Emoji')) ? `${e}: ${emoji}` : e.message,
-              LogLevel.Error
-            );
+            void Logger.log({
+              message: (e.message.includes('Unknown Emoji')) ? `${e}: ${emoji}` : e.message,
+              logLevel: LogLevel.Error,
+            });
           }
         }
       });
     }
+  }
+
+  /**
+   * Prune messages older than retention period
+   */
+  private async _pruneOldHistoryMessages(): Promise<void> {
+    let i = this._messageHistory.length;
+    while (i--) {
+      if (this._messageHistory[i].ttl <= 0) this._messageHistory.splice(i, 1);
+    }
+    void Logger.log({
+      message: `messageHistory =\n${inspect(this._messageHistory, false, null, true)}`,
+      logLevel: LogLevel.Debug,
+      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
+    });
+    void Logger.log({
+      message: `messageHistory.length = ${this._messageHistory.length}`,
+      logLevel: LogLevel.Debug,
+      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
+    });
   }
 
   /**
@@ -344,82 +421,6 @@ export class DiscordBot {
     setInterval(async () => {
       await this._pruneOldHistoryMessages();
     }, 15000);
-  }
-
-  /**
-   * Construct a chat completion payload using an overridable system prompt and single message
-   * @param messageText string containing message text
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of completed chat completion payload
-   */
-  private async _constructOneOffChatCompletionPayload(messageText: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
-    const payload: PayloadMessage[] = [];
-    payload.push(await this._constructSystemPrompt(systemPromptOverride));
-
-    payload.push({
-      role: PayloadMessageRole.user,
-      name: path.basename(__filename, '.js'),
-      content: messageText,
-    });
-
-    return payload;
-  }
-
-  /**
-   * Construct a complete chat completion payload using the configured system prompt and message
-   * history
-   * @param messageHistory HistoryMessage array containing all chat history
-   * @param convoKey string used as conversation key for bot interactions
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of completed chat completion payload
-   */
-  private async _constructChatCompletionPayloadWithHistory(messageHistory: HistoryMessage[], convoKey: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
-    const payload: PayloadMessage[] = [];
-    payload.push(await this._constructSystemPrompt(systemPromptOverride));
-
-    messageHistory.forEach(async message => {
-      if (message.convoKey == convoKey && message.isDirectEngagement) {
-        payload.push({
-          role: message.payload.role,
-          content: message.payload.content,
-          // name must be undefined in a [role: 'assistant'] payload, otherwise OpenAI API returns a 400 error
-          name: (message.payload.role === PayloadMessageRole.assistant) ? undefined : message.payload.name,
-        });
-      }
-    });
-
-    return payload;
-  }
-
-  /**
-   * Returns a system prompt using the configured or overridden system prompt.
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of PayloadMessage containing the system prompt.
-   */
-  private async _constructSystemPrompt(systemPromptOverride?: string): Promise<PayloadMessage> {
-    const systemPrompt: string = (systemPromptOverride === undefined) ?
-      String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT) :
-      systemPromptOverride;
-
-    const payload: PayloadMessage = {
-      role: PayloadMessageRole.system,
-      content: systemPrompt,
-    };
-
-    return payload;
-  }
-
-  /**
-   * Prune messages older than retention period
-   */
-  private async _pruneOldHistoryMessages(): Promise<void> {
-    await Logger.log(`messageHistory =\n${inspect(this._messageHistory, false, null, true)}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
-
-    let i = this._messageHistory.length;
-    while (i--) {
-      if (this._messageHistory[i].ttl <= 0) this._messageHistory.splice(i, 1);
-    }
-    await Logger.log(`messageHistory.length = ${this._messageHistory.length}`, LogLevel.Debug, (this._botConfig.Settings.BOT_LOG_DEBUG == 'enabled'));
   }
 
 }

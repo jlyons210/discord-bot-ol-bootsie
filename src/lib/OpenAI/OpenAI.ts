@@ -16,22 +16,16 @@ import {
  */
 export class OpenAI {
 
+  private _config: OpenAIConfig;
   private _client: OpenAIApi;
-  private _maxRetries: number;
-  private _maxTokens: number;
-  private _model: string;
-  private _temperature: number;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
   public constructor(config: OpenAIConfig) {
+    this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
-    this._maxRetries = config.maxRetries;
-    this._maxTokens = config.paramMaxTokens;
-    this._model = config.paramModel;
-    this._temperature = config.paramTemperature;
   }
 
   /**
@@ -43,48 +37,64 @@ export class OpenAI {
    * @returns Returns an assistant response
    */
   public async requestChatCompletion(payload: PayloadMessage[]): Promise<PayloadMessage> {
-    let response;
-    let retriesLeft: number = this._maxRetries;
-
+    let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
-        response = await this._client.createChatCompletion({
-          max_tokens: this._maxTokens,
-          model: this._model,
+        const response = await this._client.createChatCompletion({
+          max_tokens: this._config.paramMaxTokens,
+          model: this._config.paramModel,
           messages: payload,
-          temperature: this._temperature,
+          temperature: this._config.paramTemperature,
         });
 
         const responseMessage = response.data.choices[0].message;
         if (responseMessage !== undefined) {
-          return {
-            role: PayloadMessageRole.assistant,
+          return new PayloadMessage({
             content: responseMessage.content,
-          };
+            role: PayloadMessageRole.Assistant,
+          });
         }
         else {
           throw new OpenAIUnexpectedError('There was an error obtaining this chat completion.');
         }
       }
       catch (e) {
-        if (e instanceof AxiosError && e.response !== undefined) {
-          const apiStatus = e.response.status;
-          const apiStatusText = e.response.statusText;
+        if ((e as AxiosError).isAxiosError) {
+          const axiosError = e as AxiosError;
+          const apiStatus = axiosError.response?.status;
+          const apiStatusText = axiosError.response?.statusText;
 
-          if (apiStatus == 429 || apiStatus >= 500) {
+          if (apiStatus && (apiStatus === 429 || apiStatus >= 500)) {
             // TODO: Implement proper XBR logic
             setTimeout(async () => {
-              await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`, LogLevel.Error);
+              void Logger.log({
+                message: `An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`,
+                logLevel: LogLevel.Error,
+              });
             }, 1000);
+          }
+          else if (apiStatus && (apiStatus >= 400 && apiStatus <= 499)) {
+            retriesLeft = 0;
+            void Logger.log({
+              message: `An HTTP ${apiStatus} (${apiStatusText}) was returned. This indicates a bad request. Not retrying.`,
+              logLevel: LogLevel.Error,
+            });
+            throw new OpenAIBadRequestError(inspect(axiosError.response?.data, false, null, true));
           }
           else {
             retriesLeft = 0;
-            await Logger.log(`An HTTP ${apiStatus} (${apiStatusText}) was returned. This indicates a bad request. Not retrying.`, LogLevel.Error);
-            throw new OpenAIBadRequestError(inspect(e.response.data, false, null, true));
+            void Logger.log({
+              message: `An unknown API error occurred:\n${axiosError.response?.data}`,
+              logLevel: LogLevel.Error,
+            });
+            throw new OpenAIUnexpectedError(inspect(axiosError.response?.data, false, null, true));
           }
         }
         else if (e instanceof Error) {
-          await Logger.log(`An unknown error occurred:\n${inspect(e, false, null, true)}`, LogLevel.Error);
+          void Logger.log({
+            message: `An unknown error occurred:\n${inspect(e, false, null, true)}`,
+            logLevel: LogLevel.Error,
+          });
         }
       }
     }

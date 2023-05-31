@@ -1,5 +1,5 @@
 import { access } from 'fs/promises';
-import { LogLevel } from './index';
+import { ILogEntry, LogLevel } from './index';
 
 /**
  * Centralized logging class
@@ -7,26 +7,24 @@ import { LogLevel } from './index';
 export class Logger {
   /**
    * Centralized logging function. Logs to console depending on configured logging level.
-   * @param message Message string to log.
-   * @param logLevel Logs are output at LogLevel.
-   * @param debugConfigured boolean passed from application configuration
+   * @param logEntry ILogEntry containing log entry details
    */
-  static async log(message: string, logLevel: LogLevel, debugConfigured = false): Promise<void> {
+  static async log(logEntry: ILogEntry): Promise<void> {
     const timestamp: string = new Date().toISOString();
 
-    switch (logLevel) {
+    switch (logEntry.logLevel) {
       case LogLevel.Debug:
-        if (debugConfigured || await this._breakGlassDebugEnabled()) {
-          console.log(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
+        if (logEntry.debugEnabled || await this._breakGlassDebugEnabled()) {
+          console.log(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
         }
         break;
 
       case LogLevel.Error:
-        console.error(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
+        console.error(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
         break;
 
       case LogLevel.Info:
-        console.log(`${timestamp} - ${logLevel.toUpperCase()} - ${message}`);
+        console.log(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
         break;
     }
   }
