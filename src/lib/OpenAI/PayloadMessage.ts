@@ -1,6 +1,4 @@
-import { Logger, LogLevel } from '../Logger';
 import { IPayloadMessage, PayloadMessageRole } from './index';
-import { inspect } from 'util';
 
 /**
  * Controls message adherence to the OpenAI payload specification.
