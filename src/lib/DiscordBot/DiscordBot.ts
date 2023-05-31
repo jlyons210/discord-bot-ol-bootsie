@@ -14,6 +14,9 @@ import {
   PayloadMessage,
   PayloadMessageRole,
   OpenAI,
+  OpenAIBadRequestError,
+  OpenAIRetriesExceededError,
+  OpenAIUnexpectedError,
 } from '../OpenAI';
 
 import {
@@ -225,45 +228,54 @@ export class DiscordBot {
     });
 
     if (discordMessageType === DiscordMessageType.AtMention || discordMessageType === DiscordMessageType.DirectMessage) {
-      // Add Discord message to history
       this._messageHistory.push(new HistoryMessage({
         convoKey: convoKey,
         convoRetainSec: convoRetainSec,
         payload: requestPayload,
       }));
-
-      // Construct prompt payload and get chat response
       const promptPayload = await this._constructChatCompletionPayloadFromHistory(convoKey);
-      const responsePayload = await openAiClient.requestChatCompletion(promptPayload);
 
-      // Add OpenAI response to history
-      this._messageHistory.push(new HistoryMessage({
-        convoKey: convoKey,
-        convoRetainSec: convoRetainSec,
-        payload: responsePayload,
-      }));
+      try {
+        const responsePayload = await openAiClient.requestChatCompletion(promptPayload);
 
-      // Paginate response
-      const discordResponse = await this._paginateResponse(responsePayload.content);
+        this._messageHistory.push(new HistoryMessage({
+          convoKey: convoKey,
+          convoRetainSec: convoRetainSec,
+          payload: responsePayload,
+        }));
 
-      // Respond to channel
-      discordResponse.forEach(async responseText => {
-        try {
-          if (discordMessageType === DiscordMessageType.DirectMessage) {
-            await discordMessage.channel.send(responseText);
+        const discordResponse = await this._paginateResponse(responsePayload.content);
+        discordResponse.forEach(async responseText => {
+          try {
+            if (discordMessageType === DiscordMessageType.DirectMessage) {
+              await discordMessage.channel.send(responseText);
+            }
+            else {
+              await discordMessage.reply(responseText);
+            }
           }
-          else {
-            await discordMessage.reply(responseText);
+          catch (e) {
+            if (e instanceof DiscordAPIError) {
+              void Logger.log({
+                message: inspect(e, false, null, true),
+                logLevel: LogLevel.Error,
+              });
+              await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
+            }
           }
+        });
+      }
+      catch (e) {
+        if (e instanceof OpenAIBadRequestError) {
+          void Logger.log({ message: e.message, logLevel: LogLevel.Error });
         }
-        catch (e) {
-          void Logger.log({
-            message: inspect(e, false, null, true),
-            logLevel: LogLevel.Error,
-          });
-          await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
+        else if (e instanceof OpenAIRetriesExceededError) {
+          void Logger.log({ message: e.message, logLevel: LogLevel.Error });
         }
-      });
+        else if (e instanceof OpenAIUnexpectedError) {
+          void Logger.log({ message: e.message, logLevel: LogLevel.Error });
+        }
+      }
     }
     else if (discordMessageType === DiscordMessageType.BotMessage || discordMessageType === DiscordMessageType.UserMessage) {
       this._messageHistory.push(new HistoryMessage({

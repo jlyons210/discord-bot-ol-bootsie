@@ -35,6 +35,9 @@ export class OpenAI {
    *   cumulative from the system prompt to the starting user prompt, interleaved with all
    *   assistant responses in order to maintain conversation flow.
    * @returns Returns an assistant response
+   * @throws {OpenAIBadRequestError} Thrown if the OpenAI API returns a non-retriable 4XX error
+   * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
+   * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
   public async requestChatCompletion(payload: PayloadMessage[]): Promise<PayloadMessage> {
     let retriesLeft: number = this._config.maxRetries;
