@@ -6,17 +6,14 @@ import { IHistoryMessage } from './index';
  */
 export class HistoryMessage {
 
-  private _convoRetainSec: number;
   private _historyMessage: IHistoryMessage;
   private _timestamp: number;
 
   /**
    * Constructs a HistoryMessage object
    * @param historyMessage A populated IHistoryMessage instance
-   * @param convoRetainSec number of seconds to retain HistoryMessages
    */
-  constructor(historyMessage: IHistoryMessage, convoRetainSec: number) {
-    this._convoRetainSec = convoRetainSec;
+  constructor(historyMessage: IHistoryMessage) {
     this._historyMessage = historyMessage;
     this._timestamp = new Date().getTime();
   }
@@ -27,14 +24,6 @@ export class HistoryMessage {
    */
   get convoKey(): string {
     return this._historyMessage.convoKey;
-  }
-
-  /**
-   * Gets isDirectEngagement
-   * @returns boolean
-   */
-  get isDirectEngagement(): boolean {
-    return this._historyMessage.directEngagement;
   }
 
   /**
@@ -58,7 +47,7 @@ export class HistoryMessage {
    * @returns number (of seconds before expiry)
    */
   get ttl(): number {
-    const expireTime = this._timestamp + (this._convoRetainSec * 1000);
+    const expireTime = this._timestamp + (this._historyMessage.convoRetainSec * 1000);
     return (expireTime - new Date().getTime());
   }
 

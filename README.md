@@ -92,6 +92,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.10.x: [0.10.0](#0100-2023-05-31)
 * 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
 * 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
@@ -103,6 +104,15 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.10.0 (2023-05-31)
+* [Issue #13](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/13):
+  * Updated `_probablyEngageInConversation()` and `_probablyReactToMessage()`:
+    * Got rid of `MessageHistory.isDirectEngagement` flag, as it was used for filtering context to direct engagements only, which is unnecessary.
+    * Both functions send better prompts to OpenAI API now.
+    * Number of emojis in reactions reduced from 2 to 1.
+* Fixed broken error handling in `lib/OpenAI/OpenAI.ts`
+* Cleanup:
+  * Making better use of interfaces for constructing `HistoryMessage`, `PromptPayload`, and `Log` entries.
 
 ### 0.9.0 (2023-05-29)
 * [Issue #57](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/57) - Renamed thread signature to "conversation key" throughout code.

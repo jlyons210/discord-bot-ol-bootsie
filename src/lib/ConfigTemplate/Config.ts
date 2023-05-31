@@ -28,9 +28,10 @@ export class Config {
        * All environment variables come in as strings. Setting userValue to the correct type up
        * front saves a lot of type-checking later.
        */
-      const userValue = this._isNumber(process.env[setting.name]) ?
-        Number(process.env[setting.name]) :
-        process.env[setting.name];
+      const userValue =
+        this._isNumber(process.env[setting.name]) ?
+          Number(process.env[setting.name]) :
+          process.env[setting.name];
 
       // User configured a setting, validate it
       if (userValue !== undefined) {
@@ -41,28 +42,43 @@ export class Config {
           process.env[setting.name] = undefined;
 
           const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-          Logger.log(`${setting.name} = ${safeOutput}`, LogLevel.Info);
+          Logger.log({
+            message: `${setting.name} = ${safeOutput}`,
+            logLevel: LogLevel.Info,
+          });
         }
         // User setting is invalid
         else {
           if (setting.allowedValues && !this._isAllowedValue(userValue, setting.allowedValues)) {
-            Logger.log(`${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`, LogLevel.Error);
+            Logger.log({
+              message: `${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`,
+              logLevel: LogLevel.Error,
+            });
           }
           else if (typeof userValue !== typeof setting.allowedValues) {
-            Logger.log(`${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`, LogLevel.Error);
+            Logger.log({
+              message: `${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`,
+              logLevel: LogLevel.Error,
+            });
           }
           validationFailed = true;
         }
       }
       // User did not configure an optional setting, use template default
       else if (!setting.required) {
-        Logger.log(`${setting.name} not set - using template default: ${setting.defaultValue}`, LogLevel.Info);
+        Logger.log({
+          message: `${setting.name} not set - using template default: ${setting.defaultValue}`,
+          logLevel: LogLevel.Info,
+        });
         this._settings[setting.name] = setting.defaultValue;
       }
 
       // User did not configure a required setting
       else {
-        Logger.log(`${setting.name} not set and is required.`, LogLevel.Error);
+        Logger.log({
+          message: `${setting.name} not set and is required.`,
+          logLevel: LogLevel.Error,
+        });
         validationFailed = true;
       }
     });

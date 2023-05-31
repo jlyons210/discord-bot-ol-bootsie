@@ -5,5 +5,6 @@ export enum DiscordMessageType {
   AtMention = 'AtMention',
   BotMessage = 'BotMessage',
   DirectMessage = 'DirectMessage',
+  OwnMessage = 'OwnMessage',
   UserMessage = 'UserMessage',
 }
