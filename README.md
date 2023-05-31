@@ -104,6 +104,10 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.10.1 (2023-05-31)
+* [Issue #63](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/63) - added regex check and character replacement to `PayloadMessage.name`
+* [Issue #64](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/64) - added error checks for all calls to `OpenAI.requestChatCompletion()`
+
 ### 0.10.0 (2023-05-31)
 * [Issue #13](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/13):
   * Updated `_probablyEngageInConversation()` and `_probablyReactToMessage()`:
