@@ -246,17 +246,24 @@ export class DiscordBot {
 
         const discordResponse = await this._paginateResponse(responsePayload.content);
         discordResponse.forEach(async responseText => {
-          if (discordMessageType === DiscordMessageType.DirectMessage) {
-            await discordMessage.channel.send(responseText);
+          try {
+            if (discordMessageType === DiscordMessageType.DirectMessage) {
+              await discordMessage.channel.send(responseText);
+            }
+            else {
+              await discordMessage.reply(responseText);
+            }
           }
-          else {
-            await discordMessage.reply(responseText);
+          catch (e) {
+            if (e instanceof DiscordAPIError) {
+              void Logger.log({ message: e.message, logLevel: LogLevel.Error });
+              await discordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
+            }
           }
         });
       }
       catch (e) {
-        if (e instanceof DiscordAPIError ||
-            e instanceof OpenAIBadRequestError ||
+        if (e instanceof OpenAIBadRequestError ||
             e instanceof OpenAIRetriesExceededError ||
             e instanceof OpenAIUnexpectedError) {
           void Logger.log({ message: e.message, logLevel: LogLevel.Error });
@@ -384,18 +391,24 @@ export class DiscordBot {
 
         Array.from(emojiResponse).forEach(async emoji => {
           lastEmoji = emoji;
-          await discordMessage.react(emoji as EmojiIdentifierResolvable);
+          try {
+            await discordMessage.react(emoji as EmojiIdentifierResolvable);
+          }
+          catch (e) {
+            if (e instanceof DiscordAPIError) {
+              void Logger.log({
+                message: (e.message.includes('Unknown Emoji')) ? `${e.message}: ${lastEmoji}` : e.message,
+                logLevel: LogLevel.Error,
+              });
+            }
+          }
         });
       }
       catch (e) {
-        if (e instanceof DiscordAPIError ||
-            e instanceof OpenAIBadRequestError ||
+        if (e instanceof OpenAIBadRequestError ||
             e instanceof OpenAIRetriesExceededError ||
             e instanceof OpenAIUnexpectedError) {
-          void Logger.log({
-            message: (e.message.includes('Unknown Emoji')) ? `${e.message}: ${lastEmoji}` : e.message,
-            logLevel: LogLevel.Error,
-          });
+          void Logger.log({ message: e.message, logLevel: LogLevel.Error });
         }
       }
     }

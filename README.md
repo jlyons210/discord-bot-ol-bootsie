@@ -92,7 +92,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
-* 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31)
+* 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31), [0.10.2](#0102-2023-05-31)
 * 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
 * 0.7.x: [0.7.0](#070-2023-05-02), [0.7.1](#071-2023-05-20)
@@ -104,6 +104,9 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.10.2 (2023-05-31)
+* [Issue #68](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/68) - fixed by adding inner try/catch blocks to `.forEach()` in `DiscordBot._handleMessageCreate()` and `DiscordBot._probablyReactToMessage()`.
+
 ### 0.10.1 (2023-05-31)
 * [Issue #63](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/63) - added regex check and character replacement to `PayloadMessage.name`
 * [Issue #64](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/64) - added error checks for all calls to `OpenAI.requestChatCompletion()`
