@@ -19,12 +19,6 @@ export class PayloadMessage {
     this.content = payload.content;
     this.name = this._sanitizeName(payload.name);
     this.role = payload.role;
-
-    void Logger.log({
-      message: `payload =\n${inspect(this, false, null, true)}`,
-      logLevel: LogLevel.Debug,
-      debugEnabled: true,
-    });
   }
 
   /**
