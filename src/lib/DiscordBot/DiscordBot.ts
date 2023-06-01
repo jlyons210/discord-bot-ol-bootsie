@@ -10,10 +10,10 @@ import {
 } from 'discord.js';
 
 import {
-  OpenAIConfig,
-  PayloadMessage,
-  PayloadMessageRole,
-  OpenAI,
+  CreateChatCompletionPayloadMessage,
+  CreateChatCompletionPayloadMessageRole,
+  CreateChatCompletion,
+  ICreateChatCompletion,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
@@ -42,7 +42,7 @@ export class DiscordBot {
   private _discordClient: Client;
   private _discordMaxMessageLength = 2000;
   private _messageHistory: HistoryMessage[] = [];
-  private _openAiConfig: OpenAIConfig;
+  private _openAiConfig: ICreateChatCompletion;
 
   /**
    * Creates an instance of the DiscordBot class with required configuration to authenticate the
@@ -116,8 +116,8 @@ export class DiscordBot {
    * @param systemPromptOverride Optional system prompt override, useful for internal functions.
    * @returns Promise of completed chat completion payload
    */
-  private async _constructChatCompletionPayloadFromHistory(convoKey: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
-    const payload: PayloadMessage[] = [];
+  private async _constructChatCompletionPayloadFromHistory(convoKey: string, systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage[]> {
+    const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
 
     this._messageHistory.forEach(async message => {
@@ -136,12 +136,12 @@ export class DiscordBot {
    * @returns Promise of completed chat completion payload
    * @deprecated It's encouraged to strongly consider whether this is needed if used.
    */
-  private async _constructOneOffChatCompletionPayload(messageText: string, systemPromptOverride?: string): Promise<PayloadMessage[]> {
-    const payload: PayloadMessage[] = [];
+  private async _constructOneOffChatCompletionPayload(messageText: string, systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage[]> {
+    const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
-    payload.push(new PayloadMessage({
+    payload.push(new CreateChatCompletionPayloadMessage({
       content: messageText,
-      role: PayloadMessageRole.User,
+      role: CreateChatCompletionPayloadMessageRole.User,
     }));
     return payload;
   }
@@ -151,15 +151,15 @@ export class DiscordBot {
    * @param systemPromptOverride Optional system prompt override, useful for internal functions.
    * @returns Promise of PayloadMessage containing the system prompt.
    */
-  private async _constructSystemPrompt(systemPromptOverride?: string): Promise<PayloadMessage> {
+  private async _constructSystemPrompt(systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage> {
     const systemPrompt: string =
       (systemPromptOverride === undefined) ?
         String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT) :
         systemPromptOverride;
 
-    return new PayloadMessage({
+    return new CreateChatCompletionPayloadMessage({
       content: systemPrompt,
-      role: PayloadMessageRole.System,
+      role: CreateChatCompletionPayloadMessageRole.System,
     });
   }
 
@@ -196,7 +196,7 @@ export class DiscordBot {
    */
   private async _handleMessageCreate(discordMessage: Message): Promise<void> {
 
-    const openAiClient = new OpenAI(this._openAiConfig);
+    const openAiClient = new CreateChatCompletion(this._openAiConfig);
 
     // Set Discord message type to control message handling
     let discordMessageType: DiscordMessageType;
@@ -221,10 +221,10 @@ export class DiscordBot {
     const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
     const discordMessageText = await this._cleanupMessageAtMentions(discordMessage);
     const discordMessageUser = discordMessage.author.username;
-    const requestPayload = new PayloadMessage({
+    const requestPayload = new CreateChatCompletionPayloadMessage({
       content: discordMessageText,
       name: discordMessageUser,
-      role: PayloadMessageRole.User,
+      role: CreateChatCompletionPayloadMessageRole.User,
     });
 
     if (discordMessageType === DiscordMessageType.AtMention || discordMessageType === DiscordMessageType.DirectMessage) {
@@ -236,7 +236,7 @@ export class DiscordBot {
       const promptPayload = await this._constructChatCompletionPayloadFromHistory(convoKey);
 
       try {
-        const responsePayload = await openAiClient.requestChatCompletion(promptPayload);
+        const responsePayload = await openAiClient.createChatCompletion(promptPayload);
 
         this._messageHistory.push(new HistoryMessage({
           convoKey: convoKey,
@@ -340,11 +340,11 @@ export class DiscordBot {
           `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} For the provided list of statements, provide ` +
           'an insight, or a question, or a concern. Dont\'t ask if further help is needed.';
 
-        const openAiClient = new OpenAI(this._openAiConfig);
+        const openAiClient = new CreateChatCompletion(this._openAiConfig);
         const requestPayload = await this._constructChatCompletionPayloadFromHistory(convoKey, systemPrompt);
 
         try {
-          const responsePayload = await openAiClient.requestChatCompletion(requestPayload);
+          const responsePayload = await openAiClient.createChatCompletion(requestPayload);
 
           this._messageHistory.push(new HistoryMessage({
             convoKey: convoKey,
@@ -381,12 +381,12 @@ export class DiscordBot {
         `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} You are instructed to only respond ` +
         'to my statements using a single emoji, no words.';
 
-      const openAiClient = new OpenAI(this._openAiConfig);
+      const openAiClient = new CreateChatCompletion(this._openAiConfig);
       const requestPayload = await this._constructChatCompletionPayloadFromHistory(convoKey, systemPrompt);
       let lastEmoji = '';
 
       try {
-        const responsePayload = await openAiClient.requestChatCompletion(requestPayload);
+        const responsePayload = await openAiClient.createChatCompletion(requestPayload);
         const emojiResponse = responsePayload.content.replace(/[^\p{Emoji}\s]/gu, '');
 
         Array.from(emojiResponse).forEach(async emoji => {

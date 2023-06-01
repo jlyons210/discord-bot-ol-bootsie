@@ -1,7 +1,7 @@
 /**
- * Type structure for OpenAI API configuration
+ * Defines an interface for OpenAI API configuration
  */
-export type OpenAIConfig = {
+export interface ICreateChatCompletion {
   apiKey: string,
   maxRetries: number,
   paramMaxTokens: number,

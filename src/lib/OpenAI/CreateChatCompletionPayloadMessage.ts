@@ -1,19 +1,22 @@
-import { IPayloadMessage, PayloadMessageRole } from './index';
+import {
+  CreateChatCompletionPayloadMessageRole,
+  IChatCompletionPayloadMessage,
+} from './index';
 
 /**
  * Controls message adherence to the OpenAI payload specification.
  */
-export class PayloadMessage {
+export class CreateChatCompletionPayloadMessage {
 
   public content: string;
   public name?: string;
-  public role: PayloadMessageRole;
+  public role: CreateChatCompletionPayloadMessageRole;
 
   /**
    * Construcs a PayloadMessage object
    * @param payload PayloadMessage
    */
-  constructor(payload: IPayloadMessage) {
+  constructor(payload: IChatCompletionPayloadMessage) {
     this.content = payload.content;
     this.name = this._sanitizeName(payload.name);
     this.role = payload.role;

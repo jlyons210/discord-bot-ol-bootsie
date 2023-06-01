@@ -1,29 +1,40 @@
 import { AxiosError } from 'axios';
-import { Configuration, OpenAIApi } from 'openai';
-import { inspect } from 'util';
-import { Logger, LogLevel } from '../Logger';
+
 import {
+  Configuration,
+  OpenAIApi,
+} from 'openai';
+
+import { inspect } from 'util';
+
+import {
+  Logger,
+  LogLevel,
+} from '../Logger';
+
+import {
+  CreateChatCompletionPayloadMessage,
+  CreateChatCompletionPayloadMessageRole,
+  ICreateChatCompletion,
+  ICreateImagePayloadMessage,
   OpenAIBadRequestError,
-  OpenAIConfig,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
-  PayloadMessage,
-  PayloadMessageRole,
 } from './index';
 
 /**
- * A class interface for the OpenAI API
+ * A class for interfacing with the OpenAI createImage API
  */
-export class OpenAI {
+export class CreateImage {
 
-  private _config: OpenAIConfig;
+  private _config: ICreateChatCompletion;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: OpenAIConfig) {
+  public constructor(config: ICreateImagePayloadMessage) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
@@ -39,27 +50,17 @@ export class OpenAI {
    * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
    * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
-  public async requestChatCompletion(payload: PayloadMessage[]): Promise<PayloadMessage> {
+  public async createImage(imagePrompt: ) {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
-        const response = await this._client.createChatCompletion({
-          max_tokens: this._config.paramMaxTokens,
-          model: this._config.paramModel,
-          messages: payload,
-          temperature: this._config.paramTemperature,
+        const response = await this._client.createImage({
+          prompt: imagePrompt.prompt,
+          n: imagePrompt.numberOfImages,
+          size: imagePrompt.size,
+          response_format: imagePrompt.responseFormat,
+          user: imagePrompt.user,
         });
-
-        const responseMessage = response.data.choices[0].message;
-        if (responseMessage !== undefined) {
-          return new PayloadMessage({
-            content: responseMessage.content,
-            role: PayloadMessageRole.Assistant,
-          });
-        }
-        else {
-          throw new OpenAIUnexpectedError('There was an error obtaining this chat completion.');
-        }
       }
       catch (e) {
         if ((e as AxiosError).isAxiosError) {
@@ -101,8 +102,6 @@ export class OpenAI {
         }
       }
     }
-
-    throw new OpenAIRetriesExceededError('Maximum OpenAI retries exceeded. Aborting.');
   }
 
 }
