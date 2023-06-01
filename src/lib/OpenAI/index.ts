@@ -3,23 +3,27 @@ import { CreateChatCompletionPayloadMessage } from './CreateChatCompletionPayloa
 import { CreateChatCompletionPayloadMessageRole } from './CreateChatCompletionPayloadMessageRole';
 import { CreateImageResponseFormat } from './CreateImageResponseFormat';
 import { CreateImageSize } from './CreateImageSize';
-import { IChatCompletionPayloadMessage } from './IChatCompletionPayloadMessage';
 import { ICreateChatCompletion } from './ICreateChatCompletion';
+import { ICreateChatCompletionPayloadMessage } from './ICreateChatCompletionPayloadMessage';
 import { ICreateImage } from './ICreateImage';
+import { ICreateImagePayloadMessage } from './ICreateImagePayloadMessage';
 import { OpenAIBadRequestError } from './OpenAIBadRequestError';
 import { OpenAIRetriesExceededError } from './OpenAIRetriesExceededError';
 import { OpenAIUnexpectedError } from './OpenAIUnexpectedError';
+import { Utilities } from './Utilities';
 
 export {
+  CreateChatCompletion,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
-  CreateChatCompletion,
   CreateImageResponseFormat,
   CreateImageSize,
-  IChatCompletionPayloadMessage,
   ICreateChatCompletion,
+  ICreateChatCompletionPayloadMessage,
   ICreateImage,
+  ICreateImagePayloadMessage,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
+  Utilities,
 };

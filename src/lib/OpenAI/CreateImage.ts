@@ -13,9 +13,7 @@ import {
 } from '../Logger';
 
 import {
-  CreateChatCompletionPayloadMessage,
-  CreateChatCompletionPayloadMessageRole,
-  ICreateChatCompletion,
+  ICreateImage,
   ICreateImagePayloadMessage,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
@@ -27,39 +25,37 @@ import {
  */
 export class CreateImage {
 
-  private _config: ICreateChatCompletion;
+  private _config: ICreateImage;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: ICreateImagePayloadMessage) {
+  public constructor(config: ICreateImage) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
 
   /**
-   * Creates a model response for the given chat conversation.
-   *   (https://platform.openai.com/docs/api-reference/chat/create)
-   * @param payload A list of PayloadMessage describing the conversation so far. These should be
-   *   cumulative from the system prompt to the starting user prompt, interleaved with all
-   *   assistant responses in order to maintain conversation flow.
-   * @returns Returns an assistant response
+   * Generates an image for the given prompt.
+   *   (https://platform.openai.com/docs/api-reference/images/create)
+   * @param payload A populated ICreateImage payload
+   * @returns Returns a URL to a generated image
    * @throws {OpenAIBadRequestError} Thrown if the OpenAI API returns a non-retriable 4XX error
    * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
    * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
-  public async createImage(imagePrompt: ) {
+  public async createImage(payload: ICreateImage): Promise<ICreateImagePayloadMessage> {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
         const response = await this._client.createImage({
-          prompt: imagePrompt.prompt,
-          n: imagePrompt.numberOfImages,
-          size: imagePrompt.size,
-          response_format: imagePrompt.responseFormat,
-          user: imagePrompt.user,
+          prompt: payload.prompt,
+          n: payload.numberOfImages,
+          size: payload.size,
+          response_format: payload.responseFormat,
+          user: payload.user,
         });
       }
       catch (e) {
@@ -102,6 +98,8 @@ export class CreateImage {
         }
       }
     }
+
+    throw new OpenAIRetriesExceededError('Maximum OpenAI retries exceeded. Aborting.');
   }
 
 }
