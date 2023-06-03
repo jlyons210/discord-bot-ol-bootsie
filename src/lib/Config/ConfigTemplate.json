@@ -36,6 +36,34 @@
       "secret": false
     },
     {
+      "name": "BOT_CREATE_IMAGE_FEATURE",
+      "allowedValues": [ "enabled", "disabled" ],
+      "defaultValue": "disabled",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_CREATE_IMAGE_TAG",
+      "allowedValues": "",
+      "defaultValue": "{ai-image}",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_CREATE_IMAGE_USER_TOKENS",
+      "allowedValues": 0,
+      "defaultValue": 3,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC",
+      "allowedValues": 0,
+      "defaultValue": 3600,
+      "required": false,
+      "secret": false
+    },
+    {
       "name": "BOT_LOG_DEBUG",
       "allowedValues": [ "enabled", "disabled" ],
       "defaultValue": "disabled",

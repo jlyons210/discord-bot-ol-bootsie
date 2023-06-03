@@ -1,29 +1,35 @@
-import { AxiosError } from 'axios';
-import { Configuration, OpenAIApi } from 'openai';
-import { inspect } from 'util';
-import { Logger, LogLevel } from '../Logger';
 import {
+  Configuration,
+  OpenAIApi,
+} from 'openai';
+import {
+  CreateChatCompletionConfiguration,
+  CreateChatCompletionPayloadMessage,
+  CreateChatCompletionPayloadMessageRole,
   OpenAIBadRequestError,
-  OpenAIConfig,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
-  PayloadMessage,
-  PayloadMessageRole,
 } from './index';
+import {
+  LogLevel,
+  Logger,
+} from '../Logger';
+import { AxiosError } from 'axios';
+import { inspect } from 'util';
 
 /**
- * A class interface for the OpenAI API
+ * A class for interfacing with the OpenAI createChatCompletion API
  */
-export class OpenAI {
+export class CreateChatCompletion {
 
-  private _config: OpenAIConfig;
+  private _config: CreateChatCompletionConfiguration;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: OpenAIConfig) {
+  public constructor(config: CreateChatCompletionConfiguration) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
@@ -39,7 +45,7 @@ export class OpenAI {
    * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
    * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
-  public async requestChatCompletion(payload: PayloadMessage[]): Promise<PayloadMessage> {
+  public async createChatCompletion(payload: CreateChatCompletionPayloadMessage[]): Promise<CreateChatCompletionPayloadMessage> {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
@@ -52,9 +58,9 @@ export class OpenAI {
 
         const responseMessage = response.data.choices[0].message;
         if (responseMessage !== undefined) {
-          return new PayloadMessage({
+          return new CreateChatCompletionPayloadMessage({
             content: responseMessage.content,
-            role: PayloadMessageRole.Assistant,
+            role: CreateChatCompletionPayloadMessageRole.Assistant,
           });
         }
         else {

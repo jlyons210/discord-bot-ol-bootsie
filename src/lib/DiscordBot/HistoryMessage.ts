@@ -1,19 +1,19 @@
-import { PayloadMessage } from '../OpenAI';
-import { IHistoryMessage } from './index';
+import { CreateChatCompletionPayloadMessage } from '../OpenAI';
+import { HistoryMessageConfiguration } from './index';
 
 /**
  * A message that is used as history for chaining conversations with the OpenAI API.
  */
 export class HistoryMessage {
 
-  private _historyMessage: IHistoryMessage;
+  private _historyMessage: HistoryMessageConfiguration;
   private _timestamp: number;
 
   /**
    * Constructs a HistoryMessage object
-   * @param historyMessage A populated IHistoryMessage instance
+   * @param historyMessage A populated HistoryMessageConfiguration
    */
-  constructor(historyMessage: IHistoryMessage) {
+  constructor(historyMessage: HistoryMessageConfiguration) {
     this._historyMessage = historyMessage;
     this._timestamp = new Date().getTime();
   }
@@ -30,7 +30,7 @@ export class HistoryMessage {
    * Gets payload
    * @returns OpenAI PayloadMessage
    */
-  get payload(): PayloadMessage {
+  get payload(): CreateChatCompletionPayloadMessage {
     return this._historyMessage.payload;
   }
 
@@ -44,7 +44,7 @@ export class HistoryMessage {
 
   /**
    * Gets ttl (time to live)
-   * @returns number (of seconds before expiry)
+   * @returns number (of milliseconds before expiry)
    */
   get ttl(): number {
     const expireTime = this._timestamp + (this._historyMessage.convoRetainSec * 1000);

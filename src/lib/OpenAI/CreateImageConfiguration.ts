@@ -1,0 +1,7 @@
+/**
+ * Defines an interface for OpenAI API configuration
+ */
+export interface CreateImageConfiguration {
+  apiKey: string,
+  maxRetries: number,
+}

@@ -1,9 +1,9 @@
-import { ILogEntry } from './ILogEntry';
-import { Logger } from './Logger';
 import { LogLevel } from './LogLevel';
+import { Logger } from './Logger';
+import { LoggerConfiguration } from './LoggerConfiguration';
 
 export {
-  ILogEntry,
+  LoggerConfiguration,
   Logger,
   LogLevel,
 };

@@ -1,5 +1,8 @@
+import {
+  LogLevel,
+  LoggerConfiguration,
+} from './index';
 import { access } from 'fs/promises';
-import { ILogEntry, LogLevel } from './index';
 
 /**
  * Centralized logging class
@@ -9,7 +12,7 @@ export class Logger {
    * Centralized logging function. Logs to console depending on configured logging level.
    * @param logEntry ILogEntry containing log entry details
    */
-  static async log(logEntry: ILogEntry): Promise<void> {
+  static async log(logEntry: LoggerConfiguration): Promise<void> {
     const timestamp: string = new Date().toISOString();
 
     switch (logEntry.logLevel) {
