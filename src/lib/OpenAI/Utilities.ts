@@ -1,3 +1,6 @@
+/**
+ * Re-used functions that don't have a home
+ */
 export class Utilities {
 
   /**

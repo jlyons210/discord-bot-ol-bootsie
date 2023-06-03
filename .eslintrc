@@ -50,6 +50,7 @@
     "prefer-const": "error",
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
+    "sort-imports": "warn",
     "space-before-blocks": "error",
     "space-before-function-paren": ["error", {
       "anonymous": "never",

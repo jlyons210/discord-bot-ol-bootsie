@@ -1,38 +1,35 @@
-import { AxiosError } from 'axios';
-
 import {
   Configuration,
   OpenAIApi,
 } from 'openai';
-
-import { inspect } from 'util';
-
 import {
-  Logger,
-  LogLevel,
-} from '../Logger';
-
-import {
-  ICreateImage,
-  ICreateImagePayloadMessage,
+  CreateImageConfiguration,
+  CreateImagePayloadConfiguration,
+  CreateImageResponse,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
 } from './index';
+import {
+  LogLevel,
+  Logger,
+} from '../Logger';
+import { AxiosError } from 'axios';
+import { inspect } from 'util';
 
 /**
  * A class for interfacing with the OpenAI createImage API
  */
 export class CreateImage {
 
-  private _config: ICreateImage;
+  private _config: CreateImageConfiguration;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: ICreateImage) {
+  public constructor(config: CreateImageConfiguration) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
@@ -46,7 +43,7 @@ export class CreateImage {
    * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
    * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
-  public async createImage(payload: ICreateImage): Promise<ICreateImagePayloadMessage> {
+  public async createImage(payload: CreateImagePayloadConfiguration): Promise<CreateImageResponse> {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
@@ -57,6 +54,25 @@ export class CreateImage {
           response_format: payload.responseFormat,
           user: payload.user,
         });
+
+        const responseData = response.data;
+        const responseUrls: { url: string }[] = [];
+        response.data.data.forEach(e => {
+          responseUrls.push({ url: String(e.url) });
+        });
+
+        const responsePayload = new CreateImageResponse({
+          created: responseData.created,
+          data: responseUrls,
+        });
+
+        Logger.log({
+          message: `responsePayload =\n${inspect(responsePayload, false, null, true)}`,
+          logLevel: LogLevel.Debug,
+          debugEnabled: true,
+        });
+
+        return responsePayload;
       }
       catch (e) {
         if ((e as AxiosError).isAxiosError) {

@@ -1,6 +1,9 @@
+import {
+  LogLevel,
+  Logger,
+} from '../Logger';
 import { ConfigError } from './index';
 import { ConfigTemplate } from './ConfigTemplate.json';
-import { LogLevel, Logger } from '../Logger';
 
 /**
  * Loads the Discord bot's running configuration from environment variables and validates against

@@ -1,11 +1,12 @@
 import {
+  CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
-  ICreateChatCompletionPayloadMessage,
   Utilities,
 } from './index';
 
 /**
  * Controls message adherence to the OpenAI payload specification.
+ * API doc: https://platform.openai.com/docs/api-reference/completions/create
  */
 export class CreateChatCompletionPayloadMessage {
 
@@ -17,7 +18,7 @@ export class CreateChatCompletionPayloadMessage {
    * Construcs a PayloadMessage object
    * @param payload PayloadMessage
    */
-  constructor(payload: ICreateChatCompletionPayloadMessage) {
+  constructor(payload: CreateChatCompletionPayloadMessageConfiguration) {
     this.content = payload.content;
     this.name = Utilities.sanitizeName(payload.name);
     this.role = payload.role;

@@ -1,7 +1,8 @@
 /**
  * Defines an interface for OpenAI API configuration
+ * API doc: https://platform.openai.com/docs/api-reference/completions/create
  */
-export interface ICreateChatCompletion {
+export interface CreateChatCompletionConfiguration {
   apiKey: string,
   maxRetries: number,
   paramMaxTokens: number,

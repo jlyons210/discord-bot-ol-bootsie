@@ -1,6 +1,15 @@
-import { BotEvents, DiscordBot } from './lib/DiscordBot';
-import { Config, ConfigError } from './lib/ConfigTemplate';
-import { Logger, LogLevel } from './lib/Logger';
+import {
+  Config,
+  ConfigError,
+} from './lib/Config';
+import {
+  DiscordBot,
+  DiscordBotEvents,
+} from './lib/DiscordBot';
+import {
+  LogLevel,
+  Logger,
+} from './lib/Logger';
 
 /**
  * Main program entry point class.
@@ -14,7 +23,7 @@ class Main {
     const config = this._loadConfiguration();
     const discordBot = new DiscordBot(config);
 
-    discordBot.Events.once(BotEvents.BotReady, async user => {
+    discordBot.Events.once(DiscordBotEvents.BotReady, async user => {
       void Logger.log({
         message: `${process.env['npm_package_name']}:${process.env['npm_package_version']} ready!`,
         logLevel: LogLevel.Info,

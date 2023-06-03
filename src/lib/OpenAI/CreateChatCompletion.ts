@@ -1,29 +1,35 @@
-import { AxiosError } from 'axios';
-import { Configuration, OpenAIApi } from 'openai';
-import { inspect } from 'util';
-import { Logger, LogLevel } from '../Logger';
 import {
+  Configuration,
+  OpenAIApi,
+} from 'openai';
+import {
+  CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
-  ICreateChatCompletion,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
 } from './index';
+import {
+  LogLevel,
+  Logger,
+} from '../Logger';
+import { AxiosError } from 'axios';
+import { inspect } from 'util';
 
 /**
  * A class for interfacing with the OpenAI createChatCompletion API
  */
 export class CreateChatCompletion {
 
-  private _config: ICreateChatCompletion;
+  private _config: CreateChatCompletionConfiguration;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: ICreateChatCompletion) {
+  public constructor(config: CreateChatCompletionConfiguration) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
