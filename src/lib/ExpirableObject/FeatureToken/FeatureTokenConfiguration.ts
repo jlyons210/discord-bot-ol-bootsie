@@ -1,9 +1,8 @@
-import { ExpirableObjectConfiguration } from '../ExpirableObject';
+import { ExpirableObjectConfiguration } from '../index';
 
 /**
  * Specifies a configuration for a new FeatureToken
  */
 export interface FeatureTokenConfiguration extends ExpirableObjectConfiguration {
-  feature: string;
   username: string;
 }

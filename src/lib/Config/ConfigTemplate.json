@@ -57,7 +57,7 @@
       "secret": false
     },
     {
-      "name": "BOT_CREATE_IMAGE_USER_TOKENS_REFILL_SEC",
+      "name": "BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC",
       "allowedValues": 0,
       "defaultValue": 3600,
       "required": false,

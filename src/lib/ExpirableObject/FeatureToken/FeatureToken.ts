@@ -1,4 +1,4 @@
-import { ExpirableObject } from '../ExpirableObject';
+import { ExpirableObject } from '../index';
 import { FeatureTokenConfiguration } from './index';
 
 /**
@@ -13,16 +13,8 @@ export class FeatureToken extends ExpirableObject {
    * @param config A populated FeatureTokenConfiguration
    */
   constructor(config: FeatureTokenConfiguration) {
-    super({ expireSec: config.expireSec });
+    super();
     this._config = config;
-  }
-
-  /**
-   * Gets feature name
-   * @returns string
-   */
-  get feature(): string {
-    return this._config.feature;
   }
 
   /**

@@ -33,19 +33,23 @@ Run the application:
 > Configuration settings with acceptable defaults may be omitted.
 
 ```
- BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
- BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
- BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
- BOT_CONVO_MODE=[channel|user - default: channel] \
- BOT_CONVO_RETAIN_SEC=[default: 900] \
- BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
- DISCORD_BOT_TOKEN=[bot token] \
- OPENAI_API_KEY=[API key] \
- OPENAI_MAX_RETRIES=[default: 5] \
- OPENAI_PARAM_MAX_TOKENS=[default: 600] \
- OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
- OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
- OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
+ BOT_AUTO_ENGAGE_MIN_MESSAGES=number (default: 6) \
+ BOT_AUTO_ENGAGE_PROBABILITY=number (default: 0.05) \
+ BOT_AUTO_REACT_PROBABILITY=number (default: 0.05) \
+ BOT_CONVO_MODE=channel|user (default: channel) \
+ BOT_CONVO_RETAIN_SEC=number (default: 900) \
+ BOT_CREATE_IMAGE_FEATURE=enabled|disabled (default: disabled) \
+ BOT_CREATE_IMAGE_TAG=string (default: {ai-image}) \
+ BOT_CREATE_IMAGE_USER_TOKENS=number (default: 3) \
+ BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC=number (default: 3600) \
+ BOT_LOG_DEBUG=enabled|disabled (default: disabled) \
+ DISCORD_BOT_TOKEN=string (bot token) \
+ OPENAI_API_KEY=string (api key) \
+ OPENAI_MAX_RETRIES=number (default: 5) \
+ OPENAI_PARAM_MAX_TOKENS=number (default: 600) \
+ OPENAI_PARAM_MODEL=model (default: gpt-3.5-turbo) \
+ OPENAI_PARAM_SYSTEM_PROMPT=string (example: "A system prompt that describes how the chat bot should behave") \
+ OPENAI_PARAM_TEMPERATURE=number (default: 0.6) \
 npx ts-node src/app.ts
 ```
 
@@ -73,25 +77,30 @@ docker build -t discord-bot-ol-bootsie:latest .
 
 ```
 docker run -d \
-  -e BOT_AUTO_ENGAGE_MIN_MESSAGES=[default: 6] \
-  -e BOT_AUTO_ENGAGE_PROBABILITY=[default: 0.05] \
-  -e BOT_AUTO_REACT_PROBABILITY=[default: 0.05] \
-  -e BOT_CONVO_MODE=[channel|user - default: channel] \
-  -e BOT_CONVO_RETAIN_SEC=[default: 900] \
-  -e BOT_LOG_DEBUG=[enabled|disabled - default: disabled] \
-  -e DISCORD_BOT_TOKEN=[bot token] \
-  -e OPENAI_API_KEY=[API key] \
-  -e OPENAI_MAX_RETRIES=[default: 5] \
-  -e OPENAI_PARAM_MAX_TOKENS=[default: 600] \
-  -e OPENAI_PARAM_MODEL=[default: gpt-3.5-turbo] \
-  -e OPENAI_PARAM_SYSTEM_PROMPT=["A system prompt that describes how the chat bot should behave"] \
-  -e OPENAI_PARAM_TEMPERATURE=[default: 0.6] \
+  -e BOT_AUTO_ENGAGE_MIN_MESSAGES=number (default: 6) \
+  -e BOT_AUTO_ENGAGE_PROBABILITY=number (default: 0.05) \
+  -e BOT_AUTO_REACT_PROBABILITY=number (default: 0.05) \
+  -e BOT_CONVO_MODE=channel|user (default: channel) \
+  -e BOT_CONVO_RETAIN_SEC=number (default: 900) \
+  -e BOT_CREATE_IMAGE_FEATURE=enabled|disabled (default: disabled) \
+  -e BOT_CREATE_IMAGE_TAG=string (default: {ai-image}) \
+  -e BOT_CREATE_IMAGE_USER_TOKENS=number (default: 3) \
+  -e BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC=number (default: 3600) \
+  -e BOT_LOG_DEBUG=enabled|disabled (default: disabled) \
+  -e DISCORD_BOT_TOKEN=string (bot token) \
+  -e OPENAI_API_KEY=string (api key) \
+  -e OPENAI_MAX_RETRIES=number (default: 5) \
+  -e OPENAI_PARAM_MAX_TOKENS=number (default: 600) \
+  -e OPENAI_PARAM_MODEL=model (default: gpt-3.5-turbo) \
+  -e OPENAI_PARAM_SYSTEM_PROMPT=string (example: "A system prompt that describes how the chat bot should behave") \
+  -e OPENAI_PARAM_TEMPERATURE=number (default: 0.6) \
 discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:latest (pulled)
 ```
 
 ## Release history
 
 ### Shortcuts:
+* 0.11.x: [0.11.0](#0110-2023-06-02)
 * 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31), [0.10.2](#0102-2023-05-31)
 * 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
@@ -104,6 +113,15 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.11.0 (2023-06-02)
+* [Issue #70](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/68) - Implemented the OpenAI `CreateImage` API:
+  * New configuration variables:
+    * `BOT_CREATE_IMAGE_FEATURE`: enabled/disabled (default: disabled)
+    * `BOT_CREATE_IMAGE_TAG`: string (default: `{ai-image}`)
+    * `BOT_CREATE_IMAGE_USER_TOKENS`: number (default: 3)
+    * `BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC`: number (default: 3600)
+  * Implemented a token/bucket system for rate-limiting users, as the CreateImage API call is pretty expensive compared to chat completions.
+
 ### 0.10.2 (2023-05-31)
 * [Issue #68](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/68) - fixed by adding inner try/catch blocks to `.forEach()` in `DiscordBot._handleMessageCreate()` and `DiscordBot._probablyReactToMessage()`.
 

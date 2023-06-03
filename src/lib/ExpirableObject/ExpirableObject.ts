@@ -1,8 +1,5 @@
-import {
-  ExpirableObjectConfiguration,
-  ExpirableObjectEvents,
-} from '../ExpirableObject';
 import { EventEmitter } from 'events';
+import { ExpirableObjectEvents } from '../ExpirableObject';
 
 /**
  * Generic base class for an expirable object, like a history message or a feature token
@@ -10,23 +7,21 @@ import { EventEmitter } from 'events';
 export class ExpirableObject {
 
   public events = new EventEmitter();
-  private _expireSec: number;
+  private _expireSec = 0;
   private _timestamp: number;
 
   /**
    * Creates a new ExpirableObject
-   * @param config ExpirableObjectConfiguration
    */
-  constructor(config: ExpirableObjectConfiguration) {
-    this._expireSec = config.expireSec;
+  constructor() {
     this._timestamp = new Date().getTime();
-    this._startExpirationTimer();
+    this._startExpirationMonitor();
   }
 
   /**
    * Starts a clock that will emit an ObjectExpired event when TTL has run out
    */
-  private _startExpirationTimer(): void {
+  private _startExpirationMonitor(): void {
     setInterval(() => {
       if (this.ttl <= 0) {
         this.events.emit(ExpirableObjectEvents.ObjectExpired, this);
@@ -40,6 +35,14 @@ export class ExpirableObject {
    */
   get expireSec(): number {
     return this._expireSec;
+  }
+
+  /**
+   * Sets expireSec
+   * @param expireSec number of seconds
+   */
+  set expireSec(expireSec: number) {
+    this._expireSec = expireSec;
   }
 
   /**

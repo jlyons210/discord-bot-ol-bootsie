@@ -1,5 +1,6 @@
 import {
   ExpirableObject,
+  ExpirableObjectBucketConfiguration,
   ExpirableObjectEvents,
 } from './index';
 
@@ -8,13 +9,15 @@ import {
  */
 export class ExpirableObjectBucket {
 
-  private _objects: ExpirableObject[];
+  private _objects: ExpirableObject[] = [];
+  private _objectExpireSec: number;
 
   /**
    * Creates a new ExpirableObjectBucket
+   * @param config ExpireableObjectBucketConfiguration
    */
-  constructor() {
-    this._objects = [];
+  constructor(config: ExpirableObjectBucketConfiguration) {
+    this._objectExpireSec = config.objectExpireSec;
   }
 
   /**
@@ -22,6 +25,7 @@ export class ExpirableObjectBucket {
    * @param object ExpirableObject to add to the bucket
    */
   public add(object: ExpirableObject): void {
+    object.expireSec = this._objectExpireSec;
     object.events.on(ExpirableObjectEvents.ObjectExpired, () => {
       this._objects = this._objects.filter(obj => obj !== object);
     });
