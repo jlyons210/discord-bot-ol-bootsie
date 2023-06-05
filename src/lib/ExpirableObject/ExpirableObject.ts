@@ -14,7 +14,7 @@ export class ExpirableObject {
    * Creates a new ExpirableObject
    */
   constructor() {
-    this._timestamp = new Date().getTime();
+    this._timestamp = Date.now();
     this._startExpirationMonitor();
   }
 
@@ -59,7 +59,7 @@ export class ExpirableObject {
    */
   get ttl(): number {
     const expireTime = this.timestamp + (this.expireSec * 1000);
-    return (expireTime - new Date().getTime());
+    return (expireTime - Date.now());
   }
 
 }
