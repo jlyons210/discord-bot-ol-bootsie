@@ -4,5 +4,5 @@
  */
 export interface CreateImageResponseConfiguration {
   created: number,
-  data: { url: string }[],
+  data: { url: string }[] | { b64_json: string }[],
 }

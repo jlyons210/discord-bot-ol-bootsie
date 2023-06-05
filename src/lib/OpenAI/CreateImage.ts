@@ -6,6 +6,7 @@ import {
   CreateImageConfiguration,
   CreateImagePayloadConfiguration,
   CreateImageResponse,
+  CreateImageResponseFormat,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
@@ -55,21 +56,11 @@ export class CreateImage {
           user: payload.user,
         });
 
-        const responseData = response.data;
-        const responseUrls: { url: string }[] = [];
-        response.data.data.forEach(e => {
-          responseUrls.push({ url: String(e.url) });
-        });
-
         const responsePayload = new CreateImageResponse({
-          created: responseData.created,
-          data: responseUrls,
-        });
-
-        Logger.log({
-          message: `responsePayload =\n${inspect(responsePayload, false, null, true)}`,
-          logLevel: LogLevel.Debug,
-          debugEnabled: true,
+          created: response.data.created,
+          data: (payload.responseFormat == CreateImageResponseFormat.URL) ?
+            response.data.data.map(data => ({ url: String(data.url) })) :
+            response.data.data.map(data => ({ b64_json: String(data.b64_json) })),
         });
 
         return responsePayload;

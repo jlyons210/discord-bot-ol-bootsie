@@ -7,7 +7,7 @@ import { CreateImageResponseConfiguration } from './index';
 export class CreateImageResponse {
 
   public created: number;
-  public data: { url: string }[];
+  public data: { url: string }[] | { b64_json: string }[];
 
   /**
    * Construcs a PayloadMessage object
