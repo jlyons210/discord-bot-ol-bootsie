@@ -246,7 +246,7 @@ export class DiscordBot {
         embed.setImage(`attachment://${files[0].name}`);
       }
 
-      message.channel.send({ embeds: [embed], files: files });
+      await message.channel.send({ embeds: [embed], files: files });
     }
     catch (e) {
       if (e instanceof FeatureTokenBucketMaxUserTokensError) {
