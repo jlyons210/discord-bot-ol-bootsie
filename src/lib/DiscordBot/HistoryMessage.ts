@@ -15,7 +15,7 @@ export class HistoryMessage {
    */
   constructor(historyMessage: HistoryMessageConfiguration) {
     this._historyMessage = historyMessage;
-    this._timestamp = new Date().getTime();
+    this._timestamp = Date.now();
   }
 
   /**
@@ -48,7 +48,7 @@ export class HistoryMessage {
    */
   get ttl(): number {
     const expireTime = this._timestamp + (this._historyMessage.convoRetainSec * 1000);
-    return (expireTime - new Date().getTime());
+    return (expireTime - Date.now());
   }
 
 }
