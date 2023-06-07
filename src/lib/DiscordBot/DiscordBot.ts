@@ -40,6 +40,7 @@ import {
 } from '../Logger';
 import { Config } from '../Config';
 import { EventEmitter } from 'events';
+import { ExpirableObjectBucket } from '../ExpirableObject';
 import { inspect } from 'util';
 
 /**
@@ -51,9 +52,9 @@ export class DiscordBot {
   private _botConfig: Config;
   private _discordClient: Client;
   private _discordMaxMessageLength = 2000;
-  private _messageHistory: HistoryMessage[] = [];
-  private _openAiConfig: CreateChatCompletionConfiguration;
+  private _historyMessageBucket: ExpirableObjectBucket;
   private _imageCreateTokenBucket: FeatureTokenBucket;
+  private _openAiConfig: CreateChatCompletionConfiguration;
 
   /**
    * Creates an instance of the DiscordBot class with required configuration to authenticate the
@@ -82,10 +83,16 @@ export class DiscordBot {
     });
     this._discordClient.login(String(this._botConfig.Settings.DISCORD_BOT_TOKEN));
 
+    this._historyMessageBucket =
+      new ExpirableObjectBucket({
+        objectExpireSec: Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC),
+      });
+
     this._imageCreateTokenBucket =
       new FeatureTokenBucket({
         maxTokens: Number(this._botConfig.Settings.BOT_CREATE_IMAGE_USER_TOKENS),
-        tokenExpireSec: Number(this._botConfig.Settings.BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC) });
+        tokenExpireSec: Number(this._botConfig.Settings.BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC),
+      });
 
     this._registerEventHandlers();
   }
@@ -136,11 +143,9 @@ export class DiscordBot {
     const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
 
-    this._messageHistory.forEach(async message => {
-      if (message.convoKey === convoKey) {
-        payload.push(message.payload);
-      }
-    });
+    this._historyMessageBucket.objects
+      .filter(historyMessage => (historyMessage as HistoryMessage).convoKey === convoKey)
+      .map(message => (message as HistoryMessage).payload);
 
     return payload;
   }
@@ -318,10 +323,9 @@ export class DiscordBot {
 
     // Additional attributes for HistoryMessage
     const convoKey = await this._getConversationKey(discordMessage);
-    const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
     const discordMessageText = await this._cleanupMessageAtMentions(discordMessage);
     const discordMessageUser = discordMessage.author.username;
-    const createImageFeatureEnabled = (this._botConfig.Settings.BOT_CREATE_IMAGE_FEATURE == 'enabled');
+    const createImageFeatureEnabled = (this._botConfig.Settings.BOT_CREATE_IMAGE_FEATURE === 'enabled');
     const createImageTag = String(this._botConfig.Settings.BOT_CREATE_IMAGE_TAG);
     const requestPayload = new CreateChatCompletionPayloadMessage({
       content: discordMessageText,
@@ -330,9 +334,8 @@ export class DiscordBot {
     });
 
     if (discordMessageType === DiscordBotMessageType.AtMention || discordMessageType === DiscordBotMessageType.DirectMessage) {
-      this._messageHistory.push(new HistoryMessage({
+      this._historyMessageBucket.objects.push(new HistoryMessage({
         convoKey: convoKey,
-        convoRetainSec: convoRetainSec,
         payload: requestPayload,
       }));
 
@@ -344,16 +347,15 @@ export class DiscordBot {
           const promptPayload = await this._constructChatCompletionPayloadFromHistory(convoKey);
           const responsePayload = await openAiClient.createChatCompletion(promptPayload);
 
-          this._messageHistory.push(new HistoryMessage({
+          this._historyMessageBucket.objects.push(new HistoryMessage({
             convoKey: convoKey,
-            convoRetainSec: convoRetainSec,
             payload: responsePayload,
           }));
 
           const discordResponse = await this._paginateResponse(responsePayload.content);
           discordResponse.forEach(async responseText => {
             try {
-              if (discordMessageType == DiscordBotMessageType.DirectMessage) {
+              if (discordMessageType === DiscordBotMessageType.DirectMessage) {
                 await discordMessage.channel.send(responseText);
               }
               else {
@@ -379,9 +381,8 @@ export class DiscordBot {
       }
     }
     else if (discordMessageType === DiscordBotMessageType.BotMessage || discordMessageType === DiscordBotMessageType.UserMessage) {
-      this._messageHistory.push(new HistoryMessage({
+      this._historyMessageBucket.objects.push(new HistoryMessage({
         convoKey: convoKey,
-        convoRetainSec: convoRetainSec,
         payload: requestPayload,
       }));
 
@@ -436,13 +437,13 @@ export class DiscordBot {
 
     // Check if current conversation meets BOT_AUTO_ENGAGE_MIN_MESSAGES
     if (botWillEngage) {
-      let messageCount = 0;
-      this._messageHistory.forEach(async message => {
-        if (message.convoKey === convoKey) { messageCount++; }
-      });
+      const botAutoEngageMinMessages = Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES);
+      const messageCount =
+        this._historyMessageBucket.objects
+          .filter(message => (message as HistoryMessage).convoKey === convoKey)
+          .length;
 
-      if (messageCount >= Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES)) {
-        const convoRetainSec = Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC);
+      if (messageCount >= botAutoEngageMinMessages) {
         const systemPrompt =
           `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} For the provided list of statements, provide ` +
           'an insight, or a question, or a concern. Dont\'t ask if further help is needed.';
@@ -453,9 +454,8 @@ export class DiscordBot {
         try {
           const responsePayload = await openAiClient.createChatCompletion(requestPayload);
 
-          this._messageHistory.push(new HistoryMessage({
+          this._historyMessageBucket.objects.push(new HistoryMessage({
             convoKey: convoKey,
-            convoRetainSec: convoRetainSec,
             payload: responsePayload,
           }));
 
@@ -523,19 +523,20 @@ export class DiscordBot {
 
   /**
    * Prune messages older than retention period
+   * @deprecated HistoryMessage pruning completed automatically by ExpireableObjectBucket
    */
   private async _pruneOldHistoryMessages(): Promise<void> {
-    let i = this._messageHistory.length;
+    let i = this._historyMessageBucket.objects.length;
     while (i--) {
-      if (this._messageHistory[i].ttl <= 0) this._messageHistory.splice(i, 1);
+      if (this._historyMessageBucket.objects[i].ttl <= 0) this._historyMessageBucket.objects.splice(i, 1);
     }
     void Logger.log({
-      message: `messageHistory =\n${inspect(this._messageHistory, false, null, true)}`,
+      message: `messageHistory =\n${inspect(this._historyMessageBucket.objects, false, null, true)}`,
       logLevel: LogLevel.Debug,
       debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
     });
     void Logger.log({
-      message: `messageHistory.length = ${this._messageHistory.length}`,
+      message: `messageHistory.length = ${this._historyMessageBucket.objects.length}`,
       logLevel: LogLevel.Debug,
       debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
     });

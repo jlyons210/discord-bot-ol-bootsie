@@ -5,6 +5,5 @@ import { CreateChatCompletionPayloadMessage } from '../OpenAI';
  */
 export interface HistoryMessageConfiguration {
   convoKey: string,
-  convoRetainSec: number,
   payload: CreateChatCompletionPayloadMessage,
 }

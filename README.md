@@ -100,7 +100,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
-* 0.11.x: [0.11.0](#0110-2023-06-02), [0.11.1](#0111-2023-06-04), [0.11.2](#0112-2023-06-05)
+* 0.11.x: [0.11.0](#0110-2023-06-02), [0.11.1](#0111-2023-06-04), [0.11.2](#0112-2023-06-05), [0.11.3](#0113-2023-06-07)
 * 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31), [0.10.2](#0102-2023-05-31)
 * 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
@@ -113,6 +113,10 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.11.3 (2023-06-07)
+* [Issue #74](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/74) - Resolved; see issue for notes.
+* Minor updates to package dependencies.
+
 ### 0.11.2 (2023-06-05)
 * [Issue #79](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/79) - Resolved. `_embedImageFromPromptMessage()` now supports base64 encoded file attachments and URL images, and is using base64 encoded attachments for persistence.
 
