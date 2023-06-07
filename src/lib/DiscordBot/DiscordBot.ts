@@ -144,9 +144,17 @@ export class DiscordBot {
   private async _constructChatCompletionPayloadFromHistory(convoKey: string, systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage[]> {
     const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
-    payload.concat(this._historyMessageBucket.objects
+
+    this._historyMessageBucket.objects
       .filter(historyMessage => (historyMessage as HistoryMessage).convoKey === convoKey)
-      .map(message => (message as HistoryMessage).payload));
+      .map(historyMessage => (historyMessage as HistoryMessage).payload)
+      .forEach(historyMessage => (payload.push(historyMessage)));
+
+    Logger.log({
+      message: `payload =\n${inspect(payload, false, null, true)}`,
+      logLevel: LogLevel.Debug,
+      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
+    });
 
     return payload;
   }
