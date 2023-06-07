@@ -144,10 +144,9 @@ export class DiscordBot {
   private async _constructChatCompletionPayloadFromHistory(convoKey: string, systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage[]> {
     const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
-
-    this._historyMessageBucket.objects
+    payload.concat(this._historyMessageBucket.objects
       .filter(historyMessage => (historyMessage as HistoryMessage).convoKey === convoKey)
-      .map(message => (message as HistoryMessage).payload);
+      .map(message => (message as HistoryMessage).payload));
 
     return payload;
   }
