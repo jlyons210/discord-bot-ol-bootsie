@@ -58,7 +58,7 @@ export class CreateImage {
 
         const responsePayload = new CreateImageResponse({
           created: response.data.created,
-          data: (payload.responseFormat == CreateImageResponseFormat.URL) ?
+          data: (payload.responseFormat === CreateImageResponseFormat.URL) ?
             response.data.data.map(data => ({ url: String(data.url) })) :
             response.data.data.map(data => ({ b64_json: String(data.b64_json) })),
         });
