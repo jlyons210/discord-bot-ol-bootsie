@@ -150,12 +150,6 @@ export class DiscordBot {
       .map(historyMessage => (historyMessage as HistoryMessage).payload)
       .forEach(historyMessage => (payload.push(historyMessage)));
 
-    Logger.log({
-      message: `payload =\n${inspect(payload, false, null, true)}`,
-      logLevel: LogLevel.Debug,
-      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
-    });
-
     return payload;
   }
 
