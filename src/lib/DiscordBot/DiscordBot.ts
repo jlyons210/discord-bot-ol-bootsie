@@ -27,7 +27,6 @@ import {
   DiscordBotEvents,
   DiscordBotMessageType,
   DiscordBotUnexpectedError,
-  HistoryMessage,
 } from './index';
 import {
   FeatureToken,
@@ -35,12 +34,15 @@ import {
   FeatureTokenBucketMaxUserTokensError,
 } from '../ExpirableObject/FeatureToken';
 import {
+  HistoryMessage,
+  HistoryMessageBucket,
+} from '../ExpirableObject/HistoryMessage';
+import {
   LogLevel,
   Logger,
 } from '../Logger';
 import { Config } from '../Config';
 import { EventEmitter } from 'events';
-import { ExpirableObjectBucket } from '../ExpirableObject';
 import { inspect } from 'util';
 
 /**
@@ -52,7 +54,7 @@ export class DiscordBot {
   private _botConfig: Config;
   private _discordClient: Client;
   private _discordMaxMessageLength = 2000;
-  private _historyMessageBucket: ExpirableObjectBucket;
+  private _historyMessageBucket: HistoryMessageBucket;
   private _imageCreateTokenBucket: FeatureTokenBucket;
   private _openAiConfig: CreateChatCompletionConfiguration;
 
@@ -84,8 +86,8 @@ export class DiscordBot {
     this._discordClient.login(String(this._botConfig.Settings.DISCORD_BOT_TOKEN));
 
     this._historyMessageBucket =
-      new ExpirableObjectBucket({
-        objectExpireSec: Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC),
+      new HistoryMessageBucket({
+        historyMessageExpireSec: Number(this._botConfig.Settings.BOT_CONVO_RETAIN_SEC),
       });
 
     this._imageCreateTokenBucket =
@@ -334,7 +336,7 @@ export class DiscordBot {
     });
 
     if (discordMessageType === DiscordBotMessageType.AtMention || discordMessageType === DiscordBotMessageType.DirectMessage) {
-      this._historyMessageBucket.objects.push(new HistoryMessage({
+      this._historyMessageBucket.add(new HistoryMessage({
         convoKey: convoKey,
         payload: requestPayload,
       }));
@@ -347,7 +349,7 @@ export class DiscordBot {
           const promptPayload = await this._constructChatCompletionPayloadFromHistory(convoKey);
           const responsePayload = await openAiClient.createChatCompletion(promptPayload);
 
-          this._historyMessageBucket.objects.push(new HistoryMessage({
+          this._historyMessageBucket.add(new HistoryMessage({
             convoKey: convoKey,
             payload: responsePayload,
           }));
@@ -381,7 +383,7 @@ export class DiscordBot {
       }
     }
     else if (discordMessageType === DiscordBotMessageType.BotMessage || discordMessageType === DiscordBotMessageType.UserMessage) {
-      this._historyMessageBucket.objects.push(new HistoryMessage({
+      this._historyMessageBucket.add(new HistoryMessage({
         convoKey: convoKey,
         payload: requestPayload,
       }));
@@ -454,7 +456,7 @@ export class DiscordBot {
         try {
           const responsePayload = await openAiClient.createChatCompletion(requestPayload);
 
-          this._historyMessageBucket.objects.push(new HistoryMessage({
+          this._historyMessageBucket.add(new HistoryMessage({
             convoKey: convoKey,
             payload: responsePayload,
           }));
@@ -522,27 +524,6 @@ export class DiscordBot {
   }
 
   /**
-   * Prune messages older than retention period
-   * @deprecated HistoryMessage pruning completed automatically by ExpireableObjectBucket
-   */
-  private async _pruneOldHistoryMessages(): Promise<void> {
-    let i = this._historyMessageBucket.objects.length;
-    while (i--) {
-      if (this._historyMessageBucket.objects[i].ttl <= 0) this._historyMessageBucket.objects.splice(i, 1);
-    }
-    void Logger.log({
-      message: `messageHistory =\n${inspect(this._historyMessageBucket.objects, false, null, true)}`,
-      logLevel: LogLevel.Debug,
-      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
-    });
-    void Logger.log({
-      message: `messageHistory.length = ${this._historyMessageBucket.objects.length}`,
-      logLevel: LogLevel.Debug,
-      debugEnabled: (this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled'),
-    });
-  }
-
-  /**
    * Register bot event handlers
    */
   private _registerEventHandlers(): void {
@@ -553,10 +534,6 @@ export class DiscordBot {
     this._discordClient.on(Events.MessageCreate, async message => {
       await this._handleMessageCreate(message);
     });
-
-    setInterval(async () => {
-      await this._pruneOldHistoryMessages();
-    }, 15000);
   }
 
 }

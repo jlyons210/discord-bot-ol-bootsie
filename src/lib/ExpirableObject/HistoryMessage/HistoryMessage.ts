@@ -1,5 +1,5 @@
-import { CreateChatCompletionPayloadMessage } from '../OpenAI';
-import { ExpirableObject } from '../ExpirableObject';
+import { CreateChatCompletionPayloadMessage } from '../../OpenAI';
+import { ExpirableObject } from '..';
 import { HistoryMessageConfiguration } from './index';
 
 /**
