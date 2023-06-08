@@ -13,8 +13,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 
 ## Requirements
 * Create an application and bot via the [Discord Developer Portal](https://discord.com/developers/).
-* Set up pay-as-you-go OpenAI API access [here](https://platform.openai.com/account/) - this is
-very inexpensive, but be sure to set a spending limit and warning level.
+* Set up pay-as-you-go OpenAI API access [here](https://platform.openai.com/account/) - this is very inexpensive, but be sure to set a spending limit and warning level.
 * An always-on machine or environment to run the application on.
 
 ## Setup
