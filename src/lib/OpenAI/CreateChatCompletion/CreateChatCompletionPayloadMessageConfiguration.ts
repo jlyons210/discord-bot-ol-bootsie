@@ -1,4 +1,4 @@
-import { CreateChatCompletionPayloadMessageRole } from './index';
+import { CreateChatCompletionPayloadMessageRole } from '../index';
 
 /**
  * Defines an interface for creating a new PayloadMessage

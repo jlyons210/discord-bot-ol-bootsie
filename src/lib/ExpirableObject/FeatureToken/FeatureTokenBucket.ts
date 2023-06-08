@@ -2,8 +2,8 @@ import {
   FeatureToken,
   FeatureTokenBucketConfiguration,
   FeatureTokenBucketMaxUserTokensError,
-} from './index';
-import { ExpirableObjectBucket } from '../index';
+} from '../index';
+import { ExpirableObjectBucket } from '../ExpirableObjectBucket';
 
 /**
  * Constructs a FeatureTokenBucket, used for rate limiting user activities that may be expensive.

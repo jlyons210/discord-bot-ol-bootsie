@@ -1,8 +1,8 @@
 import {
   HistoryMessage,
   HistoryMessageBucketConfiguration,
-} from './index';
-import { ExpirableObjectBucket } from '../index';
+} from '../index';
+import { ExpirableObjectBucket } from '../ExpirableObjectBucket';
 
 /**
  * Constructs a HistoryMessageBucket, used for rate limiting user activities that may be expensive.

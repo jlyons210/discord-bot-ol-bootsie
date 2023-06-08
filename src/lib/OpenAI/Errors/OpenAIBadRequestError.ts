@@ -1,7 +1,9 @@
+import { OpenAIError } from './OpenAIError';
+
 /**
  * To be thrown for bad request errors in the OpenAI module.
  */
-export class OpenAIBadRequestError extends Error {
+export class OpenAIBadRequestError extends OpenAIError {
   /**
    * Constructs an OpenAIBadRequestError
    * @param message Error message

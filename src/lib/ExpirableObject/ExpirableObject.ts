@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ExpirableObjectEvents } from '../ExpirableObject';
+import { ExpirableObjectEvents } from './index';
 
 /**
  * Generic base class for an expirable object, like a history message or a feature token

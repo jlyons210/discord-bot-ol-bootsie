@@ -1,5 +1,5 @@
 import { Config } from './Config';
-import { ConfigError } from './ConfigError';
+import { ConfigError } from './Errors';
 
 export {
   Config,

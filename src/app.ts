@@ -1,8 +1,4 @@
 import {
-  Config,
-  ConfigError,
-} from './lib/Config';
-import {
   DiscordBot,
   DiscordBotEvents,
 } from './lib/DiscordBot';
@@ -10,6 +6,8 @@ import {
   LogLevel,
   Logger,
 } from './lib/Logger';
+import { Config } from './lib/Config';
+import { ConfigError } from './lib/Config/Errors';
 
 /**
  * Main program entry point class.
@@ -46,10 +44,10 @@ class Main {
     }
     catch (e) {
       if (e instanceof ConfigError) {
-        Logger.log({
-          message: e.message,
-          logLevel: LogLevel.Error,
-        });
+        Logger.log({ message: e.message, logLevel: LogLevel.Error });
+      }
+      else if (e instanceof Error) {
+        Logger.log({ message: e.message, logLevel: LogLevel.Error });
       }
     }
     process.exit(1);

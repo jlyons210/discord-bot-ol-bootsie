@@ -1,7 +1,7 @@
 import {
   CreateImageResponseFormat,
   CreateImageSize,
-} from './index';
+} from '../index';
 
 /**
  * Defines an interface for creating a new PayloadMessage
