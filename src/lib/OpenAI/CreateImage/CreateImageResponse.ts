@@ -1,4 +1,4 @@
-import { CreateImageResponseConfiguration } from './index';
+import { CreateImageResponseConfiguration } from '../index';
 
 /**
  * Controls message adherence to the OpenAI payload specification.

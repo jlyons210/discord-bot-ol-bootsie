@@ -3,69 +3,67 @@ import {
   OpenAIApi,
 } from 'openai';
 import {
-  CreateChatCompletionConfiguration,
-  CreateChatCompletionPayloadMessage,
-  CreateChatCompletionPayloadMessageRole,
+  CreateImageConfiguration,
+  CreateImagePayloadConfiguration,
+  CreateImageResponse,
+  CreateImageResponseFormat,
   OpenAIBadRequestError,
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
-} from './index';
+} from '../index';
 import {
   LogLevel,
   Logger,
-} from '../Logger';
+} from '../../Logger';
 import { AxiosError } from 'axios';
 import { inspect } from 'util';
 
 /**
- * A class for interfacing with the OpenAI createChatCompletion API
+ * A class for interfacing with the OpenAI createImage API
  */
-export class CreateChatCompletion {
+export class CreateImage {
 
-  private _config: CreateChatCompletionConfiguration;
+  private _config: CreateImageConfiguration;
   private _client: OpenAIApi;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
-  public constructor(config: CreateChatCompletionConfiguration) {
+  public constructor(config: CreateImageConfiguration) {
     this._config = config;
     this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
   }
 
   /**
-   * Creates a model response for the given chat conversation.
-   *   (https://platform.openai.com/docs/api-reference/chat/create)
-   * @param payload A list of PayloadMessage describing the conversation so far. These should be
-   *   cumulative from the system prompt to the starting user prompt, interleaved with all
-   *   assistant responses in order to maintain conversation flow.
-   * @returns Returns an assistant response
+   * Generates an image for the given prompt.
+   *   (https://platform.openai.com/docs/api-reference/images/create)
+   * @param payload A populated ICreateImage payload
+   * @returns Returns a URL to a generated image
    * @throws {OpenAIBadRequestError} Thrown if the OpenAI API returns a non-retriable 4XX error
    * @throws {OpenAIUnexpectedError} Thrown if for non-API errors
    * @throws {OpenAIRetriesExceededError} Thrown if all retries are exhausted without a response
    */
-  public async createChatCompletion(payload: CreateChatCompletionPayloadMessage[]): Promise<CreateChatCompletionPayloadMessage> {
+  public async createImage(payload: CreateImagePayloadConfiguration): Promise<CreateImageResponse> {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
-        const response = await this._client.createChatCompletion({
-          max_tokens: this._config.paramMaxTokens,
-          model: this._config.paramModel,
-          messages: payload,
-          temperature: this._config.paramTemperature,
+        const response = await this._client.createImage({
+          prompt: payload.prompt,
+          n: payload.numberOfImages,
+          size: payload.size,
+          response_format: payload.responseFormat,
+          user: payload.user,
         });
 
-        const responseMessage = response.data.choices[0].message;
-        if (responseMessage !== undefined) {
-          return new CreateChatCompletionPayloadMessage({
-            content: responseMessage.content,
-            role: CreateChatCompletionPayloadMessageRole.Assistant,
-          });
-        }
-        else {
-          throw new OpenAIUnexpectedError('There was an error obtaining this chat completion.');
-        }
+        const responsePayload = new CreateImageResponse({
+          created: response.data.created,
+          data: (payload.responseFormat === CreateImageResponseFormat.URL) ?
+            response.data.data.map(data => ({ url: String(data.url) })) :
+            response.data.data.map(data => ({ b64_json: String(data.b64_json) })),
+        });
+
+        return responsePayload;
       }
       catch (e) {
         if ((e as AxiosError).isAxiosError) {

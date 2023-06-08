@@ -1,13 +1,15 @@
 import { DiscordBot } from './DiscordBot';
-import { DiscordBotConvoMode } from './DiscordBotConvoMode';
+import { DiscordBotConversationMode } from './DiscordBotConversationMode';
 import { DiscordBotEvents } from './DiscordBotEvents';
+import { DiscordBotMessage } from './DiscordBotMessage';
+import { DiscordBotMessageConfiguration } from './DiscordBotMessageConfiguration';
 import { DiscordBotMessageType } from './DiscordBotMessageType';
-import { DiscordBotUnexpectedError } from './DiscordBotUnexpectedError';
 
 export {
   DiscordBot,
-  DiscordBotConvoMode,
+  DiscordBotConversationMode,
   DiscordBotEvents,
-  DiscordBotUnexpectedError,
+  DiscordBotMessage,
+  DiscordBotMessageConfiguration,
   DiscordBotMessageType,
 };

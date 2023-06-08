@@ -1,6 +1,6 @@
 import { CreateChatCompletionPayloadMessage } from '../../OpenAI';
-import { ExpirableObject } from '..';
-import { HistoryMessageConfiguration } from './index';
+import { ExpirableObject } from '../ExpirableObject';
+import { HistoryMessageConfiguration } from '../index';
 
 /**
  * A message that is used as history for chaining conversations with the OpenAI API.
@@ -19,11 +19,11 @@ export class HistoryMessage extends ExpirableObject {
   }
 
   /**
-   * Gets convoKey
+   * Gets conversationKey
    * @returns string
    */
-  get convoKey(): string {
-    return this._config.convoKey;
+  get conversationKey(): string {
+    return this._config.conversationKey;
   }
 
   /**

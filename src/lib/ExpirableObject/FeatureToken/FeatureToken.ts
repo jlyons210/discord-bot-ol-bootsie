@@ -1,4 +1,4 @@
-import { ExpirableObject } from '../index';
+import { ExpirableObject } from '../ExpirableObject';
 import { FeatureTokenConfiguration } from './index';
 
 /**

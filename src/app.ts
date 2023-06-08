@@ -46,10 +46,10 @@ class Main {
     }
     catch (e) {
       if (e instanceof ConfigError) {
-        Logger.log({
-          message: e.message,
-          logLevel: LogLevel.Error,
-        });
+        Logger.log({ message: e.message, logLevel: LogLevel.Error });
+      }
+      else if (e instanceof Error) {
+        Logger.log({ message: e.message, logLevel: LogLevel.Error });
       }
     }
     process.exit(1);

@@ -22,14 +22,14 @@
       "secret": false
     },
     {
-      "name": "BOT_CONVO_MODE",
+      "name": "BOT_CONVERSATION_MODE",
       "allowedValues": [ "channel", "user" ],
       "defaultValue": "channel",
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CONVO_RETAIN_SEC",
+      "name": "BOT_CONVERSATION_RETAIN_SEC",
       "allowedValues": 0,
       "defaultValue": 900,
       "required": false,

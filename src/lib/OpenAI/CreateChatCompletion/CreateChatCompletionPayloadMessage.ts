@@ -2,7 +2,7 @@ import {
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
   Utilities,
-} from './index';
+} from '../index';
 
 /**
  * Controls message adherence to the OpenAI payload specification.

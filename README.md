@@ -36,8 +36,8 @@ Run the application:
  BOT_AUTO_ENGAGE_MIN_MESSAGES=number (default: 6) \
  BOT_AUTO_ENGAGE_PROBABILITY=number (default: 0.05) \
  BOT_AUTO_REACT_PROBABILITY=number (default: 0.05) \
- BOT_CONVO_MODE=channel|user (default: channel) \
- BOT_CONVO_RETAIN_SEC=number (default: 900) \
+ BOT_CONVERSATION_MODE=channel|user (default: channel) \
+ BOT_CONVERSATION_RETAIN_SEC=number (default: 900) \
  BOT_CREATE_IMAGE_FEATURE=enabled|disabled (default: disabled) \
  BOT_CREATE_IMAGE_TAG=string (default: {ai-image}) \
  BOT_CREATE_IMAGE_USER_TOKENS=number (default: 3) \
@@ -80,8 +80,8 @@ docker run -d \
   -e BOT_AUTO_ENGAGE_MIN_MESSAGES=number (default: 6) \
   -e BOT_AUTO_ENGAGE_PROBABILITY=number (default: 0.05) \
   -e BOT_AUTO_REACT_PROBABILITY=number (default: 0.05) \
-  -e BOT_CONVO_MODE=channel|user (default: channel) \
-  -e BOT_CONVO_RETAIN_SEC=number (default: 900) \
+  -e BOT_CONVERSATION_MODE=channel|user (default: channel) \
+  -e BOT_CONVERSATION_RETAIN_SEC=number (default: 900) \
   -e BOT_CREATE_IMAGE_FEATURE=enabled|disabled (default: disabled) \
   -e BOT_CREATE_IMAGE_TAG=string (default: {ai-image}) \
   -e BOT_CREATE_IMAGE_USER_TOKENS=number (default: 3) \
@@ -100,7 +100,8 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
-* 0.11.x: [0.11.0](#0110-2023-06-02), [0.11.1](#0111-2023-06-04), [0.11.2](#0112-2023-06-05), [0.11.3](#0113-2023-06-07)
+* 0.12.x: [0.12.0](#0120-2023-06-08)
+* 0.11.x: [0.11.0](#0110-2023-06-02), [0.11.1](#0111-2023-06-04), [0.11.2](#0112-2023-06-05),[0.11.3](#0113-2023-06-07)
 * 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31), [0.10.2](#0102-2023-05-31)
 * 0.9.x: [0.9.0](#090-2023-05-29)
 * 0.8.x: [0.8.0](#080-2023-05-28)
@@ -113,6 +114,14 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.12.0 (2023-06-08)
+* [Issue #75](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/75) - Resolved, ended up doing a larger refactor.
+  * Created a `DiscordBotMessage` class that contains Discord `Message` objects and bot metadata and functionality, and moved that from `DiscordBot`. This reduces the amount of `discordMessage` passing that was happening in `DiscordBot` as the functionality has moved to `DiscordBotMessage` properties.
+  * Reorganized files into a better directory and import/export structure.
+  * Configuration variable changes:
+    * `BOT_CONVO_MODE` renamed to `BOT_CONVERSATION_MODE`
+    * `BOT_CONVO_RETAIN_SEC` renamed to `BOT_CONVERSATION_RETAIN_SEC`
+
 ### 0.11.3 (2023-06-07)
 * [Issue #74](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/74) - Resolved; see issue for notes.
 * Minor updates to package dependencies.
