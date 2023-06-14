@@ -1,25 +1,18 @@
 {
   "name": "discord-bot-ol-bootsie",
-  "version": "0.14.0",
+  "version": "0.15.0",
   "description": "Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI API.",
   "main": "app.js",
   "scripts": {
-    "build": "npx tsc",
+    "build": "yarn tsc",
     "cleanup": "rm -rf dist/",
     "lint": "eslint . --ext .ts",
-    "rebuild": "rm -rf dist/ && npx tsc",
+    "rebuild": "rm -rf dist/ && yarn tsc",
     "start": "node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jlyons210/discord-bot-ol-bootsie.git"
-  },
-  "author": {
-    "name": "Jeremy Lyons",
-    "email": "jlyons210@gmail.com",
-    "url": "https://www.linkedin.com/in/jeremylyons/"
-  },
+  "repository": "git+https://github.com/jlyons210/discord-bot-ol-bootsie.git",
+  "author": "Jeremy Lyons <jlyons210@gmail.com> (https://www.linkedin.com/in/jeremylyons/)",
   "license": "UNLICENSED",
   "bugs": {
     "url": "https://github.com/jlyons210/discord-bot-ol-bootsie/issues"
