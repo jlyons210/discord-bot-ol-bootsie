@@ -116,6 +116,9 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.15.0 (2023-06-14)
+* [Issue #60](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/60) - Resolved. Using `yarn` instead of `npm` for package installation, scripts, and `Dockerfile`.
+
 ### 0.14.0 (2023-06-14)
 * [Issue #76](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/88) - Resolved; see issue for notes.
   * Updated `README.md` to reflect new config setting names/values.
