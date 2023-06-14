@@ -67,16 +67,16 @@ export class DiscordBot {
    */
   constructor(botConfig: Config) {
     this._botConfig = botConfig;
-    this._createImageFeatureEnabled = Boolean(this._botConfig.Settings.BOT_CREATE_IMAGE_FEATURE === 'enabled');
-    this._createImageTag = String(this._botConfig.Settings.BOT_CREATE_IMAGE_TAG);
+    this._createImageFeatureEnabled = Boolean(this._botConfig.Settings['bot_createImage_enabled']);
+    this._createImageTag = String(this._botConfig.Settings['bot_createImage_tag']);
 
     this._openAiConfig = {
-      apiKey: String(this._botConfig.Settings.OPENAI_API_KEY),
-      maxRetries: Number(this._botConfig.Settings.OPENAI_MAX_RETRIES),
-      paramMaxTokens: Number(this._botConfig.Settings.OPENAI_PARAM_MAX_TOKENS),
-      paramModel: String(this._botConfig.Settings.OPENAI_PARAM_MODEL),
-      paramSystemPrompt: String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT),
-      paramTemperature: Number(this._botConfig.Settings.OPENAI_PARAM_TEMPERATURE),
+      apiKey: String(this._botConfig.Settings['openai_api_key']),
+      maxRetries: Number(this._botConfig.Settings['openai_api_maxRetries']),
+      paramMaxTokens: Number(this._botConfig.Settings['openai_chatCompletion_maxTokens']),
+      paramModel: String(this._botConfig.Settings['openai_chatCompletion_model']),
+      paramSystemPrompt: String(this._botConfig.Settings['openai_chatCompletion_systemPrompt']),
+      paramTemperature: Number(this._botConfig.Settings['openai_chatCompletion_temperature']),
     };
 
     this._discordClient = new Client({
@@ -88,21 +88,21 @@ export class DiscordBot {
       ],
       partials: [ Partials.Channel ],
     });
-    this._discordClient.login(String(this._botConfig.Settings.DISCORD_BOT_TOKEN));
+    this._discordClient.login(String(this._botConfig.Settings['discord_botToken']));
 
     this._historyMessageBucket =
       new HistoryMessageBucket({
-        historyMessageExpireSec: Number(this._botConfig.Settings.BOT_CONVERSATION_RETAIN_SEC),
+        historyMessageExpireSec: Number(this._botConfig.Settings['bot_conversation_retainSec']),
       });
 
     this._imageCreateTokenBucket =
       new FeatureTokenBucket({
-        maxTokens: Number(this._botConfig.Settings.BOT_CREATE_IMAGE_USER_TOKENS),
-        tokenExpireSec: Number(this._botConfig.Settings.BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC),
+        maxTokens: Number(this._botConfig.Settings['bot_createImage_tokens_perUser']),
+        tokenExpireSec: Number(this._botConfig.Settings['bot_createImage_tokens_ttl']),
       });
 
     this._botUserId = String(this._discordClient.user?.id);
-    this._debugEnabled = Boolean(this._botConfig.Settings.BOT_LOG_DEBUG === 'enabled');
+    this._debugEnabled = Boolean(this._botConfig.Settings['bot_log_debug']);
 
     this._registerEventHandlers();
   }
@@ -150,7 +150,7 @@ export class DiscordBot {
   private async _constructSystemPrompt(systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage> {
     const systemPrompt: string =
       (systemPromptOverride === undefined) ?
-        String(this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT) :
+        String(this._botConfig.Settings['openai_chatCompletion_systemPrompt']) :
         systemPromptOverride;
 
     return new CreateChatCompletionPayloadMessage({
@@ -185,7 +185,7 @@ export class DiscordBot {
     const discordBotMessage = new DiscordBotMessage({
       discordMessage: discordMessage,
       botUserId: this._botUserId,
-      botConversationMode: DiscordBotConversationMode[this._botConfig.Settings.BOT_CONVERSATION_MODE as keyof typeof DiscordBotConversationMode],
+      botConversationMode: DiscordBotConversationMode[this._botConfig.Settings['bot_conversation_mode'] as keyof typeof DiscordBotConversationMode],
     });
 
     this._historyMessageBucket.add(new HistoryMessage({
@@ -256,11 +256,11 @@ export class DiscordBot {
    * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
    */
   private async _probablyEngageInConversation(discordBotMessage: DiscordBotMessage): Promise<void> {
-    const botWillEngage = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_PROBABILITY));
+    const botWillEngage = (Math.random() < Number(this._botConfig.Settings['bot_autoEngage_message_probability']));
 
     // Check if current conversation meets BOT_AUTO_ENGAGE_MIN_MESSAGES
     if (botWillEngage) {
-      const botAutoEngageMinMessages = Number(this._botConfig.Settings.BOT_AUTO_ENGAGE_MIN_MESSAGES);
+      const botAutoEngageMinMessages = Number(this._botConfig.Settings['bot_autoEngage_message_minMessages']);
       const messageCount =
         this._historyMessageBucket.objects
           .filter(message => (message as HistoryMessage).conversationKey === discordBotMessage.ConversationKey)
@@ -268,8 +268,9 @@ export class DiscordBot {
 
       if (messageCount >= botAutoEngageMinMessages) {
         const systemPrompt =
-          `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} For the provided list of statements, provide ` +
-          'an insight, or a question, or a concern. Dont\'t ask if further help is needed.';
+          `${this._botConfig.Settings['openai_chatCompletion_systemPrompt']} ` +
+          'For the provided list of statements, provide an insight, or a question, or a concern. ' +
+          'Dont\'t ask if further help is needed.';
         const openAiClient = new CreateChatCompletion(this._openAiConfig);
         const requestPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey, systemPrompt);
 
@@ -296,12 +297,12 @@ export class DiscordBot {
    * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
    */
   private async _probablyReactToMessage(discordBotMessage: DiscordBotMessage): Promise<void> {
-    const botWillReact = (Math.random() < Number(this._botConfig.Settings.BOT_AUTO_REACT_PROBABILITY));
+    const botWillReact = (Math.random() < Number(this._botConfig.Settings['bot_autoEngage_react_probability']));
 
     if (botWillReact) {
       const systemPrompt =
-        `${this._botConfig.Settings.OPENAI_PARAM_SYSTEM_PROMPT} You are instructed to only respond ` +
-        'to my statements using a single emoji, no words.';
+        `${this._botConfig.Settings['openai_chatCompletion_systemPrompt']} ` +
+        'You are instructed to only respond to my statements using a single emoji, no words.';
 
       const openAiClient = new CreateChatCompletion(this._openAiConfig);
       const requestPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey, systemPrompt);
@@ -387,15 +388,15 @@ export class DiscordBot {
    */
   private async _sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     const imagePrompt = discordBotMessage.MessageContentSanitized
-      .replace(String(this._botConfig.Settings.BOT_CREATE_IMAGE_TAG), '')
+      .replace(this._createImageTag, '')
       .trim();
 
     try {
       this._imageCreateTokenBucket.add(new FeatureToken({ username: discordBotMessage.DiscordMessage.author.tag }));
 
       const openAiClient = new CreateImage({
-        apiKey: String(this._botConfig.Settings.OPENAI_API_KEY),
-        maxRetries: Number(this._botConfig.Settings.OPENAI_MAX_RETRIES),
+        apiKey: String(this._botConfig.Settings['openai_api_key']),
+        maxRetries: Number(this._botConfig.Settings['openai_api_maxRetries']),
       });
 
       const response = await openAiClient.createImage({

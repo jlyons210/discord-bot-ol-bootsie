@@ -11,7 +11,7 @@ import { ConfigTemplate } from './ConfigTemplate.json';
  */
 export class Config {
 
-  private _settings: Record<string, string | number> = {};
+  private _settings: Record<string, string | number | boolean> = {};
 
   /**
    * Constructs a Config object containing the merged (provided & defaults) application configuration.
@@ -116,7 +116,10 @@ export class Config {
         return (typeof userValue === 'number');
 
       case 'object':
-        return (allowedValues instanceof Array && allowedValues.includes(userValue));
+        return (
+          (allowedValues instanceof Array && allowedValues.includes(userValue)) ||
+          (allowedValues instanceof Array && allowedValues.includes(Boolean(userValue)))
+        );
 
       default:
         return false;
@@ -127,7 +130,7 @@ export class Config {
    * Returns populated configuration settings
    * @returns Record of configuration settings
    */
-  get Settings(): Record<string, string | number> {
+  get Settings(): Record<string, string | number | boolean> {
     return this._settings;
   }
 
