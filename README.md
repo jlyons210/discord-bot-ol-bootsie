@@ -100,6 +100,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.13.x: [0.13.0](#0130-2023-06-14)
 * 0.12.x: [0.12.0](#0120-2023-06-08)
 * 0.11.x: [0.11.0](#0110-2023-06-02), [0.11.1](#0111-2023-06-04), [0.11.2](#0112-2023-06-05), [0.11.3](#0113-2023-06-07)
 * 0.10.x: [0.10.0](#0100-2023-05-31), [0.10.1](#0101-2023-05-31), [0.10.2](#0102-2023-05-31)
@@ -114,6 +115,15 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.13.0 (2023-06-14)
+* [Issue #88](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/88) - Resolved, updated avialable and default chat model. See issue for notes.
+* Updated npm dependencies:
+  * Production:
+    * `openai` 3.2.1 => 3.3.0
+  * Development:
+    * `@typescript-eslint/eslint-plugin` 5.59.9 => 5.59.11
+    * `@typescript-eslint/parser` 5.59.9 => 5.59.11
+
 ### 0.12.0 (2023-06-08)
 * [Issue #75](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/75) - Resolved, ended up doing a larger refactor.
   * Created a `DiscordBotMessage` class that contains Discord `Message` objects and bot metadata and functionality, and moved that from `DiscordBot`. This reduces the amount of `discordMessage` passing that was happening in `DiscordBot` as the functionality has moved to `DiscordBotMessage` properties.
