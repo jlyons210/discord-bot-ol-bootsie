@@ -1,105 +1,105 @@
 {
   "ConfigTemplate": [
     {
-      "name": "BOT_AUTO_ENGAGE_MIN_MESSAGES",
+      "name": "bot_autoEngage_message_minMessages",
       "allowedValues": 0,
       "defaultValue": 6,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_AUTO_ENGAGE_PROBABILITY",
+      "name": "bot_autoEngage_message_probability",
       "allowedValues": 0,
       "defaultValue": 0.05,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_AUTO_REACT_PROBABILITY",
+      "name": "bot_autoEngage_react_probability",
       "allowedValues": 0,
       "defaultValue": 0.05,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CONVERSATION_MODE",
+      "name": "bot_conversation_mode",
       "allowedValues": [ "channel", "user" ],
       "defaultValue": "channel",
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CONVERSATION_RETAIN_SEC",
+      "name": "bot_conversation_retainSec",
       "allowedValues": 0,
       "defaultValue": 900,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CREATE_IMAGE_FEATURE",
-      "allowedValues": [ "enabled", "disabled" ],
-      "defaultValue": "disabled",
+      "name": "bot_createImage_enabled",
+      "allowedValues": [ false, true ],
+      "defaultValue": false,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CREATE_IMAGE_TAG",
+      "name": "bot_createImage_tag",
       "allowedValues": "",
       "defaultValue": "{ai-image}",
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CREATE_IMAGE_USER_TOKENS",
+      "name": "bot_createImage_tokens_perUser",
       "allowedValues": 0,
       "defaultValue": 3,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_CREATE_IMAGE_USER_TOKENS_EXPIRE_SEC",
+      "name": "bot_createImage_tokens_ttl",
       "allowedValues": 0,
       "defaultValue": 3600,
       "required": false,
       "secret": false
     },
     {
-      "name": "BOT_LOG_DEBUG",
-      "allowedValues": [ "enabled", "disabled" ],
-      "defaultValue": "disabled",
+      "name": "bot_log_debug",
+      "allowedValues": [ false, true ],
+      "defaultValue": false,
       "required": false,
       "secret": false
     },
     {
-      "name": "DISCORD_BOT_TOKEN",
+      "name": "discord_botToken",
       "allowedValues": "",
       "defaultValue": "",
       "required": true,
       "secret": true
     },
     {
-      "name": "OPENAI_API_KEY",
+      "name": "openai_api_key",
       "allowedValues": "",
       "defaultValue": "",
       "required": true,
       "secret": true
     },
     {
-      "name": "OPENAI_MAX_RETRIES",
+      "name": "openai_api_maxRetries",
       "allowedValues": 0,
       "defaultValue": 5,
       "required": false,
       "secret": false
     },
     {
-      "name": "OPENAI_PARAM_MAX_TOKENS",
+      "name": "openai_chatCompletion_maxTokens",
       "allowedValues": 0,
-      "defaultValue": 600,
+      "defaultValue": 1024,
       "required": false,
       "secret": false
     },
     {
-      "name": "OPENAI_PARAM_MODEL",
+      "name": "openai_chatCompletion_model",
       "allowedValues":
         [
           "gpt-4", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0613",
@@ -112,14 +112,14 @@
       "secret": false
     },
     {
-      "name": "OPENAI_PARAM_SYSTEM_PROMPT",
+      "name": "openai_chatCompletion_systemPrompt",
       "allowedValues": "",
       "defaultValue": "",
       "required": true,
       "secret": false
     },
     {
-      "name": "OPENAI_PARAM_TEMPERATURE",
+      "name": "openai_chatCompletion_temperature",
       "allowedValues": 0,
       "defaultValue": 0.6,
       "required": false,

@@ -29,7 +29,7 @@ const discordClient = new Client({
   ],
   partials: [ Partials.Channel ],
 });
-discordClient.login(String(config.Settings.DISCORD_BOT_TOKEN));
+discordClient.login(String(config.Settings['discord_botToken']));
 
 discordClient.once(Events.ClientReady, async client => {
   Logger.log({
@@ -54,8 +54,8 @@ async function _embedImageFromPromptMessage(discordMessage: Message): Promise<vo
     const imagePrompt = discordMessage.content.replace(promptTag, '');
 
     const openAiClient = new CreateImage({
-      apiKey: String(config.Settings.OPENAI_API_KEY),
-      maxRetries: Number(config.Settings.OPENAI_MAX_RETRIES),
+      apiKey: String(config.Settings['openai_api_key']),
+      maxRetries: Number(config.Settings['openai_api_maxRetries']),
     });
 
     const response = await openAiClient.createImage({
