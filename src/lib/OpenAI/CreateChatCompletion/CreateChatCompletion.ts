@@ -57,7 +57,7 @@ export class CreateChatCompletion {
         });
 
         const responseMessage = response.data.choices[0].message;
-        if (responseMessage !== undefined) {
+        if (responseMessage?.content !== undefined) {
           return new CreateChatCompletionPayloadMessage({
             content: responseMessage.content,
             role: CreateChatCompletionPayloadMessageRole.Assistant,
