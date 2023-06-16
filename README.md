@@ -100,6 +100,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.15.x: [0.15.0](#0150-2023-06-14), 
 * 0.14.x: [0.14.0](#0140-2023-06-14)
 * 0.13.x: [0.13.0](#0130-2023-06-14)
 * 0.12.x: [0.12.0](#0120-2023-06-08)
@@ -116,6 +117,9 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.15.1 (2023-06-15)
+* [Issue #93](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/93) - Resolved. Was casting an enum for `ConversationMode` incorrectly, causing `undefined` to be used as a `ConversationKey`.
+
 ### 0.15.0 (2023-06-14)
 * [Issue #60](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/60) - Resolved. Using `yarn` instead of `npm` for package installation, scripts, and `Dockerfile`.
 
