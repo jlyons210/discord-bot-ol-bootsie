@@ -185,7 +185,7 @@ export class DiscordBot {
     const discordBotMessage = new DiscordBotMessage({
       discordMessage: discordMessage,
       botUserId: this._botUserId,
-      botConversationMode: DiscordBotConversationMode[this._botConfig.Settings['bot_conversation_mode'] as keyof typeof DiscordBotConversationMode],
+      botConversationMode: <DiscordBotConversationMode> this._botConfig.Settings['bot_conversation_mode'],
     });
 
     this._historyMessageBucket.add(new HistoryMessage({
