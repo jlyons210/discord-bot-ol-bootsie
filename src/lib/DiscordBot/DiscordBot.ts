@@ -160,6 +160,20 @@ export class DiscordBot {
   }
 
   /**
+   * Used to compress log lines throughout the application
+   * @param message string
+   */
+  private async _debugLog(message: string): Promise<void> {
+    if (this._debugEnabled) {
+      void Logger.log({
+        message: message,
+        logLevel: LogLevel.Debug,
+        debugEnabled: this._debugEnabled,
+      });
+    }
+  }
+
+  /**
    * Checks whether message contains an image prompt
    * @param messageContent Text contents of Discord messgae
    * @returns true if message content contains an image prompt
@@ -198,20 +212,27 @@ export class DiscordBot {
         }),
     }));
 
+    void this._debugLog(`${discordBotMessage.DiscordMessage.id}: message type is ${discordBotMessage.MessageType}`);
+
     switch (discordBotMessage.MessageType) {
       case DiscordBotMessageType.AtMention:
       case DiscordBotMessageType.DirectMessage:
         if (await this._isImagePrompt(discordBotMessage.MessageContentSanitized)) {
+          void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _sendCreateImageResponse(discordBotMessage)`);
           await this._sendCreateImageResponse(discordBotMessage);
         }
         else {
+          void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _sendChatCompletionResponse(discordBotMessage)`);
           await this._sendChatCompletionResponse(discordBotMessage);
         }
         break;
 
       case DiscordBotMessageType.BotMessage:
       case DiscordBotMessageType.UserMessage:
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _probablyEngageInConversation(discordBotMessage)`);
         await this._probablyEngageInConversation(discordBotMessage);
+
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _probablyReactToMessage(discordBotMessage)`);
         await this._probablyReactToMessage(discordBotMessage);
         break;
     }
@@ -256,37 +277,44 @@ export class DiscordBot {
    * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
    */
   private async _probablyEngageInConversation(discordBotMessage: DiscordBotMessage): Promise<void> {
-    const botWillEngage = (Math.random() < Number(this._botConfig.Settings['bot_autoEngage_message_probability']));
+    const botAutoEngageMinMessages = Number(this._botConfig.Settings['bot_autoEngage_message_minMessages']);
+    const messageCount =
+      this._historyMessageBucket.objects
+        .filter(message => (message as HistoryMessage).conversationKey === discordBotMessage.ConversationKey)
+        .length;
+    const botWillEngage = (
+      Math.random() < Number(this._botConfig.Settings['bot_autoEngage_message_probability']) &&
+      messageCount >= botAutoEngageMinMessages
+    );
+    void this._debugLog(`messageCount = ${messageCount}, botAutoEngageMinMessages = ${botAutoEngageMinMessages}`);
+    void this._debugLog(`${discordBotMessage.DiscordMessage.id}: botWillEngage = ${botWillEngage}`);
 
     // Check if current conversation meets BOT_AUTO_ENGAGE_MIN_MESSAGES
     if (botWillEngage) {
-      const botAutoEngageMinMessages = Number(this._botConfig.Settings['bot_autoEngage_message_minMessages']);
-      const messageCount =
-        this._historyMessageBucket.objects
-          .filter(message => (message as HistoryMessage).conversationKey === discordBotMessage.ConversationKey)
-          .length;
+      const systemPrompt =
+        `${this._botConfig.Settings['openai_chatCompletion_systemPrompt']} ` +
+        'For the provided list of statements, provide an insight, or a question, or a concern. ' +
+        'Dont\'t ask if further help is needed.';
+      const openAiClient = new CreateChatCompletion(this._openAiConfig);
+      const requestPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey, systemPrompt);
 
-      if (messageCount >= botAutoEngageMinMessages) {
-        const systemPrompt =
-          `${this._botConfig.Settings['openai_chatCompletion_systemPrompt']} ` +
-          'For the provided list of statements, provide an insight, or a question, or a concern. ' +
-          'Dont\'t ask if further help is needed.';
-        const openAiClient = new CreateChatCompletion(this._openAiConfig);
-        const requestPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey, systemPrompt);
+      try {
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering openAiClient.createChatCompletion(requestPayload) for unprompted engagement`);
+        const responsePayload = await openAiClient.createChatCompletion(requestPayload);
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: exiting openAiClient.createChatCompletion(requestPayload) for unprompted engagement`);
 
-        try {
-          const responsePayload = await openAiClient.createChatCompletion(requestPayload);
-          this._historyMessageBucket.add(new HistoryMessage({
-            conversationKey: discordBotMessage.ConversationKey,
-            payload: responsePayload,
-          }));
-          await discordBotMessage.DiscordMessage.channel.send(responsePayload);
-        }
-        catch (e) {
-          if (e instanceof Error) {
-            void Logger.log({ message: e.message, logLevel: LogLevel.Error });
-            await discordBotMessage.DiscordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
-          }
+        this._historyMessageBucket.add(new HistoryMessage({
+          conversationKey: discordBotMessage.ConversationKey,
+          payload: responsePayload,
+        }));
+
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: sending unprompted response to channel`);
+        await discordBotMessage.DiscordMessage.channel.send(responsePayload);
+      }
+      catch (e) {
+        if (e instanceof Error) {
+          void Logger.log({ message: e.message, logLevel: LogLevel.Error });
+          await discordBotMessage.DiscordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
         }
       }
     }
@@ -298,6 +326,7 @@ export class DiscordBot {
    */
   private async _probablyReactToMessage(discordBotMessage: DiscordBotMessage): Promise<void> {
     const botWillReact = (Math.random() < Number(this._botConfig.Settings['bot_autoEngage_react_probability']));
+    void this._debugLog(`${discordBotMessage.DiscordMessage.id}: botWillReact = ${botWillReact}`);
 
     if (botWillReact) {
       const systemPrompt =
@@ -309,12 +338,16 @@ export class DiscordBot {
       let lastEmoji = '';
 
       try {
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering openAiClient.createChatCompletion(requestPayload) for emoji response`);
         const responsePayload = await openAiClient.createChatCompletion(requestPayload);
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: exiting openAiClient.createChatCompletion(requestPayload) for emoji response`);
+
         const emojiResponse = responsePayload.content.replace(/[^\p{Emoji}\s]/gu, '');
 
         Array.from(emojiResponse).forEach(async emoji => {
           lastEmoji = emoji;
           try {
+            void this._debugLog(`${discordBotMessage.DiscordMessage.id}: reacting to message with '${emoji}'`);
             await discordBotMessage.DiscordMessage.react(emoji as EmojiIdentifierResolvable);
           }
           catch (e) {
@@ -340,10 +373,12 @@ export class DiscordBot {
    */
   private _registerEventHandlers(): void {
     this._discordClient.once(Events.ClientReady, async client => {
+      void this._debugLog('`ClientReady` event received.');
       await this._handleClientReady(client);
     });
 
     this._discordClient.on(Events.MessageCreate, async message => {
+      void this._debugLog(`${message.id}: message recieved, entering _handleMessageCreate(message)`);
       await this._handleMessageCreate(message);
     });
   }
@@ -355,8 +390,14 @@ export class DiscordBot {
   private async _sendChatCompletionResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     try {
       const openAiClient = new CreateChatCompletion(this._openAiConfig);
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey)`);
       const promptPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey);
+
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering openAiClient.createChatCompletion(promptPayload)`);
       const responsePayload = await openAiClient.createChatCompletion(promptPayload);
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: exiting openAiClient.createChatCompletion(promptPayload)`);
+
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering _paginateResponse(responsePayload.content)`);
       const discordResponse = await this._paginateResponse(responsePayload.content);
 
       this._historyMessageBucket.add(new HistoryMessage({
@@ -364,6 +405,7 @@ export class DiscordBot {
         payload: responsePayload,
       }));
 
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: sending chat completion response to channel`);
       discordResponse.forEach(async responseText => {
         if (discordBotMessage.MessageType === DiscordBotMessageType.DirectMessage) {
           await discordBotMessage.DiscordMessage.channel.send(responseText);
@@ -392,6 +434,7 @@ export class DiscordBot {
       .trim();
 
     try {
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.DiscordMessage.author.tag} is spending feature token.`);
       this._imageCreateTokenBucket.add(new FeatureToken({ username: discordBotMessage.DiscordMessage.author.tag }));
 
       const openAiClient = new CreateImage({
@@ -399,6 +442,7 @@ export class DiscordBot {
         maxRetries: Number(this._botConfig.Settings['openai_api_maxRetries']),
       });
 
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: entering OpenAiClient.createImage()`);
       const response = await openAiClient.createImage({
         numberOfImages: 1,
         prompt: imagePrompt,
@@ -406,6 +450,7 @@ export class DiscordBot {
         size: CreateImageSize.Large,
         user: discordBotMessage.DiscordMessage.author.username,
       });
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: exiting _sendCreateImageResponse(discordBotMessage)`);
 
       const embed = new EmbedBuilder()
         .setTitle('ai maed dis')
@@ -438,9 +483,11 @@ export class DiscordBot {
 
       const files: AttachmentBuilder[] = [];
       if ('url' in response.data[0]) {
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: embedding image using URL`);
         embed.setImage(response.data[0].url);
       }
       else if ('b64_json' in response.data[0]) {
+        void this._debugLog(`${discordBotMessage.DiscordMessage.id}: embeding image using base64 encoded attachment`);
         files.push(new AttachmentBuilder(
           Buffer.from(response.data[0].b64_json, 'base64'),
           { name: `openai-image-${Date.now()}.png` }
@@ -448,6 +495,8 @@ export class DiscordBot {
         embed.setImage(`attachment://${files[0].name}`);
       }
 
+
+      void this._debugLog(`${discordBotMessage.DiscordMessage.id}: sending embedded image response to channel`);
       await discordBotMessage.DiscordMessage.channel.send({ embeds: [ embed ], files: files });
     }
     catch (e) {
