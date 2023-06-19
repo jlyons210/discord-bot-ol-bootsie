@@ -100,7 +100,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
-* 0.16.x: [0.16.0](#0160-2023-06-17)
+* 0.16.x: [0.16.0](#0160-2023-06-19)
 * 0.15.x: [0.15.0](#0150-2023-06-14), [0.15.1](#0151-2023-06-15)
 * 0.14.x: [0.14.0](#0140-2023-06-14)
 * 0.13.x: [0.13.0](#0130-2023-06-14)
@@ -118,7 +118,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
-### 0.16.0 (2023-06-17)
+### 0.16.0 (2023-06-19)
 * [Issue #95](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/95) - Resolved. Added enhanced debug logging.
 
 ### 0.15.1 (2023-06-15)
