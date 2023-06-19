@@ -45,7 +45,7 @@ export class Logger {
       await access(process.cwd() + '/DEBUG');
       return true;
     }
-    catch (err) {
+    catch (e) {
       return false;
     }
   }

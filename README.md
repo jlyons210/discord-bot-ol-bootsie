@@ -19,7 +19,7 @@ Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI 
 ## Setup
 
 ### Local execution
-> Requires the `git`, `nodejs`, and `npm` packages.
+> Requires the `git`, `nodejs`, and `yarn` packages.
 
 Clone this repo:
 ```
@@ -27,7 +27,7 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 ```
 Install dependencies:
 ```
-npm install
+yarn install
 ```
 Run the application:
 > Configuration settings with acceptable defaults may be omitted.
@@ -50,7 +50,7 @@ Run the application:
  openai_chatCompletion_model = model gpt-3.5-turbo* \
  openai_chatCompletion_systemPrompt = string (example: "A system prompt that describes how the chat bot should behave") \
  openai_chatCompletion_temperature = number 0.6* \
-npx ts-node src/app.ts
+yarn ts-node src/app.ts
 ```
 
 ### Container execution
@@ -100,6 +100,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.16.x: [0.16.0](#0160-2023-06-19)
 * 0.15.x: [0.15.0](#0150-2023-06-14), [0.15.1](#0151-2023-06-15)
 * 0.14.x: [0.14.0](#0140-2023-06-14)
 * 0.13.x: [0.13.0](#0130-2023-06-14)
@@ -117,6 +118,9 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.16.0 (2023-06-19)
+* [Issue #95](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/95) - Resolved. Added enhanced debug logging.
+
 ### 0.15.1 (2023-06-15)
 * [Issue #93](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/93) - Resolved. Was casting an enum for `ConversationMode` incorrectly, causing `undefined` to be used as a `ConversationKey`.
 
