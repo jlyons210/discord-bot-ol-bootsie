@@ -39,7 +39,6 @@ Run the application:
  bot_conversation_mode = channel*|user \
  bot_conversation_retainSec = number 900* \
  bot_createImage_enabled = true|false* \
- bot_createImage_tag = string ai-image:* \
  bot_createImage_tokens_perUser = number 3* \
  bot_createImage_tokens_ttl = number 3600* \
  bot_log_debug = true|false \
@@ -83,7 +82,6 @@ docker run -d \
   -e bot_conversation_mode = channel*|user \
   -e bot_conversation_retainSec = number 900* \
   -e bot_createImage_enabled = true|false* \
-  -e bot_createImage_tag = string ai-image:* \
   -e bot_createImage_tokens_perUser = number 3* \
   -e bot_createImage_tokens_ttl = number 3600* \
   -e bot_log_debug = true|false \
@@ -100,6 +98,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.17.x: [0.17.0](#0170-2023-06-22)
 * 0.16.x: [0.16.0](#0160-2023-06-19)
 * 0.15.x: [0.15.0](#0150-2023-06-14), [0.15.1](#0151-2023-06-15)
 * 0.14.x: [0.14.0](#0140-2023-06-14)
@@ -118,6 +117,12 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.17.0 (2023-06-22)
+* [Issue #97](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/97) - Resolved.
+  * Bot can now intelligently determine message intent rather than relying on tags like `{ai-image}`. See issue notes for implementation details.
+  * Removed `bot_createImage_tag` configuration setting.
+* [Issue #87](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/87) - Resolved; see issue for notes.
+
 ### 0.16.0 (2023-06-19)
 * [Issue #95](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/95) - Resolved. Added enhanced debug logging.
 

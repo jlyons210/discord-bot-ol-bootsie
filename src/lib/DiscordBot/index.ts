@@ -3,6 +3,7 @@ import { DiscordBotConversationMode } from './DiscordBotConversationMode';
 import { DiscordBotEvents } from './DiscordBotEvents';
 import { DiscordBotMessage } from './DiscordBotMessage';
 import { DiscordBotMessageConfiguration } from './DiscordBotMessageConfiguration';
+import { DiscordBotMessageIntent } from './DiscordBotMessageIntent';
 import { DiscordBotMessageType } from './DiscordBotMessageType';
 
 export {
@@ -11,5 +12,6 @@ export {
   DiscordBotEvents,
   DiscordBotMessage,
   DiscordBotMessageConfiguration,
+  DiscordBotMessageIntent,
   DiscordBotMessageType,
 };
