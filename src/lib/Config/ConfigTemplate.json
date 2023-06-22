@@ -43,13 +43,6 @@
       "secret": false
     },
     {
-      "name": "bot_createImage_tag",
-      "allowedValues": "",
-      "defaultValue": "{ai-image}",
-      "required": false,
-      "secret": false
-    },
-    {
       "name": "bot_createImage_tokens_perUser",
       "allowedValues": 0,
       "defaultValue": 3,

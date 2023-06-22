@@ -22,6 +22,7 @@ import {
   DiscordBotConversationMode,
   DiscordBotEvents,
   DiscordBotMessage,
+  DiscordBotMessageIntent,
   DiscordBotMessageType,
 } from './index';
 import {
@@ -130,15 +131,16 @@ export class DiscordBot {
    * @param messageText string containing message text
    * @param systemPromptOverride Optional system prompt override, useful for internal functions.
    * @returns Promise of completed chat completion payload
-   * @deprecated It's encouraged to strongly consider whether this is needed if used.
    */
   private async _constructChatCompletionPayloadFromSingleMessage(messageText: string, systemPromptOverride?: string): Promise<CreateChatCompletionPayloadMessage[]> {
     const payload: CreateChatCompletionPayloadMessage[] = [];
+
     payload.push(await this._constructSystemPrompt(systemPromptOverride));
     payload.push(new CreateChatCompletionPayloadMessage({
       content: messageText,
       role: CreateChatCompletionPayloadMessageRole.User,
     }));
+
     return payload;
   }
 
@@ -173,12 +175,60 @@ export class DiscordBot {
   }
 
   /**
-   * Checks whether message contains an image prompt
-   * @param messageContent Text contents of Discord messgae
-   * @returns true if message content contains an image prompt
+   * Determine a channel message's DiscordBotMessageIntent
+   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
+   * @returns DiscordBotMessageIntent
    */
-  private async _isImagePrompt(messageContent: string): Promise<boolean> {
-    return (this._createImageFeatureEnabled && messageContent.includes(this._createImageTag));
+  private async _getMessageIntent(discordBotMessage: DiscordBotMessage): Promise<DiscordBotMessageIntent> {
+    const intentPrompt: CreateChatCompletionPayloadMessage[] =
+      await this._constructChatCompletionPayloadFromSingleMessage(
+        discordBotMessage.MessageContentSanitized,
+        'For the following statement, please use only one of the following to categorize it, ' +
+          `with no other commentary, in all lowercase - ${Object.values(DiscordBotMessageIntent)}`
+      );
+
+    const openAiClient = new CreateChatCompletion(this._openAiConfig);
+
+    void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering openAiClient.createChatCompletion(promptPayload) to get message intent');
+    const intentResponse = await openAiClient.createChatCompletion(intentPrompt);
+    void this._debugLog(discordBotMessage.DiscordMessage.id, 'exiting openAiClient.createChatCompletion(promptPayload) to get message intent');
+
+    void this._debugLog(discordBotMessage.DiscordMessage.id, `_getMessageIntent returns: ${<DiscordBotMessageIntent>intentResponse.content}`);
+    return <DiscordBotMessageIntent> intentResponse.content;
+  }
+
+  /**
+   * Breaks up reponseText into multiple messages up to 2000 characters
+   * @param responseText OpenAI response text
+   * @returns string[] of paragraphs that are each <2000 characters to fit within Discord's message
+   *   size limit.
+   */
+  private _getPaginatedResponse(responseText: string): string[] {
+    /*
+     * ISSUES: Potentially unresolved issues:
+     *   - Code blocks with \n in them could be split
+     *   - Single paragraphs longer than 2000 characters will still cause a failure
+     *   - I've seen this occur, logged issue #85
+     */
+    const discordMaxMessageLength = 2000;
+    const delimiter = '\n';
+    const paragraphs = responseText.split(delimiter);
+    const allParagraphs: string[] = [];
+    let page = '';
+
+    for (const paragraph of paragraphs) {
+      if ((page.length + paragraph.length + delimiter.length) <= discordMaxMessageLength) {
+        page += delimiter + paragraph;
+      }
+      else {
+        allParagraphs.push(page);
+        page = paragraph;
+      }
+    }
+
+    // Add last paragraph
+    if (page.length > 0) allParagraphs.push(page);
+    return allParagraphs;
   }
 
   /**
@@ -216,13 +266,15 @@ export class DiscordBot {
     switch (discordBotMessage.MessageType) {
       case DiscordBotMessageType.AtMention:
       case DiscordBotMessageType.DirectMessage:
-        if (await this._isImagePrompt(discordBotMessage.MessageContentSanitized)) {
-          void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _sendCreateImageResponse(discordBotMessage)');
-          await this._sendCreateImageResponse(discordBotMessage);
-        }
-        else {
-          void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _sendChatCompletionResponse(discordBotMessage)');
-          await this._sendChatCompletionResponse(discordBotMessage);
+        switch (await this._getMessageIntent(discordBotMessage)) {
+          case DiscordBotMessageIntent.ImagePrompt:
+            void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _sendCreateImageResponse(discordBotMessage)');
+            await this._sendCreateImageResponse(discordBotMessage);
+            break;
+          case DiscordBotMessageIntent.ChatMessage:
+            void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _sendChatCompletionResponse(discordBotMessage)');
+            await this._sendChatCompletionResponse(discordBotMessage);
+            break;
         }
         break;
 
@@ -237,40 +289,6 @@ export class DiscordBot {
     }
 
     void this._debugLog(discordBotMessage.DiscordMessage.id, 'finished processing message');
-  }
-
-  /**
-   * Breaks up reponseText into multiple messages up to 2000 characters
-   * @param responseText OpenAI response text
-   * @returns string[] of paragraphs that are each <2000 characters to fit within Discord's message
-   *   size limit.
-   */
-  private _paginateResponse(responseText: string): string[] {
-    /*
-     * ISSUES: Potentially unresolved issues:
-     *   - Code blocks with \n in them could be split
-     *   - Single paragraphs longer than 2000 characters will still cause a failure
-     *   - I've seen this occur, logged issue #85
-     */
-    const discordMaxMessageLength = 2000;
-    const delimiter = '\n';
-    const paragraphs = responseText.split(delimiter);
-    const allParagraphs: string[] = [];
-    let page = '';
-
-    for (const paragraph of paragraphs) {
-      if ((page.length + paragraph.length + delimiter.length) <= discordMaxMessageLength) {
-        page += delimiter + paragraph;
-      }
-      else {
-        allParagraphs.push(page);
-        page = paragraph;
-      }
-    }
-
-    // Add last paragraph
-    if (page.length > 0) allParagraphs.push(page);
-    return allParagraphs;
   }
 
   /**
@@ -396,12 +414,12 @@ export class DiscordBot {
       void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey)');
       const promptPayload = await this._constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey);
 
-      void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering openAiClient.createChatCompletion(promptPayload)');
+      void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering openAiClient.createChatCompletion(promptPayload) for chat response');
       const responsePayload = await openAiClient.createChatCompletion(promptPayload);
-      void this._debugLog(discordBotMessage.DiscordMessage.id, 'exiting openAiClient.createChatCompletion(promptPayload)');
+      void this._debugLog(discordBotMessage.DiscordMessage.id, 'exiting openAiClient.createChatCompletion(promptPayload) for chat response');
 
-      void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _paginateResponse(responsePayload.content)');
-      const discordResponse = await this._paginateResponse(responsePayload.content);
+      void this._debugLog(discordBotMessage.DiscordMessage.id, 'entering _getPaginatedResponse(responsePayload.content)');
+      const discordResponse = await this._getPaginatedResponse(responsePayload.content);
 
       this._historyMessageBucket.add(new HistoryMessage({
         conversationKey: discordBotMessage.ConversationKey,
@@ -432,13 +450,18 @@ export class DiscordBot {
    * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
    */
   private async _sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
+    if (!this._createImageFeatureEnabled) {
+      void this._debugLog(discordBotMessage.DiscordMessage.id, 'CreateImage feature is disabled');
+      return;
+    }
+
     const imagePrompt = discordBotMessage.MessageContentSanitized
       .replace(this._createImageTag, '')
       .trim();
 
     try {
-      void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.tag} is spending feature token.`);
-      this._imageCreateTokenBucket.add(new FeatureToken({ username: discordBotMessage.DiscordMessage.author.tag }));
+      void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.username} is spending feature token.`);
+      this._imageCreateTokenBucket.add(new FeatureToken({ username: discordBotMessage.DiscordMessage.author.username }));
 
       const openAiClient = new CreateImage({
         apiKey: String(this._botConfig.Settings['openai_api_key']),
@@ -460,7 +483,7 @@ export class DiscordBot {
         .setDescription(imagePrompt)
         .addFields({
           name: 'Generated by:',
-          value: String(discordBotMessage.DiscordMessage.author.tag),
+          value: String(discordBotMessage.DiscordMessage.author.username),
           inline: true,
         })
         .setFooter({
@@ -469,17 +492,17 @@ export class DiscordBot {
         })
         .setTimestamp();
 
-      if (this._imageCreateTokenBucket.tokensRemaining(discordBotMessage.DiscordMessage.author.tag)) {
+      if (this._imageCreateTokenBucket.tokensRemaining(discordBotMessage.DiscordMessage.author.username)) {
         embed.addFields({
           name: 'Tokens remaining:',
-          value: String(this._imageCreateTokenBucket.tokensRemaining(discordBotMessage.DiscordMessage.author.tag)),
+          value: String(this._imageCreateTokenBucket.tokensRemaining(discordBotMessage.DiscordMessage.author.username)),
           inline: true,
         });
       }
       else {
         embed.addFields({
           name: 'Next token available:',
-          value: this._imageCreateTokenBucket.nextTokenTime(discordBotMessage.DiscordMessage.author.tag),
+          value: this._imageCreateTokenBucket.nextTokenTime(discordBotMessage.DiscordMessage.author.username),
           inline: true,
         });
       }
@@ -498,7 +521,6 @@ export class DiscordBot {
         embed.setImage(`attachment://${files[0].name}`);
       }
 
-
       void this._debugLog(discordBotMessage.DiscordMessage.id, 'sending embedded image response to channel');
       await discordBotMessage.DiscordMessage.channel.send({ embeds: [ embed ], files: files });
     }
@@ -508,14 +530,14 @@ export class DiscordBot {
       }
       else if (e instanceof DiscordAPIError) {
         void Logger.log({ message: e.message, logLevel: LogLevel.Error });
-        void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.tag} received refunded feature token.`);
-        this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.tag);
+        void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.username} received refunded feature token.`);
+        this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.username);
       }
       else if (e instanceof Error) {
         void Logger.log({ message: e.message, logLevel: LogLevel.Error });
         await discordBotMessage.DiscordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
-        void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.tag} received refunded feature token.`);
-        this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.tag);
+        void this._debugLog(discordBotMessage.DiscordMessage.id, `${discordBotMessage.DiscordMessage.author.username} received refunded feature token.`);
+        this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.username);
       }
     }
   }
