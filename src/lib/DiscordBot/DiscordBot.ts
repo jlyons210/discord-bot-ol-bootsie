@@ -204,8 +204,6 @@ export class DiscordBot {
    *   size limit.
    */
   private _getPaginatedResponse(responseText: string): string[] {
-    this._debugLog('', `responseText: ${responseText}`);
-
     const allParagraphs: string[] = [];
     const delimiter = '\n';
     const discordMaxMessageLength = 2000;
