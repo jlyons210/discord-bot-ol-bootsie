@@ -204,30 +204,56 @@ export class DiscordBot {
    *   size limit.
    */
   private _getPaginatedResponse(responseText: string): string[] {
-    /*
-     * ISSUES: Potentially unresolved issues:
-     *   - Code blocks with \n in them could be split
-     *   - Single paragraphs longer than 2000 characters will still cause a failure
-     *   - I've seen this occur, logged issue #85
-     */
-    const discordMaxMessageLength = 2000;
-    const delimiter = '\n';
-    const paragraphs = responseText.split(delimiter);
+    this._debugLog('', `responseText: ${responseText}`);
+
     const allParagraphs: string[] = [];
+    const delimiter = '\n';
+    const discordMaxMessageLength = 2000;
+    const markupPadding = 20;
+    const paragraphs = responseText.split(delimiter);
+
+    let lastCodeBlockLanguage = '';
     let page = '';
+    let resumeCodeOnNextPage = false;
+
+    const codeBlockRegEx = /```/g;
+    const langRegEx = /```(\w+)\n/g;
 
     for (const paragraph of paragraphs) {
-      if ((page.length + paragraph.length + delimiter.length) <= discordMaxMessageLength) {
+      // If the last page ended with a code block, resume it
+      if (resumeCodeOnNextPage) {
+        page = lastCodeBlockLanguage + page;
+        resumeCodeOnNextPage = false;
+      }
+
+      // If the current paragraph fits on the current page, add it
+      if ((page.length + paragraph.length + delimiter.length + markupPadding) <= discordMaxMessageLength) {
         page += delimiter + paragraph;
       }
       else {
+        // An odd number of code blocks on a page will cause the next page to resume the code block
+        resumeCodeOnNextPage = (page.match(codeBlockRegEx) || []).length % 2 === 1;
+
+        if (resumeCodeOnNextPage) {
+          page += '```' + delimiter;
+          const codeBlockLanguages = (page.match(langRegEx) || []);
+
+          // Use the last code block language on the page
+          lastCodeBlockLanguage = (codeBlockLanguages.length) ?
+            codeBlockLanguages[codeBlockLanguages.length - 1] :
+            '```' + delimiter;
+        }
+        else {
+          page += delimiter;
+        }
+
         allParagraphs.push(page);
         page = paragraph;
       }
     }
 
-    // Add last paragraph
-    if (page.length > 0) allParagraphs.push(page);
+    if (page.length) allParagraphs.push(page);
+
     return allParagraphs;
   }
 
