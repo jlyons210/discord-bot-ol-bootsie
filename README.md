@@ -98,6 +98,7 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 ## Release history
 
 ### Shortcuts:
+* 0.18.x: [0.18.0](#0180-2023-06-23)
 * 0.17.x: [0.17.0](#0170-2023-06-22)
 * 0.16.x: [0.16.0](#0160-2023-06-19)
 * 0.15.x: [0.15.0](#0150-2023-06-14), [0.15.1](#0151-2023-06-15)
@@ -117,6 +118,15 @@ discord-bot-ol-bootsie:latest (built) -or- jlyons210/discord-bot-ol-bootsie:late
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+### 0.18.0 (2023-06-23)
+* [Issue #85](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/85) - Resolved; code blocks continue correctly after being split for Discord maximum message length (2000 characters).
+* Solved undocumented chat completion response truncation issue, caused by a misunderstanding of how `openai_chatCompletion_maxTokens` functions. Super long bot responses are now possible!
+  * Updated configuration defaults:
+    * `openai_chatCompletion_maxTokens` 1024 => 4096
+    * `openai_chatCompletion_model` gpt-3.5-turbo-0613 => gpt-3.5-turbo-16k-0613
+
+* Updated dependencies.
+
 ### 0.17.0 (2023-06-22)
 * [Issue #97](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/97) - Resolved.
   * Bot can now intelligently determine message intent rather than relying on tags like `{ai-image}`. See issue notes for implementation details.
