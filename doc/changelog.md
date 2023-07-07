@@ -1,7 +1,7 @@
 # Changelog
 
 ## Releases:
-* 1.0.x: [1.0.0](#100-2023-06-29)
+* 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07)
 
 ## Pre-release:
 * 0.18.x: [0.18.0](#0180-2023-06-23) - [0.18.1](#0181-2023-06-27)
@@ -24,6 +24,14 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.0.1 (2023-07-07)
+* Updated dependencies:
+  * `@typescript-eslint/eslint-plugin` => 5.61.0
+  * `@typescript-eslint/parser` => 5.61.0
+  * `eslint` => 8.44.0
+    * Resolves vulnerability found in `eslint#optionator#word-wrap` dependency ([info](https://github.com/jonschlinkert/word-wrap/issues/32))
+  * `typescript` => 5.1.6
+
 ## 1.0.0 (2023-06-29)
 * All pre-release issues have been resolved - launching v1.0!
 * [Issue #23](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/23) - Resolved; documentation completed.
