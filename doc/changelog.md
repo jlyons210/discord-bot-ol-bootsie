@@ -32,6 +32,8 @@
     * Resolves vulnerability found in `eslint#optionator#word-wrap` dependency ([info](https://github.com/jonschlinkert/word-wrap/issues/32))
   * `typescript` => 5.1.6
 
+[:arrow_up: Back to top](#changelog)
+
 ## 1.0.0 (2023-06-29)
 * All pre-release issues have been resolved - launching v1.0!
 * [Issue #23](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/23) - Resolved; documentation completed.
