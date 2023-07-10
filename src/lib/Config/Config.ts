@@ -15,7 +15,6 @@ export class Config {
    * Constructs a Config object containing the merged (provided & defaults) application configuration.
    */
   constructor() {
-    this._logger = new Logger();
     this._validateStartupSettings();
   }
 
