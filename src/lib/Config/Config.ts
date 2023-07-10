@@ -1,9 +1,6 @@
-import {
-  LogLevel,
-  Logger,
-} from '../Logger';
 import { ConfigError } from './index';
 import { ConfigTemplate } from './ConfigTemplate.json';
+import { Logger } from '../Logger';
 
 /**
  * Loads the Discord bot's running configuration from environment variables and validates against
@@ -11,6 +8,7 @@ import { ConfigTemplate } from './ConfigTemplate.json';
  */
 export class Config {
 
+  private _logger = new Logger();
   private _settings: Record<string, string | number | boolean> = {};
 
   /**
@@ -45,43 +43,35 @@ export class Config {
           process.env[setting.name] = undefined;
 
           const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-          Logger.log({
-            message: `${setting.name} = ${safeOutput}`,
-            logLevel: LogLevel.Info,
-          });
+          this._logger.logInfo(`${setting.name} = ${safeOutput}`);
         }
         // User setting is invalid
         else {
           if (setting.allowedValues && !this._isAllowedValue(userValue, setting.allowedValues)) {
-            Logger.log({
-              message: `${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`,
-              logLevel: LogLevel.Error,
-            });
+            this._logger.logError(
+              `${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`
+            );
           }
           else if (typeof userValue !== typeof setting.allowedValues) {
-            Logger.log({
-              message: `${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ${typeof setting.allowedValues}`,
-              logLevel: LogLevel.Error,
-            });
+            this._logger.logError(
+              `${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ` +
+              `${typeof setting.allowedValues}`
+            );
           }
           validationFailed = true;
         }
       }
       // User did not configure an optional setting, use template default
       else if (!setting.required) {
-        Logger.log({
-          message: `${setting.name} not set - using template default: ${setting.defaultValue}`,
-          logLevel: LogLevel.Info,
-        });
+        this._logger.logInfo(
+          `${setting.name} not set - using template default: ${setting.defaultValue}`
+        );
         this._settings[setting.name] = setting.defaultValue;
       }
 
       // User did not configure a required setting
       else {
-        Logger.log({
-          message: `${setting.name} not set and is required.`,
-          logLevel: LogLevel.Error,
-        });
+        this._logger.logError(`${setting.name} not set and is required.`);
         validationFailed = true;
       }
     });

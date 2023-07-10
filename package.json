@@ -1,6 +1,6 @@
 {
   "name": "discord-bot-ol-bootsie",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Ol' Bootsie is a Discord bot written in Node.js that interfaces with the OpenAI API.",
   "main": "app.js",
   "scripts": {

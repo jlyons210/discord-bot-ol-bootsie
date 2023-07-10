@@ -1,48 +1,63 @@
-import {
-  LogLevel,
-  LoggerConfiguration,
-} from './index';
 import { access } from 'fs/promises';
 
 /**
  * Centralized logging class
  */
 export class Logger {
+
+  private debugLoggingIsEnabled: boolean;
+
   /**
-   * Centralized logging function. Logs to console depending on configured logging level.
-   * @param logEntry ILogEntry containing log entry details
+   * Creates a Logger instance and sets debug logging enabled state
+   * @param debugLoggingIsEnabled boolean indicating whether or not debug logging is to be
+   *   enabled.
    */
-  static async log(logEntry: LoggerConfiguration): Promise<void> {
-    const timestamp: string = new Date().toISOString();
+  constructor(debugLoggingIsEnabled = false) {
+    this.debugLoggingIsEnabled = debugLoggingIsEnabled;
+  }
 
-    switch (logEntry.logLevel) {
-      case LogLevel.Debug:
-        if (logEntry.debugEnabled || await this._breakGlassDebugEnabled()) {
-          console.log(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
-        }
-        break;
-
-      case LogLevel.Error:
-        console.error(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
-        break;
-
-      case LogLevel.Info:
-        console.log(`${timestamp} - ${logEntry.logLevel.toUpperCase()} - ${logEntry.message}`);
-        break;
+  /**
+   * Logs a debug message to console if debug logging is enabled. Checks break-glass debug
+   * configuration on every run as the DEBUG file may be created or deleted at any time.
+   * @param message string containing debug message to log
+   */
+  public async logDebug(message: string): Promise<void> {
+    const timestamp = new Date().toISOString();
+    if (this.debugLoggingIsEnabled || this.breakGlassDebugLoggingIsEnabled()) {
+      console.log(`${timestamp} - DEBUG - ${message}`);
     }
   }
 
   /**
-   * Break-glass debugging allows for debug logging to be disabled in the config, and enabled
-   * during a troubleshooting scenario.
-   * Break-glass within a container:
+   * Logs an error message to console.
+   * @param message string containing error message to log
+   */
+  public logError(message: string): void {
+    const timestamp = new Date().toISOString();
+    console.error(`${timestamp} - ERROR - ${message}`);
+  }
+
+  /**
+   * Logs an info message to console.
+   * @param message string containing info message to log
+   */
+  public logInfo(message: string): void {
+    const timestamp = new Date().toISOString();
+    console.log(`${timestamp} - INFO - ${message}`);
+  }
+
+  /**
+   * Break-glass debugging allows debug logging to be enabled during a live troubleshooting
+   * scenario.
+   *
+   * To enable within a running container:
    *   docker exec -it <container_name> /bin/sh
    *   /usr/src/app # touch DEBUG
-   * @returns Returns 'true' if the DEBUG file exists for break-glass debugging.
+   * @returns boolean indicating whether or not the DEBUG file exists
    */
-  private static async _breakGlassDebugEnabled(): Promise<boolean> {
+  private breakGlassDebugLoggingIsEnabled(): boolean {
     try {
-      await access(process.cwd() + '/DEBUG');
+      access(process.cwd() + '/DEBUG');
       return true;
     }
     catch (e) {

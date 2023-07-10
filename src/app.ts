@@ -1,37 +1,30 @@
 import {
-  Config,
-  ConfigError,
-} from './lib/Config';
-import {
   DiscordBot,
   DiscordBotEvents,
 } from './lib/DiscordBot';
-import {
-  LogLevel,
-  Logger,
-} from './lib/Logger';
+import { Config } from './lib/Config';
+import { Logger } from './lib/Logger';
 
 /**
  * Main program entry point class.
  */
 class Main {
 
+  private logger: Logger;
+  private npmPackageName = process.env['npm_package_name'];
+  private npmPackageVersion = process.env['npm_package_version'];
+
   /**
-   * Constructs a new Discord bot
+   * Constructs a Main instance and starts the application
    */
   constructor() {
     const config = this._loadConfiguration();
     const discordBot = new DiscordBot(config);
+    this.logger = new Logger(Boolean(config.Settings['bot_log_debug']));
 
     discordBot.Events.once(DiscordBotEvents.BotReady, async user => {
-      void Logger.log({
-        message: `${process.env['npm_package_name']}:${process.env['npm_package_version']} ready!`,
-        logLevel: LogLevel.Info,
-      });
-      void Logger.log({
-        message: `Logged in as ${user.tag}`,
-        logLevel: LogLevel.Info,
-      });
+      this.logger.logInfo(`${this.npmPackageName}:${this.npmPackageVersion} ready!`);
+      this.logger.logInfo(`Logged in as ${user.tag}`);
     });
   }
 
@@ -39,20 +32,10 @@ class Main {
    * Checks and loads startup configuration from configured environment variables and defaults
    * specified in ./ConfigTemplate/ConfigTemplate.json into Config object.
    * @returns Populated application Config
+   * @throws ConfigError if configuration is invalid
    */
   private _loadConfiguration(): Config {
-    try {
-      return new Config();
-    }
-    catch (e) {
-      if (e instanceof ConfigError) {
-        Logger.log({ message: e.message, logLevel: LogLevel.Error });
-      }
-      else if (e instanceof Error) {
-        Logger.log({ message: e.message, logLevel: LogLevel.Error });
-      }
-    }
-    process.exit(1);
+    return new Config();
   }
 
 }
