@@ -10,11 +10,8 @@ import {
   OpenAIRetriesExceededError,
   OpenAIUnexpectedError,
 } from '../index';
-import {
-  LogLevel,
-  Logger,
-} from '../../Logger';
 import { AxiosError } from 'axios';
+import { Logger } from '../../Logger';
 import { inspect } from 'util';
 
 /**
@@ -24,6 +21,7 @@ export class CreateChatCompletion {
 
   private _config: CreateChatCompletionConfiguration;
   private _client: OpenAIApi;
+  private _logger = new Logger();
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
@@ -76,34 +74,29 @@ export class CreateChatCompletion {
           if (apiStatus && (apiStatus === 429 || apiStatus >= 500)) {
             // TODO: Implement proper XBR logic
             setTimeout(async () => {
-              void Logger.log({
-                message: `An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`,
-                logLevel: LogLevel.Error,
-              });
+              this._logger.logError(
+                `An HTTP ${apiStatus} (${apiStatusText}) was returned. Retrying ${retriesLeft} time(s).`
+              );
             }, 1000);
           }
           else if (apiStatus && (apiStatus >= 400 && apiStatus <= 499)) {
             retriesLeft = 0;
-            void Logger.log({
-              message: `An HTTP ${apiStatus} (${apiStatusText}) was returned. This indicates a bad request. Not retrying.`,
-              logLevel: LogLevel.Error,
-            });
+            this._logger.logError(
+              `An HTTP ${apiStatus} (${apiStatusText}) was returned. ` +
+              'This indicates a bad request. Not retrying.'
+            );
             throw new OpenAIBadRequestError(inspect(axiosError.response?.data, false, null, true));
           }
           else {
             retriesLeft = 0;
-            void Logger.log({
-              message: `An unknown API error occurred:\n${axiosError.response?.data}`,
-              logLevel: LogLevel.Error,
-            });
+            this._logger.logError(
+              `An unknown API error occurred:\n${axiosError.response?.data}`
+            );
             throw new OpenAIUnexpectedError(inspect(axiosError.response?.data, false, null, true));
           }
         }
         else if (e instanceof Error) {
-          void Logger.log({
-            message: `An unknown error occurred:\n${inspect(e, false, null, true)}`,
-            logLevel: LogLevel.Error,
-          });
+          this._logger.logError(`An unknown error occurred:\n${inspect(e, false, null, true)}`);
         }
       }
     }
