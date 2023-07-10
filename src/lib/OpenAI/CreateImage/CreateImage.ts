@@ -74,7 +74,8 @@ export class CreateImage {
             setTimeout(async () => {
               this._logger.logError(
                 `An HTTP ${apiStatus} (${apiStatusText}) was returned. ` +
-                `Retrying ${retriesLeft} time(s).`);
+                `Retrying ${retriesLeft} time(s).`
+              );
             }, 1000);
           }
           else if (apiStatus && (apiStatus >= 400 && apiStatus <= 499)) {
