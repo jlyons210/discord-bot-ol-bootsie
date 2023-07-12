@@ -21,7 +21,7 @@ export class Logger {
    * configuration on every run as the DEBUG file may be created or deleted at any time.
    * @param message string containing debug message to log
    */
-  public async logDebug(message: string): Promise<void> {
+  public logDebug(message: string): void {
     const timestamp = new Date().toISOString();
     if (this.debugLoggingIsEnabled || this.breakGlassDebugLoggingIsEnabled()) {
       console.log(`${timestamp} - DEBUG - ${message}`);
