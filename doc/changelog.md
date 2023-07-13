@@ -27,6 +27,8 @@
 ## 1.0.4 (2023-07-13)
 * [Issue #107] - Re-opened due to bug after converting async functions to synchronous and using `fs/promises` for `access()` on `DEBUG` file. Resolved again.
 
+[:arrow_up: Back to top](#changelog)
+
 ## 1.0.3 (2023-07-10)
 * [Issue #107] - Resolved; see issue for notes.
 
