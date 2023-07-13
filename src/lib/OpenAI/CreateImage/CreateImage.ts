@@ -72,7 +72,7 @@ export class CreateImage {
           if (apiStatus && (apiStatus === 429 || apiStatus >= 500)) {
             // TODO: Implement proper XBR logic
             setTimeout(async () => {
-              this._logger.logError(
+              void this._logger.logError(
                 `An HTTP ${apiStatus} (${apiStatusText}) was returned. ` +
                 `Retrying ${retriesLeft} time(s).`
               );
@@ -80,7 +80,7 @@ export class CreateImage {
           }
           else if (apiStatus && (apiStatus >= 400 && apiStatus <= 499)) {
             retriesLeft = 0;
-            this._logger.logError(
+            void this._logger.logError(
               `An HTTP ${apiStatus} (${apiStatusText}) was returned. ` +
               'This indicates a bad request. Not retrying.'
             );
@@ -88,14 +88,14 @@ export class CreateImage {
           }
           else {
             retriesLeft = 0;
-            this._logger.logError(
+            void this._logger.logError(
               `An unknown API error occurred:\n${axiosError.response?.data}`
             );
             throw new OpenAIUnexpectedError(inspect(axiosError.response?.data, false, null, true));
           }
         }
         else if (e instanceof Error) {
-          this._logger.logError(
+          void this._logger.logError(
             `An unknown error occurred:\n${inspect(e, false, null, true)}`
           );
         }

@@ -21,9 +21,9 @@ export class Logger {
    * configuration on every run as the DEBUG file may be created or deleted at any time.
    * @param message string containing debug message to log
    */
-  public logDebug(message: string): void {
+  public async logDebug(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
-    if (this.debugLoggingIsEnabled || this.breakGlassDebugLoggingIsEnabled()) {
+    if (this.debugLoggingIsEnabled || await this.breakGlassDebugLoggingIsEnabled()) {
       console.log(`${timestamp} - DEBUG - ${message}`);
     }
   }
@@ -32,7 +32,7 @@ export class Logger {
    * Logs an error message to console.
    * @param message string containing error message to log
    */
-  public logError(message: string): void {
+  public async logError(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
     console.error(`${timestamp} - ERROR - ${message}`);
   }
@@ -41,7 +41,7 @@ export class Logger {
    * Logs an info message to console.
    * @param message string containing info message to log
    */
-  public logInfo(message: string): void {
+  public async logInfo(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
     console.log(`${timestamp} - INFO - ${message}`);
   }
@@ -55,9 +55,9 @@ export class Logger {
    *   /usr/src/app # touch DEBUG
    * @returns boolean indicating whether or not the DEBUG file exists
    */
-  private breakGlassDebugLoggingIsEnabled(): boolean {
+  private async breakGlassDebugLoggingIsEnabled(): Promise<boolean> {
     try {
-      access(process.cwd() + '/DEBUG');
+      await access(process.cwd() + '/DEBUG');
       return true;
     }
     catch (e) {

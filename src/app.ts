@@ -23,8 +23,8 @@ class Main {
     this.logger = new Logger(Boolean(config.Settings['bot_log_debug']));
 
     discordBot.Events.once(DiscordBotEvents.BotReady, async user => {
-      this.logger.logInfo(`${this.npmPackageName}:${this.npmPackageVersion} ready!`);
-      this.logger.logInfo(`Logged in as ${user.tag}`);
+      void this.logger.logInfo(`${this.npmPackageName}:${this.npmPackageVersion} ready!`);
+      void this.logger.logInfo(`Logged in as ${user.tag}`);
     });
   }
 

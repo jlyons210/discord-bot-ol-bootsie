@@ -43,17 +43,17 @@ export class Config {
           process.env[setting.name] = undefined;
 
           const safeOutput = (setting.secret) ? '*'.repeat(10) : userValue;
-          this._logger.logInfo(`${setting.name} = ${safeOutput}`);
+          void this._logger.logInfo(`${setting.name} = ${safeOutput}`);
         }
         // User setting is invalid
         else {
           if (setting.allowedValues && !this._isAllowedValue(userValue, setting.allowedValues)) {
-            this._logger.logError(
+            void this._logger.logError(
               `${setting.name}=${userValue} is invalid - allowed value(s): ${setting.allowedValues}`
             );
           }
           else if (typeof userValue !== typeof setting.allowedValues) {
-            this._logger.logError(
+            void this._logger.logError(
               `${setting.name}=${userValue} '${typeof userValue}' is invalid - expected type: ` +
               `${typeof setting.allowedValues}`
             );
@@ -63,7 +63,7 @@ export class Config {
       }
       // User did not configure an optional setting, use template default
       else if (!setting.required) {
-        this._logger.logInfo(
+        void this._logger.logInfo(
           `${setting.name} not set - using template default: ${setting.defaultValue}`
         );
         this._settings[setting.name] = setting.defaultValue;
@@ -71,7 +71,7 @@ export class Config {
 
       // User did not configure a required setting
       else {
-        this._logger.logError(`${setting.name} not set and is required.`);
+        void this._logger.logError(`${setting.name} not set and is required.`);
         validationFailed = true;
       }
     });
