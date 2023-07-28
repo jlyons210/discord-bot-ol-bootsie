@@ -3,6 +3,8 @@ Ol' Bootsie is a highly configurable Discord bot that interfaces with the OpenAI
 
 There are many great new genAI projects being started since the boom ChatGPT created. As soon as the OpenAI API became publicly available, I knew I wanted to build with it. This is my first project using the API, and went from 0 to 1.0 in about 2.5 months.
 
+If you'd like to try out the bot on Discord or chat with me - feel free to [join my server](https://discord.gg/bH6x6Jbv39)!
+
 ## Table of contents
 * [User features](#user-features)
 * [Admin features](#admin-features)
