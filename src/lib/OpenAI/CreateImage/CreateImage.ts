@@ -1,8 +1,4 @@
 import {
-  Configuration,
-  OpenAIApi,
-} from 'openai';
-import {
   CreateImageConfiguration,
   CreateImagePayloadConfiguration,
   CreateImageResponse,
@@ -13,6 +9,7 @@ import {
 } from '../index';
 import { AxiosError } from 'axios';
 import { Logger } from '../../Logger';
+import OpenAI from 'openai';
 import { inspect } from 'util';
 
 /**
@@ -21,7 +18,7 @@ import { inspect } from 'util';
 export class CreateImage {
 
   private _config: CreateImageConfiguration;
-  private _client: OpenAIApi;
+  private _client: OpenAI;
   private _logger = new Logger();
 
   /**
@@ -30,7 +27,9 @@ export class CreateImage {
    */
   public constructor(config: CreateImageConfiguration) {
     this._config = config;
-    this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
+    this._client = new OpenAI({
+      apiKey: config.apiKey,
+    });
   }
 
   /**
@@ -46,7 +45,8 @@ export class CreateImage {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
-        const response = await this._client.createImage({
+        const response = await this._client.images.generate({
+          model: this._config.paramModel,
           prompt: payload.prompt,
           n: payload.numberOfImages,
           size: payload.size,
@@ -55,10 +55,10 @@ export class CreateImage {
         });
 
         const responsePayload = new CreateImageResponse({
-          created: response.data.created,
+          created: response.created,
           data: (payload.responseFormat === CreateImageResponseFormat.URL) ?
-            response.data.data.map(data => ({ url: String(data.url) })) :
-            response.data.data.map(data => ({ b64_json: String(data.b64_json) })),
+            response.data.map(data => ({ url: String(data.url) })) :
+            response.data.map(data => ({ b64_json: String(data.b64_json) })),
         });
 
         return responsePayload;

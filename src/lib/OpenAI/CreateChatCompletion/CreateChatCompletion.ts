@@ -1,8 +1,4 @@
 import {
-  Configuration,
-  OpenAIApi,
-} from 'openai';
-import {
   CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
@@ -12,6 +8,7 @@ import {
 } from '../index';
 import { AxiosError } from 'axios';
 import { Logger } from '../../Logger';
+import { OpenAI } from 'openai';
 import { inspect } from 'util';
 
 /**
@@ -20,7 +17,7 @@ import { inspect } from 'util';
 export class CreateChatCompletion {
 
   private _config: CreateChatCompletionConfiguration;
-  private _client: OpenAIApi;
+  private _client: OpenAI;
   private _logger = new Logger();
 
   /**
@@ -29,7 +26,9 @@ export class CreateChatCompletion {
    */
   public constructor(config: CreateChatCompletionConfiguration) {
     this._config = config;
-    this._client = new OpenAIApi(new Configuration({ apiKey: config.apiKey }));
+    this._client = new OpenAI({
+      apiKey: config.apiKey,
+    });
   }
 
   /**
@@ -47,15 +46,15 @@ export class CreateChatCompletion {
     let retriesLeft: number = this._config.maxRetries;
     while (retriesLeft--) {
       try {
-        const response = await this._client.createChatCompletion({
+        const response = await this._client.chat.completions.create({
           max_tokens: this._config.paramMaxTokens,
           model: this._config.paramModel,
           messages: payload,
           temperature: this._config.paramTemperature,
         });
 
-        const responseMessage = response.data.choices[0].message;
-        if (responseMessage?.content !== undefined) {
+        const responseMessage = response.choices[0].message;
+        if (typeof responseMessage?.content == 'string') {
           return new CreateChatCompletionPayloadMessage({
             content: responseMessage.content,
             role: CreateChatCompletionPayloadMessageRole.Assistant,

@@ -475,6 +475,7 @@ export class DiscordBot {
       const openAiClient = new CreateImage({
         apiKey: String(this._botConfig.Settings['openai_api_key']),
         maxRetries: Number(this._botConfig.Settings['openai_api_maxRetries']),
+        paramModel: String(this._botConfig.Settings['openai_createImage_model']),
       });
 
       void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: entering OpenAiClient.createImage()`);

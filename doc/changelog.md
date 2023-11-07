@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases:
+* 1.1.x: [1.1.0](#110-2023-11-07)
 * 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07), [1.0.2](#102-2023-07-10), [1.0.3](#103-2023-07-10), [1.0.4](#104-2023-07-13)
 
 ## Pre-release:
@@ -24,6 +25,19 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.1.0 (2023-11-07)
+* [Issue #116] - added support for DALL-E 3 image API
+  * Added `openai_createImage_model` config variable to allow selection between `dall-e-2` or `dall-e-3`.
+  * Updated `openai_createImage_model` config variable to support new models.
+  * Updated `openai_chatCompletion_model` config variable with new models (untested). Legacy models are on the bottom line of each model-version grouping.
+* Updated dependencies:
+  * `axios` 1.4.0 => 1.6.0
+  * `discord.js` 14.11.0 => 14.13.0
+  * `openai` 3.3.0 => 4.16.1
+  * All `devDependencies`
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.0.4 (2023-07-13)
 * [Issue #107] - Re-opened due to bug after converting async functions to synchronous and using `fs/promises` for `access()` on `DEBUG` file. Resolved again.
 

@@ -66,7 +66,7 @@ export class Config {
         void this._logger.logInfo(
           `${setting.name} not set - using template default: ${setting.defaultValue}`
         );
-        this._settings[setting.name] = setting.defaultValue;
+        this._settings[setting.name] = setting.defaultValue || '';
       }
 
       // User did not configure a required setting

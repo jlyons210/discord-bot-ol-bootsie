@@ -93,14 +93,14 @@
     },
     {
       "name": "openai_chatCompletion_model",
-      "allowedValues":
-        [
-          "gpt-4", "gpt-4-0613", "gpt-4-32k", "gpt-4-32k-0613",
+      "allowedValues": [
+          "gpt-4-1106-preview",
+          "gpt-4", "gpt-4-32k", "gpt-4-0613", "gpt-4-32k-0613",
           "gpt-4-0314", "gpt-4-32k-0314", 
-          "gpt-3.5-turbo", "gpt-3.5-turbo-16k", "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k-0613",
-          "gpt-3.5-turbo-0301"
+          "gpt-3.5-turbo-1106", "gpt-3.5-turbo", "gpt-3.5-turbo-16k",
+          "gpt-3.5-turbo-0613", "gpt-3.5-turbo-16k-0613", "gpt-3.5-turbo-0301"
         ],
-      "defaultValue": "gpt-3.5-turbo-16k-0613",
+      "defaultValue": "gpt-3.5-turbo-16k",
       "required": false,
       "secret": false
     },
@@ -115,6 +115,16 @@
       "name": "openai_chatCompletion_temperature",
       "allowedValues": 0,
       "defaultValue": 0.6,
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "openai_createImage_model",
+      "allowedValues": [
+        "dall-e-3",
+        "dall-e-2"
+      ],
+      "defaultValue": "dall-e-3",
       "required": false,
       "secret": false
     }
