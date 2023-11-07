@@ -4,4 +4,5 @@
 export interface CreateImageConfiguration {
   apiKey: string,
   maxRetries: number,
+  paramModel: string,
 }
