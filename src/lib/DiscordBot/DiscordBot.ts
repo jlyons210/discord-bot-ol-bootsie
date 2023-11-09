@@ -497,7 +497,7 @@ export class DiscordBot {
           inline: true,
         })
         .setFooter({
-          text: 'jlyons210/discord-bot-ol-bootsie',
+          text: 'jlyons210/discord-bot-ol-bootsie v1.1.0',
           iconURL: 'https://grumple.cloud/assets/discord-bot-ol-bootsie/icon-github.png',
         });
 
