@@ -66,20 +66,23 @@ Chat bot behavior is highly configurable!
 
 [:arrow_up: Back to top](#discord-bot-ol-bootsie)
 
-## Bot-generated images
+## Bot-generated images using `dall-e-3`
 
 <div style="text-align: center">
-  <img src="doc/openai-image-1685988889303.png" style="padding: 5px; width: 33%">
-  <img src="doc/openai-image-1687545084928.png" style="padding: 5px; width: 33%">
-  <img src="doc/openai-image-1688070038891.png" style="padding: 5px; width: 33%">
-  <img src="doc/openai-image-1688070203699.png" style="padding: 5px; width: 33%">
+  <img src="doc/openai-image-1699577873551.webp" style="padding: 5px; width: 33%">
+  <img src="doc/openai-image-1699395461999.webp" style="padding: 5px; width: 33%">
+  <img src="doc/openai-image-1699487243045.webp" style="padding: 5px; width: 33%">
+  <img src="doc/openai-image-1699392007613.webp" style="padding: 5px; width: 33%">
 </div>
 
 [:arrow_up: Back to top](#discord-bot-ol-bootsie)
 
 ## Contributing
 
-Please create an issue for enhancement requests or bug reports, or feel free to fork the project to submit your own contributions! I will leave feedback on the PR if I believe that any changes need to be made before merging.
+Please create an issue for enhancement requests or bug reports, or feel free to fork the project to submit your own contributions! To ensure that your PRs are easier to integrate, please create a feature branch off of the `dev` branch to work from. I will leave feedback on the PR if I believe that any changes need to be made before merging.
+
+### Contributors:
+* [divyakelaskar](https://github.com/divyakelaskar)
 
 [:arrow_up: Back to top](#discord-bot-ol-bootsie)
 
