@@ -58,6 +58,8 @@ export class DiscordBot {
   private _discordClient: Client;
   private _logger: Logger;
 
+  private npmPackageVersion = process.env['npm_package_version'];
+
   /**
    * Creates an instance of the DiscordBot class with required configuration to authenticate the
    * bot's Discord client and operate within a channel. Establishes event listeners.
@@ -497,7 +499,7 @@ export class DiscordBot {
           inline: true,
         })
         .setFooter({
-          text: 'jlyons210/discord-bot-ol-bootsie v1.1.0',
+          text: `${npmPackageVersion}`,
           iconURL: 'https://grumple.cloud/assets/discord-bot-ol-bootsie/icon-github.png',
         });
 
