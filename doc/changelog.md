@@ -1,7 +1,7 @@
 # Changelog
 
 ## Releases:
-* 1.1.x: [1.1.0](#110-2023-11-07)
+* 1.1.x: [1.1.0](#110-2023-11-07), [1.1.1](#111-2023-11-10)
 * 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07), [1.0.2](#102-2023-07-10), [1.0.3](#103-2023-07-10), [1.0.4](#104-2023-07-13)
 
 ## Pre-release:
@@ -25,8 +25,15 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.1.1 (2023-11-10)
+* Minor fixes:
+  * [Issue #112](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/112) - Resolved
+  * [Issue #118](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/118) - Resolved (thank you @divyakelaskar!)
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.1.0 (2023-11-07)
-* [Issue #116] - added support for DALL-E 3 image API
+* [Issue #116](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/116) - added support for DALL-E 3 image API
   * Added `openai_createImage_model` config variable to allow selection between `dall-e-2` or `dall-e-3`.
   * Updated `openai_createImage_model` config variable to support new models.
   * Updated `openai_chatCompletion_model` config variable with new models (untested). Legacy models are on the bottom line of each model-version grouping.
@@ -39,17 +46,17 @@
 [:arrow_up: Back to top](#changelog)
 
 ## 1.0.4 (2023-07-13)
-* [Issue #107] - Re-opened due to bug after converting async functions to synchronous and using `fs/promises` for `access()` on `DEBUG` file. Resolved again.
+* [Issue #107](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/107) - Re-opened due to bug after converting async functions to synchronous and using `fs/promises` for `access()` on `DEBUG` file. Resolved again.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 1.0.3 (2023-07-10)
-* [Issue #107] - Resolved; see issue for notes.
+* [Issue #107](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/107) - Resolved; see issue for notes.
 
 [:arrow_up: Back to top](#changelog)
 
 ## 1.0.2 (2023-07-10)
-* [Issue #105] - Resolved; see issue for notes.
+* [Issue #105](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/105) - Resolved; see issue for notes.
 
 [:arrow_up: Back to top](#changelog)
 

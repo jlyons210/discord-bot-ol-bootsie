@@ -86,6 +86,14 @@ export class DiscordBotMessage {
   }
 
   /**
+   * Returns the message author's display name, or username if no display name is available
+   * @returns Discord username string
+   */
+  get MessageUsername(): string {
+    return this.DiscordMessage.member?.displayName || this.DiscordMessage.author.username;
+  }
+
+  /**
    * Indicates whether or not this bot instance was mentioned in a Discord message.
    * @returns boolean
    */
