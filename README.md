@@ -9,7 +9,7 @@ If you'd like to try out the bot on Discord or chat with me - feel free to [join
 * [User features](#user-features)
 * [Admin features](#admin-features)
 * [Interaction screenshots](#interaction-screenshots)
-* [Bot-generated images](#bot-generated-images)
+* [Bot-generated images](#bot-generated-images-using-dall-e-3)
 * [Contributing](#contributing)
 * [Acknowledgements](#acknowledgements)
 * [License](#license)
