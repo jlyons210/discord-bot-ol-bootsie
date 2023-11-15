@@ -1,7 +1,7 @@
 # Changelog
 
 ## Releases:
-* 1.1.x: [1.1.0](#110-2023-11-07), [1.1.1](#111-2023-11-10)
+* 1.1.x: [1.1.0](#110-2023-11-07), [1.1.1](#111-2023-11-10), [1.1.2](#112-2023-11-15)
 * 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07), [1.0.2](#102-2023-07-10), [1.0.3](#103-2023-07-10), [1.0.4](#104-2023-07-13)
 
 ## Pre-release:
@@ -25,6 +25,16 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.1.2 (2023-11-15)
+* Minor fix:
+  * [Issue #123](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/123) - Resolved
+* Updated dependencies:
+  * `axios` 1.6.0 => 1.6.2
+  * `discord.js` 14.13.0 => 14.14.1 (resolves `undici` CVE-2023-45143)
+  * `openai` 4.16.1 => 4.19.0
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.1.1 (2023-11-10)
 * Minor fixes:
   * [Issue #112](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/112) - Resolved
