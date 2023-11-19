@@ -8,16 +8,14 @@ import {
  * Generic base class for an expirable object bucket
  */
 export class ExpirableObjectBucket {
-
-  private _objects: ExpirableObject[] = [];
-  private _objectExpireSec: number;
+  private objectExpireSec: number;
 
   /**
    * Creates a new ExpirableObjectBucket
    * @param config ExpireableObjectBucketConfiguration
    */
   constructor(config: ExpirableObjectBucketConfiguration) {
-    this._objectExpireSec = config.objectExpireSec;
+    this.objectExpireSec = config.objectExpireSec;
   }
 
   /**
@@ -25,7 +23,7 @@ export class ExpirableObjectBucket {
    * @param object ExpirableObject to add to the bucket
    */
   public add(object: ExpirableObject): void {
-    object.expireSec = this._objectExpireSec;
+    object.expireSec = this.objectExpireSec;
     object.events.on(ExpirableObjectEvents.ObjectExpired, () => {
       this._objects = this._objects.filter(obj => obj !== object);
     });
@@ -40,4 +38,6 @@ export class ExpirableObjectBucket {
     return this._objects;
   }
 
+  // Backing field for objects
+  private _objects: ExpirableObject[] = [];
 }

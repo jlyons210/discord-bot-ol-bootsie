@@ -4,7 +4,6 @@ import { access } from 'fs/promises';
  * Centralized logging class
  */
 export class Logger {
-
   private debugLoggingIsEnabled: boolean;
 
   /**

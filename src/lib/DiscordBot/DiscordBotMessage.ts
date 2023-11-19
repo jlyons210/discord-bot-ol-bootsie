@@ -2,6 +2,7 @@ import {
   ChannelType,
   Message,
 } from 'discord.js';
+
 import {
   DiscordBotConversationMode,
   DiscordBotMessageConfiguration,
@@ -12,16 +13,16 @@ import {
  * A wrapper for Discord's Message class that contains bot metadata and extra functionality
  */
 export class DiscordBotMessage {
-  private _discordBotMessageConfig: DiscordBotMessageConfiguration;
-  private _sanitizedMessageContent = '';
+  private discordBotMessageConfig: DiscordBotMessageConfiguration;
+  private sanitizedMessageContent = '';
 
   /**
    * Constructs a new DiscordBotMessage
    * @param config DiscordBotMessageConfiguration
    */
   constructor(config: DiscordBotMessageConfiguration) {
-    this._discordBotMessageConfig = config;
-    this._sanitizeMessageContent();
+    this.discordBotMessageConfig = config;
+    this.sanitizeMessageContent();
   }
 
   /**
@@ -39,7 +40,7 @@ export class DiscordBotMessage {
    *  the user that the message was sent from.
    */
   get ConversationKey(): string {
-    switch (this._discordBotMessageConfig.botConversationMode) {
+    switch (this.discordBotMessageConfig.botConversationMode) {
       case DiscordBotConversationMode.Channel:
         return `${this.DiscordMessage.guildId}:${this.DiscordMessage.channelId}`;
       case DiscordBotConversationMode.User:
@@ -52,7 +53,7 @@ export class DiscordBotMessage {
    * @returns (Discord) Message object
    */
   get DiscordMessage(): Message {
-    return this._discordBotMessageConfig.discordMessage;
+    return this.discordBotMessageConfig.discordMessage;
   }
 
   /**
@@ -60,7 +61,7 @@ export class DiscordBotMessage {
    * @returns string
    */
   get MessageContentSanitized(): string {
-    return this._sanitizedMessageContent;
+    return this.sanitizedMessageContent;
   }
 
   /**
@@ -73,9 +74,9 @@ export class DiscordBotMessage {
       return DiscordBotMessageType.AtMention;
     }
     else if (this.AuthorIsABot) {
-      return (this.DiscordMessage.author.id === this._discordBotMessageConfig.botUserId) ?
-        DiscordBotMessageType.OwnMessage :
-        DiscordBotMessageType.BotMessage;
+      return (this.DiscordMessage.author.id === this.discordBotMessageConfig.botUserId)
+        ? DiscordBotMessageType.OwnMessage
+        : DiscordBotMessageType.BotMessage;
     }
     else if (this.DiscordMessage.channel.type === ChannelType.DM) {
       return DiscordBotMessageType.DirectMessage;
@@ -100,7 +101,9 @@ export class DiscordBotMessage {
   get ThisBotIsMentioned(): boolean {
     return Boolean(
       this.DiscordMessage.mentions.users
-        .filter(users => (users.id === this._discordBotMessageConfig.botUserId)).size
+        .filter(users =>
+          users.id === this.discordBotMessageConfig.botUserId
+        ).size
     );
   }
 
@@ -108,15 +111,15 @@ export class DiscordBotMessage {
    * Cleans up Discord message text @-mentions
    * @returns Sanitized message text string
    */
-  private _cleanupMessageAtMentions(): string {
+  private cleanupMessageAtMentions(): string {
     let messageContent = this.DiscordMessage.content;
 
     /* Strip bot @-mention (not useful in OpenAI prompt) and replace other @-mentions with display
      * name, useful in OpenAI prompt/response */
     this.DiscordMessage.mentions.users.forEach(async mention => {
-      messageContent = (mention.bot) ?
-        messageContent.replace(`<@${mention.id}>`, '') :
-        messageContent.replace(`<@${mention.id}>`, `${mention.username}`);
+      messageContent = (mention.bot)
+        ? messageContent.replace(`<@${mention.id}>`, '')
+        : messageContent.replace(`<@${mention.id}>`, `${mention.username}`);
     });
 
     return messageContent;
@@ -125,8 +128,7 @@ export class DiscordBotMessage {
   /**
    * Entry point for any number of message sanitizing functions
    */
-  private _sanitizeMessageContent(): void {
-    this._sanitizedMessageContent = this._cleanupMessageAtMentions();
+  private sanitizeMessageContent(): void {
+    this.sanitizedMessageContent = this.cleanupMessageAtMentions();
   }
-
 }

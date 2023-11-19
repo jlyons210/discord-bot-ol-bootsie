@@ -3,22 +3,24 @@ import {
   FeatureTokenBucketConfiguration,
   FeatureTokenBucketMaxUserTokensError,
 } from '../index';
+
 import { ExpirableObjectBucket } from '../ExpirableObjectBucket';
 
 /**
  * Constructs a FeatureTokenBucket, used for rate limiting user activities that may be expensive.
  */
 export class FeatureTokenBucket extends ExpirableObjectBucket {
-
-  private _maxTokensPerUser: number;
+  private maxTokensPerUser: number;
 
   /**
    * Constructs a new FeatureTokenBucket
    * @param config FeatureTokenBucketConfiguration
    */
   constructor(config: FeatureTokenBucketConfiguration) {
-    super({ objectExpireSec: config.tokenExpireSec });
-    this._maxTokensPerUser = config.maxTokens;
+    super({
+      objectExpireSec: config.tokenExpireSec,
+    });
+    this.maxTokensPerUser = config.maxTokens;
   }
 
   /**
@@ -32,7 +34,8 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
     }
     else {
       throw new FeatureTokenBucketMaxUserTokensError(
-        `${token.username} is out of tokens. Please wait until ${this.nextTokenTime(token.username)} before trying again.`
+        `${token.username} is out of tokens. Please wait until `
+        + `${this.nextTokenTime(token.username)} before trying again.`
       );
     }
   }
@@ -117,7 +120,6 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
    * @returns number of tokens remaining in a bucket
    */
   public tokensRemaining(username: string): number {
-    return this._maxTokensPerUser - this.spentTokens(username).length;
+    return this.maxTokensPerUser - this.spentTokens(username).length;
   }
-
 }

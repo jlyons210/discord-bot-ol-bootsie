@@ -5,23 +5,20 @@ import { ExpirableObjectEvents } from './index';
  * Generic base class for an expirable object, like a history message or a feature token
  */
 export class ExpirableObject {
-
   public events = new EventEmitter();
-  private _expireSec = 0;
-  private _timestamp: number;
 
   /**
    * Creates a new ExpirableObject
    */
   constructor() {
     this._timestamp = Date.now();
-    this._startExpirationMonitor();
+    this.startExpirationMonitor();
   }
 
   /**
    * Starts a clock that will emit an ObjectExpired event when TTL has run out
    */
-  private _startExpirationMonitor(): void {
+  private startExpirationMonitor(): void {
     setInterval(() => {
       if (this.ttl <= 0) {
         this.events.emit(ExpirableObjectEvents.ObjectExpired, this);
@@ -62,4 +59,7 @@ export class ExpirableObject {
     return (expireTime - Date.now());
   }
 
+  // Backing field for expireSec, timestamp
+  private _expireSec = 0;
+  private _timestamp: number;
 }

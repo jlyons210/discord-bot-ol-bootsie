@@ -2,7 +2,6 @@
  * Re-used functions that don't have a home
  */
 export class Utilities {
-
   /**
    * Sanitizes Discord usernames to fit OpenAI's name field requirements
    * @param name Unchecked username
@@ -19,5 +18,4 @@ export class Utilities {
       return name;
     }
   }
-
 }

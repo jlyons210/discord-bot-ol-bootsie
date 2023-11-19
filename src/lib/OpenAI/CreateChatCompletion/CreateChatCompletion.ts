@@ -3,26 +3,24 @@ import {
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
 } from '../index';
-import { Logger } from '../../Logger';
+
 import { OpenAI } from 'openai';
 
 /**
  * A class for interfacing with the OpenAI createChatCompletion API
  */
 export class CreateChatCompletion {
-
-  private _config: CreateChatCompletionConfiguration;
-  private _client: OpenAI;
-  private _logger = new Logger();
+  private config: CreateChatCompletionConfiguration;
+  private client: OpenAI;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
    * @param config A populated OpenAIConfig
    */
   public constructor(config: CreateChatCompletionConfiguration) {
-    this._config = config;
-    this._client = new OpenAI({
-      apiKey: config.apiKey,
+    this.config = config;
+    this.client = new OpenAI({
+      apiKey:     config.apiKey,
       maxRetries: config.maxRetries,
     });
   }
@@ -35,19 +33,23 @@ export class CreateChatCompletion {
    *   assistant responses in order to maintain conversation flow.
    * @returns Returns an assistant response
    */
-  public async createChatCompletion(payload: CreateChatCompletionPayloadMessage[]): Promise<CreateChatCompletionPayloadMessage> {
-    const response = await this._client.chat.completions.create({
-      max_tokens: this._config.paramMaxTokens,
-      model: this._config.paramModel,
-      messages: payload,
-      temperature: this._config.paramTemperature,
+  public async createChatCompletion(
+    payload: CreateChatCompletionPayloadMessage[],
+  ): Promise<CreateChatCompletionPayloadMessage> {
+
+    const response = await this.client.chat.completions.create({
+      max_tokens:  this.config.paramMaxTokens,
+      model:       this.config.paramModel,
+      messages:    payload,
+      temperature: this.config.paramTemperature,
     });
 
     const responseMessage = response.choices[0].message;
+
     return new CreateChatCompletionPayloadMessage({
       content: String(responseMessage.content),
-      role: CreateChatCompletionPayloadMessageRole.Assistant,
+      role:    CreateChatCompletionPayloadMessageRole.Assistant,
     });
-  }
 
+  }
 }

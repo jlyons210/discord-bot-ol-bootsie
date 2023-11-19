@@ -5,6 +5,7 @@ import {
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
 } from './CreateChatCompletion';
+
 import {
   CreateImage,
   CreateImageConfiguration,
@@ -15,6 +16,7 @@ import {
   CreateImageResponseFormat,
   CreateImageSize,
 } from './CreateImage';
+
 import { Utilities } from './Utilities';
 
 export {

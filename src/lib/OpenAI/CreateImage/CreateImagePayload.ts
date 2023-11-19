@@ -10,7 +10,6 @@ import {
  * API doc: https://platform.openai.com/docs/api-reference/completions/create
  */
 export class CreateImagePayload {
-
   public n: number;
   public prompt: string;
   public response_format: CreateImageResponseFormat;
@@ -28,5 +27,4 @@ export class CreateImagePayload {
     this.size = payload.size;
     this.user = Utilities.sanitizeName(payload.user);
   }
-
 }

@@ -5,7 +5,6 @@ import { CreateImageResponseConfiguration } from '../index';
  * API doc: https://platform.openai.com/docs/api-reference/images/create
  */
 export class CreateImageResponse {
-
   public created: number;
   public data: { url: string }[] | { b64_json: string }[];
 
@@ -17,5 +16,4 @@ export class CreateImageResponse {
     this.created = payload.created;
     this.data = payload.data;
   }
-
 }
