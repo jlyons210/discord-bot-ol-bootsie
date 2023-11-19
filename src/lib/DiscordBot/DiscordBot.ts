@@ -437,11 +437,18 @@ export class DiscordBot {
 
       void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: sending chat completion response to channel`);
       discordResponse.forEach(async responseText => {
-        if (discordBotMessage.MessageType === DiscordBotMessageType.DirectMessage) {
-          await discordBotMessage.DiscordMessage.channel.send(responseText);
+        try {
+          if (discordBotMessage.MessageType === DiscordBotMessageType.DirectMessage) {
+            await discordBotMessage.DiscordMessage.channel.send(responseText);
+          }
+          else {
+            await discordBotMessage.DiscordMessage.reply(responseText);
+          }
         }
-        else {
-          await discordBotMessage.DiscordMessage.reply(responseText);
+        catch (e) {
+          if (e instanceof Error) {
+            void this._logger.logError(`${discordBotMessage.DiscordMessage.id}: ${e.message}`);
+          }
         }
       });
     }

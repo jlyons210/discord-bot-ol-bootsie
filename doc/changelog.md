@@ -27,6 +27,7 @@
 
 ---
 ## 1.2.0 (2023-11-19)
+
 * [Issue #126](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/126) - Resolved
   * Removed retry logic from OpenAI function calls, as the library handles these natively now. Now it will bubble up the original error.
   * Removed `src/lib/OpenAI/Errors/*`
@@ -35,6 +36,7 @@
       * `OpenAIRetriesExceededError`
       * `OpenAIUnexpectedError`
   * Removed `axios` dependency. It was only in place to parse the errors returned by `openai-node` 3.x to support retry logic.
+* [Issue #113](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/113) - Resolved
 * Minor fix: `CreateImage` token logging used display name, switched to username to align with token spending/refunding.
 * Updated `devDependencies`
 
