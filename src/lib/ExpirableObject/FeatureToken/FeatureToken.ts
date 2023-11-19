@@ -5,8 +5,7 @@ import { FeatureTokenConfiguration } from './index';
  * A token that is used to rate limit client activities
  */
 export class FeatureToken extends ExpirableObject {
-
-  private _config: FeatureTokenConfiguration;
+  private config: FeatureTokenConfiguration;
 
   /**
    * Constructs a FeatureToken object
@@ -14,7 +13,7 @@ export class FeatureToken extends ExpirableObject {
    */
   constructor(config: FeatureTokenConfiguration) {
     super();
-    this._config = config;
+    this.config = config;
   }
 
   /**
@@ -22,7 +21,6 @@ export class FeatureToken extends ExpirableObject {
    * @returns string
    */
   get username(): string {
-    return this._config.username;
+    return this.config.username;
   }
-
 }

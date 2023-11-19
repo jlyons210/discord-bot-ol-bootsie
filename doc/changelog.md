@@ -1,7 +1,7 @@
 # Changelog
 
 ## Releases:
-* 1.2.x: [1.2.0](#120-2023-11-19)
+* 1.2.x: [1.2.0](#120-2023-11-19), [1.2.1](#121-2023-11-19)
 * 1.1.x: [1.1.0](#110-2023-11-07), [1.1.1](#111-2023-11-10), [1.1.2](#112-2023-11-15)
 * 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07), [1.0.2](#102-2023-07-10), [1.0.3](#103-2023-07-10), [1.0.4](#104-2023-07-13)
 
@@ -26,8 +26,13 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
-## 1.2.0 (2023-11-19)
+## 1.2.1 (2023-11-19)
+* [Issue #129](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/129) - Resolved
+  * Updated coding style in `DiscordBot.ts` for readability, and since it's the biggest file (by a lot) I updated the rest of the project.
 
+[:arrow_up: Back to top](#changelog)
+
+## 1.2.0 (2023-11-19)
 * [Issue #126](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/126) - Resolved
   * Removed retry logic from OpenAI function calls, as the library handles these natively now. Now it will bubble up the original error.
   * Removed `src/lib/OpenAI/Errors/*`

@@ -6,8 +6,7 @@ import { HistoryMessageConfiguration } from '../index';
  * A message that is used as history for chaining conversations with the OpenAI API.
  */
 export class HistoryMessage extends ExpirableObject {
-
-  private _config: HistoryMessageConfiguration;
+  private config: HistoryMessageConfiguration;
 
   /**
    * Constructs a HistoryMessage object
@@ -15,7 +14,7 @@ export class HistoryMessage extends ExpirableObject {
    */
   constructor(config: HistoryMessageConfiguration) {
     super();
-    this._config = config;
+    this.config = config;
   }
 
   /**
@@ -23,7 +22,7 @@ export class HistoryMessage extends ExpirableObject {
    * @returns string
    */
   get conversationKey(): string {
-    return this._config.conversationKey;
+    return this.config.conversationKey;
   }
 
   /**
@@ -31,7 +30,6 @@ export class HistoryMessage extends ExpirableObject {
    * @returns OpenAI PayloadMessage
    */
   get payload(): CreateChatCompletionPayloadMessage {
-    return this._config.payload;
+    return this.config.payload;
   }
-
 }

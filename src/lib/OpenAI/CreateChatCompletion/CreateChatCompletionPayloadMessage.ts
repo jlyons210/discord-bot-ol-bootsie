@@ -9,7 +9,6 @@ import {
  * API doc: https://platform.openai.com/docs/api-reference/completions/create
  */
 export class CreateChatCompletionPayloadMessage {
-
   public content: string;
   public name?: string;
   public role: CreateChatCompletionPayloadMessageRole;
@@ -23,5 +22,4 @@ export class CreateChatCompletionPayloadMessage {
     this.name = Utilities.sanitizeName(payload.name);
     this.role = payload.role;
   }
-
 }

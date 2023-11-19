@@ -2,6 +2,7 @@ import {
   DiscordBot,
   DiscordBotEvents,
 } from './lib/DiscordBot';
+
 import { Config } from './lib/Config';
 import { Logger } from './lib/Logger';
 
@@ -9,7 +10,6 @@ import { Logger } from './lib/Logger';
  * Main program entry point class.
  */
 class Main {
-
   private logger: Logger;
   private npmPackageName = process.env['npm_package_name'];
   private npmPackageVersion = process.env['npm_package_version'];
@@ -37,7 +37,6 @@ class Main {
   private _loadConfiguration(): Config {
     return new Config();
   }
-
 }
 
 new Main();
