@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases:
+* 1.2.x: [1.2.0](#120-2023-11-19)
 * 1.1.x: [1.1.0](#110-2023-11-07), [1.1.1](#111-2023-11-10), [1.1.2](#112-2023-11-15)
 * 1.0.x: [1.0.0](#100-2023-06-29), [1.0.1](#101-2023-07-07), [1.0.2](#102-2023-07-10), [1.0.3](#103-2023-07-10), [1.0.4](#104-2023-07-13)
 
@@ -25,6 +26,20 @@
 * 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.2.0 (2023-11-19)
+* [Issue #126](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/126) - Resolved
+  * Removed retry logic from OpenAI function calls, as the library handles these natively now. Now it will bubble up the original error.
+  * Removed `src/lib/OpenAI/Errors/*`
+    * `OpenAIError`
+      * `OpenAIBadRequestError`
+      * `OpenAIRetriesExceededError`
+      * `OpenAIUnexpectedError`
+  * Removed `axios` dependency. It was only in place to parse the errors returned by `openai-node` 3.x to support retry logic.
+* Minor fix: `CreateImage` token logging used display name, switched to username to align with token spending/refunding.
+* Updated `devDependencies`
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.1.2 (2023-11-15)
 * Minor fix:
   * [Issue #123](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/123) - Resolved
@@ -45,7 +60,6 @@
 ## 1.1.0 (2023-11-07)
 * [Issue #116](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/116) - added support for DALL-E 3 image API
   * Added `openai_createImage_model` config variable to allow selection between `dall-e-2` or `dall-e-3`.
-  * Updated `openai_createImage_model` config variable to support new models.
   * Updated `openai_chatCompletion_model` config variable with new models (untested). Legacy models are on the bottom line of each model-version grouping.
 * Updated dependencies:
   * `axios` 1.4.0 => 1.6.0

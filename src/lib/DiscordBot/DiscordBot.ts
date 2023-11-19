@@ -469,7 +469,7 @@ export class DiscordBot {
       .trim();
 
     try {
-      void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.MessageUsername} is spending feature token.`);
+      void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.DiscordMessage.author.username} is spending feature token.`);
       this._imageCreateTokenBucket.add(new FeatureToken({ username: discordBotMessage.DiscordMessage.author.username }));
 
       const openAiClient = new CreateImage({
@@ -538,14 +538,14 @@ export class DiscordBot {
         await discordBotMessage.DiscordMessage.channel.send(e.message);
       }
       else if (e instanceof DiscordAPIError) {
-        void this._logger.logError(e.message);
-        void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.MessageUsername} received refunded feature token.`);
+        void this._logger.logError(`${discordBotMessage.DiscordMessage.id}: ${e.message}`);
+        void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.DiscordMessage.author.username} received refunded feature token.`);
         this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.username);
       }
       else if (e instanceof Error) {
-        void this._logger.logError(e.message);
+        void this._logger.logError(`${discordBotMessage.DiscordMessage.id}: ${e.message}`);
         await discordBotMessage.DiscordMessage.channel.send('There was an issue sending my response. The error logs might have some clues.');
-        void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.MessageUsername} received refunded feature token.`);
+        void this._logger.logDebug(`${discordBotMessage.DiscordMessage.id}: ${discordBotMessage.DiscordMessage.author.username} received refunded feature token.`);
         this._imageCreateTokenBucket.removeNewestToken(discordBotMessage.DiscordMessage.author.username);
       }
     }
