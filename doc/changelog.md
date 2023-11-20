@@ -28,7 +28,13 @@
 
 ---
 ## 1.3.0 (2023-11-20)
-- [Issue #132](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/132) - Resolved
+- Resolved multiple issues:
+  - [Issue #131](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/131)
+    - Added `openai_api_timeoutSec` configuration setting, default is 15.
+  - [Issue #132](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/132)
+  - [Issue #133](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/133)
+  - [Issue #134](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/134)
+- Updated `devDependencies`
 
 [:arrow_up: Back to top](#changelog)
 
