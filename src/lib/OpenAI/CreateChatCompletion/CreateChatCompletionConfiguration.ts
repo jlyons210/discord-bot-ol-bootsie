@@ -9,4 +9,5 @@ export interface CreateChatCompletionConfiguration {
   paramModel: string,
   paramSystemPrompt: string,
   paramTemperature: number,
+  timeoutSec: number,
 }

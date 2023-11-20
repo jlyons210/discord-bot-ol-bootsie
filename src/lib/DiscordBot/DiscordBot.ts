@@ -16,6 +16,7 @@ import {
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
   CreateImage,
+  CreateImageConfiguration,
   CreateImageResponseFormat,
   CreateImageSize,
 } from '../OpenAI';
@@ -51,7 +52,8 @@ export class DiscordBot {
   private botConfig: Config;
   private botUserId!: string;
   private createImageFeatureEnabled: boolean;
-  private openAiConfig: CreateChatCompletionConfiguration;
+  private openAiCreateChatCompletionConfig: CreateChatCompletionConfiguration;
+  private openAiCreateImageConfig: CreateImageConfiguration;
 
   // ExpirableObjectBuckets
   private historyMessageBucket: HistoryMessageBucket;
@@ -73,13 +75,21 @@ export class DiscordBot {
 
     this.createImageFeatureEnabled = Boolean(settings['bot_createImage_enabled']);
 
-    this.openAiConfig = {
+    this.openAiCreateChatCompletionConfig = {
       apiKey:            String(settings['openai_api_key']),
       maxRetries:        Number(settings['openai_api_maxRetries']),
       paramMaxTokens:    Number(settings['openai_chatCompletion_maxTokens']),
       paramModel:        String(settings['openai_chatCompletion_model']),
       paramSystemPrompt: String(settings['openai_chatCompletion_systemPrompt']),
       paramTemperature:  Number(settings['openai_chatCompletion_temperature']),
+      timeoutSec:        Number(settings['openai_api_timeoutSec']),
+    };
+
+    this.openAiCreateImageConfig = {
+      apiKey:     String(settings['openai_api_key']),
+      maxRetries: Number(settings['openai_api_maxRetries']),
+      paramModel: String(settings['openai_createImage_model']),
+      timeoutSec: Number(settings['openai_api_timeoutSec']),
     };
 
     this.historyMessageBucket = new HistoryMessageBucket({
@@ -196,8 +206,8 @@ export class DiscordBot {
 
     const intentPrompt: CreateChatCompletionPayloadMessage[] =
       await this.constructChatCompletionPayloadFromSingleMessage(
-        discordBotMessage.MessageContentSanitized
-        + 'For the following statement, please use only one of the following to categorize it, '
+        discordBotMessage.MessageContentSanitized,
+        'For the following statement, please use only one of the following to categorize it, '
         + `with no other commentary, in all lowercase - ${Object.values(DiscordBotMessageIntent)}`,
       );
 
@@ -206,7 +216,7 @@ export class DiscordBot {
       `${message.id}: entering openAiClient.createChatCompletion(promptPayload) to get message intent`,
     );
 
-    const openAiClient = new CreateChatCompletion(this.openAiConfig);
+    const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
     const intentResponse =
       <DiscordBotMessageIntent> (await openAiClient.createChatCompletion(intentPrompt)).content;
 
@@ -308,6 +318,11 @@ export class DiscordBot {
     });
     const message = discordBotMessage.DiscordMessage;
 
+    // 1000000000000000000: message recieved, entering handleMessageCreate(message)
+    void this.logger.logDebug(
+      `${message.id}: message recieved, entering handleMessageCreate(message)`,
+    );
+
     this.historyMessageBucket.add(new HistoryMessage({
       conversationKey: discordBotMessage.ConversationKey,
       payload:
@@ -318,13 +333,24 @@ export class DiscordBot {
         }),
     }));
 
-    // 1000000000000000000: message type is DirectMessage
+    // 1000000000000000000: message type is [MessageType]
     void this.logger.logDebug(`${message.id}: message type is ${discordBotMessage.MessageType}`);
 
-    const intent = await this.getMessageIntent(discordBotMessage);
+    if (message.guildId !== null) {
+      // 1000000000000000000: Message URL: https://discord.com/channels/[guildId]/[channelId]/[messageId]
+      void this.logger.logDebug(
+        `${message.id}: Message URL: `
+        + `https://discord.com/channels/${message.guildId}/${message.channelId}/${message.id}`,
+      );
+    }
+
+    let intent: DiscordBotMessageIntent;
     switch (discordBotMessage.MessageType) {
       case DiscordBotMessageType.AtMention:
       case DiscordBotMessageType.DirectMessage:
+        // intent is defined above and called here to limit unnecessary calls and cost
+        intent = await this.getMessageIntent(discordBotMessage);
+
         // 1000000000000000000: entering sendChatCompletionResponse(discordBotMessage)
         void this.logger.logDebug(
           `${message.id}: entering ${
@@ -391,7 +417,7 @@ export class DiscordBot {
         + 'For the provided list of statements, provide an insight, or a question, or a concern. '
         + 'Dont\'t ask if further help is needed.';
 
-      const openAiClient = new CreateChatCompletion(this.openAiConfig);
+      const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
       const requestPayload = await this.constructChatCompletionPayloadFromHistory(
         discordBotMessage.ConversationKey,
         systemPrompt,
@@ -450,7 +476,7 @@ export class DiscordBot {
         `${this.botConfig.Settings['openai_chatCompletion_systemPrompt']} `
         + 'You are instructed to only respond to my statements using a single emoji, no words.';
 
-      const openAiClient = new CreateChatCompletion(this.openAiConfig);
+      const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
       const requestPayload = await this.constructChatCompletionPayloadFromHistory(
         discordBotMessage.ConversationKey,
         systemPrompt,
@@ -513,11 +539,6 @@ export class DiscordBot {
     });
 
     this.discordClient.on(Events.MessageCreate, async message => {
-      // 1000000000000000000: message recieved, entering handleMessageCreate(message)
-      void this.logger.logDebug(
-        `${message.id}: message recieved, entering handleMessageCreate(message)`,
-      );
-
       await this.handleMessageCreate(message);
     });
   }
@@ -530,7 +551,7 @@ export class DiscordBot {
     const message = discordBotMessage.DiscordMessage;
 
     try {
-      const openAiClient = new CreateChatCompletion(this.openAiConfig);
+      const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
 
       // 1000000000000000000: entering constructChatCompletionPayloadFromHistory(discordBotMessage.ConversationKey)
       void this.logger.logDebug(
@@ -599,7 +620,6 @@ export class DiscordBot {
    */
   private async sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     const message = discordBotMessage.DiscordMessage;
-    const settings = this.botConfig.Settings;
 
     if (!this.createImageFeatureEnabled) {
       // 1000000000000000000: CreateImage feature is disabled
@@ -620,11 +640,7 @@ export class DiscordBot {
         username: message.author.username,
       }));
 
-      const openAiClient = new CreateImage({
-        apiKey:     String(settings['openai_api_key']),
-        maxRetries: Number(settings['openai_api_maxRetries']),
-        paramModel: String(settings['openai_createImage_model']),
-      });
+      const openAiClient = new CreateImage(this.openAiCreateImageConfig);
 
       // 1000000000000000000: entering OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: entering OpenAiClient.createImage()`);
@@ -707,24 +723,15 @@ export class DiscordBot {
       if (e instanceof FeatureTokenBucketMaxUserTokensError) {
         await message.channel.send(e.message);
       }
-      else if (e instanceof DiscordAPIError) {
-        // 1000000000000000000: I am an unexpected error.
-        void this.logger.logError(`${message.id}: ${e.message}`);
-
-        // 1000000000000000000: [username] received refunded feature token.
-        void this.logger.logDebug(
-          `${message.id}: ${message.author.username} received refunded feature token.`,
-        );
-
-        this.imageCreateTokenBucket.removeNewestToken(message.author.username);
-      }
       else if (e instanceof Error) {
         // 1000000000000000000: I am an unexpected error.
         void this.logger.logError(`${message.id}: ${e.message}`);
 
-        await message.channel.send(
-          'There was an issue sending my response. The error logs might have some clues.',
-        );
+        if (!(e instanceof DiscordAPIError)) {
+          await message.channel.send(
+            'There was an issue sending my response. The error logs might have some clues.',
+          );
+        }
 
         // 1000000000000000000: [username] received refunded feature token.
         void this.logger.logDebug(
