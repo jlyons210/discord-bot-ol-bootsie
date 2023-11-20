@@ -321,10 +321,13 @@ export class DiscordBot {
     // 1000000000000000000: message type is DirectMessage
     void this.logger.logDebug(`${message.id}: message type is ${discordBotMessage.MessageType}`);
 
-    const intent = await this.getMessageIntent(discordBotMessage);
+    let intent: DiscordBotMessageIntent;
     switch (discordBotMessage.MessageType) {
       case DiscordBotMessageType.AtMention:
       case DiscordBotMessageType.DirectMessage:
+        // intent is defined above and called here to limit unnecessary calls and cost
+        intent = await this.getMessageIntent(discordBotMessage);
+
         // 1000000000000000000: entering sendChatCompletionResponse(discordBotMessage)
         void this.logger.logDebug(
           `${message.id}: entering ${
