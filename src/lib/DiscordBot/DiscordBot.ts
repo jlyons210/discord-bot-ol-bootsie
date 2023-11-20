@@ -323,12 +323,6 @@ export class DiscordBot {
       `${message.id}: message recieved, entering handleMessageCreate(message)`,
     );
 
-    // 1000000000000000000: Message URL: https://discord.com/channels/[guildId]/[channelId]/[messageId]
-    void this.logger.logDebug(
-      `${message.id}: Message URL: `
-      + `https://discord.com/channels/${message.guildId}/${message.channelId}/${message.id}`,
-    );
-
     this.historyMessageBucket.add(new HistoryMessage({
       conversationKey: discordBotMessage.ConversationKey,
       payload:
@@ -339,8 +333,16 @@ export class DiscordBot {
         }),
     }));
 
-    // 1000000000000000000: message type is DirectMessage
+    // 1000000000000000000: message type is [MessageType]
     void this.logger.logDebug(`${message.id}: message type is ${discordBotMessage.MessageType}`);
+
+    if (message.guildId !== null) {
+      // 1000000000000000000: Message URL: https://discord.com/channels/[guildId]/[channelId]/[messageId]
+      void this.logger.logDebug(
+        `${message.id}: Message URL: `
+        + `https://discord.com/channels/${message.guildId}/${message.channelId}/${message.id}`,
+      );
+    }
 
     let intent: DiscordBotMessageIntent;
     switch (discordBotMessage.MessageType) {
