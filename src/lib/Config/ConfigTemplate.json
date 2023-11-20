@@ -87,7 +87,7 @@
     {
       "name": "openai_api_timeoutSec",
       "allowedValues": 0,
-      "defaultValue": 5,
+      "defaultValue": 15,
       "required": false,
       "secret": false
     },
