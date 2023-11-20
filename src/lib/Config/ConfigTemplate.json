@@ -85,6 +85,13 @@
       "secret": false
     },
     {
+      "name": "openai_api_timeoutSec",
+      "allowedValues": 0,
+      "defaultValue": 5,
+      "required": false,
+      "secret": false
+    },
+    {
       "name": "openai_chatCompletion_maxTokens",
       "allowedValues": 0,
       "defaultValue": 4096,
