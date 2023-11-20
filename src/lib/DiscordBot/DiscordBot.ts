@@ -206,8 +206,8 @@ export class DiscordBot {
 
     const intentPrompt: CreateChatCompletionPayloadMessage[] =
       await this.constructChatCompletionPayloadFromSingleMessage(
-        discordBotMessage.MessageContentSanitized
-        + 'For the following statement, please use only one of the following to categorize it, '
+        discordBotMessage.MessageContentSanitized,
+        'For the following statement, please use only one of the following to categorize it, '
         + `with no other commentary, in all lowercase - ${Object.values(DiscordBotMessageIntent)}`,
       );
 
