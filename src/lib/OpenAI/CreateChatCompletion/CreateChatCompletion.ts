@@ -22,6 +22,7 @@ export class CreateChatCompletion {
     this.client = new OpenAI({
       apiKey:     config.apiKey,
       maxRetries: config.maxRetries,
+      timeout:    config.timeoutSec * 1000,
     });
   }
 
