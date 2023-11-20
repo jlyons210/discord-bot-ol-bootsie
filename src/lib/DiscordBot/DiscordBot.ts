@@ -308,6 +308,17 @@ export class DiscordBot {
     });
     const message = discordBotMessage.DiscordMessage;
 
+    // 1000000000000000000: message recieved, entering handleMessageCreate(message)
+    void this.logger.logDebug(
+      `${message.id}: message recieved, entering handleMessageCreate(message)`,
+    );
+
+    // 1000000000000000000: Message URL: https://discord.com/channels/[guildId]/[channelId]/[messageId]
+    void this.logger.logDebug(
+      `${message.id}: Message URL: `
+      + `https://discord.com/channels/${message.guildId}/${message.channelId}/${message.id}`,
+    );
+
     this.historyMessageBucket.add(new HistoryMessage({
       conversationKey: discordBotMessage.ConversationKey,
       payload:
@@ -513,11 +524,6 @@ export class DiscordBot {
     });
 
     this.discordClient.on(Events.MessageCreate, async message => {
-      // 1000000000000000000: message recieved, entering handleMessageCreate(message)
-      void this.logger.logDebug(
-        `${message.id}: message recieved, entering handleMessageCreate(message)`,
-      );
-
       await this.handleMessageCreate(message);
     });
   }
