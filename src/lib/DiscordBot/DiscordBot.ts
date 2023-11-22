@@ -11,6 +11,20 @@ import {
 } from 'discord.js';
 
 import {
+  ClientOptions,
+  CreateImage,
+  ImageModel,
+  QualityDallE3,
+  RequestOptions,
+  RequestOptionsDallE2,
+  RequestOptionsDallE3,
+  ResponseFormat,
+  SizeDallE2,
+  SizeDallE3,
+  StyleDallE3,
+} from '../OpenAI/CreateImage2';
+
+import {
   CreateChatCompletion,
   CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
@@ -20,11 +34,6 @@ import {
   // CreateImageResponseFormat,
   // CreateImageSize,
 } from '../OpenAI';
-
-import {
-  CreateImage,
-  CreateImageTypes,
-} from '../OpenAI/CreateImage2';
 
 import {
   DiscordBotConversationMode,
@@ -58,7 +67,7 @@ export class DiscordBot {
   private botUserId!: string;
   private createImageFeatureEnabled: boolean;
   private openAiCreateChatCompletionConfig: CreateChatCompletionConfiguration;
-  private openAiCreateImageConfig: CreateImageTypes.ClientOptions;
+  private openAiCreateImageConfig: ClientOptions;
 
   // ExpirableObjectBuckets
   private historyMessageBucket: HistoryMessageBucket;
@@ -624,6 +633,7 @@ export class DiscordBot {
    */
   private async sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     const message = discordBotMessage.DiscordMessage;
+    const settings = this.botConfig.Settings;
 
     if (!this.createImageFeatureEnabled) {
       // 1000000000000000000: CreateImage feature is disabled
@@ -644,23 +654,51 @@ export class DiscordBot {
         username: message.author.username,
       }));
 
-      const openAiClient = new CreateImage.CreateImage(this.openAiCreateImageConfig);
+      const openAiClient = new CreateImage(this.openAiCreateImageConfig);
 
       // 1000000000000000000: entering OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: entering OpenAiClient.createImage()`);
 
-      const payload: CreateImageTypes.RequestOptionsDallE3 = {
-        model:  CreateImageTypes.ImageModel.DallE3,
-        n:      1,
-        prompt: imagePrompt,
-        quality: CreateImageTypes.QualityDallE3.HD,
-        response_format: CreateImageTypes.ResponseFormat.B64Json,
-        size:   CreateImageTypes.SizeDallE3.Wide,
-        style:  CreateImageTypes.StyleDallE3.Vivid,
-        user:   discordBotMessage.MessageUsername,
+      /*
+       * TODO:
+       * This needs to be abstracted away into CreateImage.ts,
+       * ex: openAiClient.prepareWorkload({ options: ... })
+       * Also, many of these options should be configurable.
+       *
+       * The implmentation isn't as clean as I'd like it to be yet,
+       * Because if you look below, it is clunky to call.
+       */
+
+      const model = <ImageModel> String(settings['openai_createImage_model']);
+      const basePayload: RequestOptions = {
+        model:           model,
+        prompt:          imagePrompt,
+        response_format: ResponseFormat.B64Json,
+        user:            discordBotMessage.MessageUsername,
       };
 
-      const response = await openAiClient.createImage(payload);
+      let finalPayload: RequestOptions;
+      switch (model) {
+        case ImageModel.DallE2:
+          finalPayload = <RequestOptionsDallE2> {
+            ...basePayload,
+            n:               1,
+            size:            SizeDallE2.Large,
+          };
+          break;
+
+        case ImageModel.DallE3:
+          finalPayload = <RequestOptionsDallE3> {
+            ...basePayload,
+            n:               1,
+            quality:         QualityDallE3.HD,
+            size:            SizeDallE3.Wide,
+            style:           StyleDallE3.Vivid,
+          };
+          break;
+      }
+
+      const response = await openAiClient.createImage(finalPayload);
 
       // 1000000000000000000: exiting OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: exiting OpenAiClient.createImage()`);
