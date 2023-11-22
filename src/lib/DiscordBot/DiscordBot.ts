@@ -15,11 +15,16 @@ import {
   CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
-  CreateImage,
-  CreateImageConfiguration,
-  CreateImageResponseFormat,
-  CreateImageSize,
+  // CreateImage,
+  // CreateImageConfiguration,
+  // CreateImageResponseFormat,
+  // CreateImageSize,
 } from '../OpenAI';
+
+import {
+  CreateImage,
+  CreateImageTypes,
+} from '../OpenAI/CreateImage2';
 
 import {
   DiscordBotConversationMode,
@@ -53,7 +58,7 @@ export class DiscordBot {
   private botUserId!: string;
   private createImageFeatureEnabled: boolean;
   private openAiCreateChatCompletionConfig: CreateChatCompletionConfiguration;
-  private openAiCreateImageConfig: CreateImageConfiguration;
+  private openAiCreateImageConfig: CreateImageTypes.ClientOptions;
 
   // ExpirableObjectBuckets
   private historyMessageBucket: HistoryMessageBucket;
@@ -88,7 +93,6 @@ export class DiscordBot {
     this.openAiCreateImageConfig = {
       apiKey:     String(settings['openai_api_key']),
       maxRetries: Number(settings['openai_api_maxRetries']),
-      paramModel: String(settings['openai_createImage_model']),
       timeoutSec: Number(settings['openai_api_timeoutSec']),
     };
 
@@ -640,18 +644,23 @@ export class DiscordBot {
         username: message.author.username,
       }));
 
-      const openAiClient = new CreateImage(this.openAiCreateImageConfig);
+      const openAiClient = new CreateImage.CreateImage(this.openAiCreateImageConfig);
 
       // 1000000000000000000: entering OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: entering OpenAiClient.createImage()`);
 
-      const response = await openAiClient.createImage({
-        numberOfImages: 1,
-        prompt:         imagePrompt,
-        responseFormat: CreateImageResponseFormat.B64Json,
-        size:           CreateImageSize.Large,
-        user:           discordBotMessage.MessageUsername,
-      });
+      const payload: CreateImageTypes.RequestOptionsDallE3 = {
+        model:  CreateImageTypes.ImageModel.DallE3,
+        n:      1,
+        prompt: imagePrompt,
+        quality: CreateImageTypes.QualityDallE3.HD,
+        response_format: CreateImageTypes.ResponseFormat.B64Json,
+        size:   CreateImageTypes.SizeDallE3.Wide,
+        style:  CreateImageTypes.StyleDallE3.Vivid,
+        user:   discordBotMessage.MessageUsername,
+      };
+
+      const response = await openAiClient.createImage(payload);
 
       // 1000000000000000000: exiting OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: exiting OpenAiClient.createImage()`);
