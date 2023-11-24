@@ -1,9 +1,9 @@
 import {
-  CreateImageConfiguration,
-  CreateImagePayloadConfiguration,
-  CreateImageResponse,
-  CreateImageResponseFormat,
-} from '../index';
+  ClientOptions,
+  RequestOptions,
+  ResponseFormat,
+  ResponsePayload,
+} from './CreateImage.types';
 
 import { OpenAI } from 'openai';
 
@@ -11,44 +11,39 @@ import { OpenAI } from 'openai';
  * A class for interfacing with the OpenAI createImage API
  */
 export class CreateImage {
-  private config: CreateImageConfiguration;
   private client: OpenAI;
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
-   * @param config A populated OpenAIConfig
+   * @param options ClientOptions
    */
-  public constructor(config: CreateImageConfiguration) {
-    this.config = config;
-    this.client = new OpenAI({
-      apiKey:     config.apiKey,
-      maxRetries: config.maxRetries,
-      timeout:    config.timeoutSec * 1000,
-    });
+  constructor(options: ClientOptions) {
+    this.client = new OpenAI({ ...options });
   }
 
   /**
    * Generates an image for the given prompt.
    *   (https://platform.openai.com/docs/api-reference/images/create)
-   * @param payload A populated ICreateImage payload
-   * @returns Returns a URL to a generated image
+   * @param request RequestPayloadOptions
+   * @returns Promise<ResponsePayload>
    */
-  public async createImage(payload: CreateImagePayloadConfiguration): Promise<CreateImageResponse> {
-    const response = await this.client.images.generate({
-      model:           this.config.paramModel,
-      prompt:          payload.prompt,
-      n:               payload.numberOfImages,
-      size:            payload.size,
-      response_format: payload.responseFormat,
-      user:            payload.user,
-    });
+  public async createImage(request: RequestOptions): Promise<ResponsePayload> {
+    const response = await this.client.images.generate({ ...request });
 
-    const responsePayload = new CreateImageResponse({
+    const responsePayload: ResponsePayload = {
       created: response.created,
-      data: (payload.responseFormat === CreateImageResponseFormat.URL)
-        ? response.data.map(data => ({ url: String(data.url) }))
-        : response.data.map(data => ({ b64_json: String(data.b64_json) })),
-    });
+      data: (request.response_format === ResponseFormat.URL)
+        ? response.data.map(data =>
+          ({
+            url: String(data.url),
+            revised_prompt: String(data.revised_prompt),
+          }))
+        : response.data.map(data =>
+          ({
+            b64_json: String(data.b64_json),
+            revised_prompt: String(data.revised_prompt),
+          })),
+    };
 
     return responsePayload;
   }

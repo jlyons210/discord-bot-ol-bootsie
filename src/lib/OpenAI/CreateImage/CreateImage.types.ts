@@ -54,7 +54,15 @@ export enum ResponseFormat {
 
 export type ResponsePayload = {
   created: number;
-  data: { url: string }[] | { b64_json: string }[];
+  data:
+    {
+      url: string,
+      revised_prompt?: string
+    }[]
+    | {
+      b64_json: string,
+      revised_prompt?: string
+    }[];
 }
 
 export enum SizeDallE2 {

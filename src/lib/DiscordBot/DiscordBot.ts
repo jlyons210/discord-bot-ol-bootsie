@@ -12,6 +12,10 @@ import {
 
 import {
   ClientOptions,
+  CreateChatCompletion,
+  CreateChatCompletionConfiguration,
+  CreateChatCompletionPayloadMessage,
+  CreateChatCompletionPayloadMessageRole,
   CreateImage,
   ImageModel,
   QualityDallE3,
@@ -22,17 +26,6 @@ import {
   SizeDallE2,
   SizeDallE3,
   StyleDallE3,
-} from '../OpenAI/CreateImage2';
-
-import {
-  CreateChatCompletion,
-  CreateChatCompletionConfiguration,
-  CreateChatCompletionPayloadMessage,
-  CreateChatCompletionPayloadMessageRole,
-  // CreateImage,
-  // CreateImageConfiguration,
-  // CreateImageResponseFormat,
-  // CreateImageSize,
 } from '../OpenAI';
 
 import {
@@ -231,7 +224,7 @@ export class DiscordBot {
 
     const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
     const intentResponse =
-      <DiscordBotMessageIntent> (await openAiClient.createChatCompletion(intentPrompt)).content;
+      (await openAiClient.createChatCompletion(intentPrompt)).content as DiscordBotMessageIntent;
 
     // 1000000000000000000: exiting openAiClient.createChatCompletion(promptPayload) to get message intent
     void this.logger.logDebug(
@@ -322,7 +315,7 @@ export class DiscordBot {
    */
   private async handleMessageCreate(discordMessage: Message): Promise<void> {
     const botConversationMode =
-      <DiscordBotConversationMode> this.botConfig.Settings['bot_conversation_mode'];
+      this.botConfig.Settings['bot_conversation_mode'] as DiscordBotConversationMode;
 
     const discordBotMessage = new DiscordBotMessage({
       discordMessage:      discordMessage,
@@ -632,13 +625,12 @@ export class DiscordBot {
    * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
    */
   private async sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
-    const message = discordBotMessage.DiscordMessage;
     const settings = this.botConfig.Settings;
+    const message = discordBotMessage.DiscordMessage;
 
     if (!this.createImageFeatureEnabled) {
       // 1000000000000000000: CreateImage feature is disabled
       void this.logger.logDebug(`${message.id}: CreateImage feature is disabled`);
-
       return;
     }
 
@@ -659,46 +651,36 @@ export class DiscordBot {
       // 1000000000000000000: entering OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: entering OpenAiClient.createImage()`);
 
-      /*
-       * TODO:
-       * This needs to be abstracted away into CreateImage.ts,
-       * ex: openAiClient.prepareWorkload({ options: ... })
-       * Also, many of these options should be configurable.
-       *
-       * The implmentation isn't as clean as I'd like it to be yet,
-       * Because if you look below, it is clunky to call.
-       */
+      const model = String(settings['openai_createImage_model']) as ImageModel;
+      let requestPayload: RequestOptions;
 
-      const model = <ImageModel> String(settings['openai_createImage_model']);
-      const basePayload: RequestOptions = {
-        model:           model,
-        prompt:          imagePrompt,
-        response_format: ResponseFormat.B64Json,
-        user:            discordBotMessage.MessageUsername,
-      };
-
-      let finalPayload: RequestOptions;
       switch (model) {
         case ImageModel.DallE2:
-          finalPayload = <RequestOptionsDallE2> {
-            ...basePayload,
+          requestPayload = {
+            model:           ImageModel.DallE2,
             n:               1,
-            size:            SizeDallE2.Large,
-          };
+            prompt:          imagePrompt,
+            response_format: ResponseFormat.B64Json,
+            size:            String(settings['openai_createImage_dalle2_size']) as SizeDallE2,
+            user:            discordBotMessage.MessageUsername,
+          } as RequestOptionsDallE2;
           break;
 
         case ImageModel.DallE3:
-          finalPayload = <RequestOptionsDallE3> {
-            ...basePayload,
+          requestPayload = {
+            model:           ImageModel.DallE3,
             n:               1,
-            quality:         QualityDallE3.HD,
-            size:            SizeDallE3.Wide,
-            style:           StyleDallE3.Vivid,
-          };
+            prompt:          imagePrompt,
+            quality:         String(settings['openai_createImage_dalle3_quality']) as QualityDallE3,
+            response_format: ResponseFormat.B64Json,
+            size:            String(settings['openai_createImage_dalle3_size']) as SizeDallE3,
+            style:           String(settings['openai_createImage_dalle3_style']) as StyleDallE3,
+            user:            discordBotMessage.MessageUsername,
+          } as RequestOptionsDallE3;
           break;
       }
 
-      const response = await openAiClient.createImage(finalPayload);
+      const response = await openAiClient.createImage(requestPayload);
 
       // 1000000000000000000: exiting OpenAiClient.createImage()
       void this.logger.logDebug(`${message.id}: exiting OpenAiClient.createImage()`);
@@ -708,35 +690,50 @@ export class DiscordBot {
           `"${String(discordBotMessage.MessageUsername)} x `
           + `${String(this.discordClient.user?.username)}" art collab`,
         )
-        .setDescription(imagePrompt)
-        .addFields({
-          name:   'Generated by:',
-          value:  String(discordBotMessage.MessageUsername),
-          inline: true,
-        })
+        .setDescription(imagePrompt);
+
+      if (model === ImageModel.DallE3) {
+        embed.addFields({
+          name:   'Revised prompt:',
+          value:  String(response.data[0].revised_prompt),
+          inline: false,
+        });
+      }
+
+      embed.addFields({
+        name:   'Generated by:',
+        value:  String(discordBotMessage.MessageUsername),
+        inline: true,
+      })
         .setFooter({
           text:    `github.com/jlyons210/discord-bot-ol-bootsie (v${process.env['npm_package_version']})`,
           iconURL: 'https://grumple.cloud/assets/discord-bot-ol-bootsie/icon-github.png',
+        }).addFields((this.imageCreateTokenBucket.tokensRemaining(message.author.username))
+          ? {
+            name:   'Tokens remaining:',
+            value:  String(this.imageCreateTokenBucket.tokensRemaining(
+              message.author.username,
+            )),
+            inline: true,
+          }
+          : {
+            name:   'Next token available:',
+            value:  this.imageCreateTokenBucket.nextTokenTime(
+              message.author.username,
+            ),
+            inline: true,
+          })
+        .addFields({
+          name:   'Model:',
+          value:  String(model as ImageModel)
+            + ((model === ImageModel.DallE3)
+              ? ` (${String((requestPayload as RequestOptionsDallE3).quality)},`
+                + ` ${String((requestPayload as RequestOptionsDallE3).style)})`
+              : ''),
+          inline: true,
         });
 
-      if (this.imageCreateTokenBucket.tokensRemaining(message.author.username)) {
-        embed.addFields({
-          name:   'Tokens remaining:',
-          value:  String(this.imageCreateTokenBucket.tokensRemaining(
-            message.author.username,
-          )),
-          inline: true,
-        });
-      }
-      else {
-        embed.addFields({
-          name:   'Next token available:',
-          value:  this.imageCreateTokenBucket.nextTokenTime(
-            message.author.username,
-          ),
-          inline: true,
-        });
-      }
+      this.logger.logDebug(`model: ${String(model)}`);
 
       const files: AttachmentBuilder[] = [];
       if ('url' in response.data[0]) {

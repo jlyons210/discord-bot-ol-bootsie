@@ -128,10 +128,52 @@
     {
       "name": "openai_createImage_model",
       "allowedValues": [
-        "dall-e-3",
-        "dall-e-2"
+        "dall-e-2",
+        "dall-e-3"
       ],
       "defaultValue": "dall-e-3",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "openai_createImage_dalle2_size",
+      "allowedValues": [
+        "256x256",
+        "512x512",
+        "1024x1024"
+      ],
+      "defaultValue": "1024x1024",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "openai_createImage_dalle3_quality",
+      "allowedValues": [
+        "hd",
+        "standard"
+      ],
+      "defaultValue": "standard",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "openai_createImage_dalle3_size",
+      "allowedValues": [
+        "1024x1024",
+        "1792x1024",
+        "1024x1792"
+      ],
+      "defaultValue": "1024x1024",
+      "required": false,
+      "secret": false
+    },
+    {
+      "name": "openai_createImage_dalle3_style",
+      "allowedValues": [
+        "natural",
+        "vivid"
+      ],
+      "defaultValue": "vivid",
       "required": false,
       "secret": false
     }
