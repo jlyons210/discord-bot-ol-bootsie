@@ -1,21 +1,27 @@
 import {
+  ClientOptions,
+  CreateImage,
+  ImageModel,
+  NumberOfImagesDallE2,
+  NumberOfImagesDallE3,
+  QualityDallE3,
+  RequestOptions,
+  RequestOptionsDallE2,
+  RequestOptionsDallE3,
+  ResponseFormat,
+  ResponsePayload,
+  SizeDallE2,
+  SizeDallE3,
+  StyleDallE3,
+} from './CreateImage';
+
+import {
   CreateChatCompletion,
   CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
 } from './CreateChatCompletion';
-
-import {
-  CreateImage,
-  CreateImageConfiguration,
-  CreateImagePayload,
-  CreateImagePayloadConfiguration,
-  CreateImageResponse,
-  CreateImageResponseConfiguration,
-  CreateImageResponseFormat,
-  CreateImageSize,
-} from './CreateImage';
 
 import { Utilities } from './Utilities';
 
@@ -25,13 +31,19 @@ export {
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
+  ClientOptions,
   CreateImage,
-  CreateImageConfiguration,
-  CreateImagePayload,
-  CreateImagePayloadConfiguration,
-  CreateImageResponse,
-  CreateImageResponseConfiguration,
-  CreateImageResponseFormat,
-  CreateImageSize,
+  ImageModel,
+  NumberOfImagesDallE2,
+  NumberOfImagesDallE3,
+  QualityDallE3,
+  RequestOptions,
+  RequestOptionsDallE2,
+  RequestOptionsDallE3,
+  ResponseFormat,
+  ResponsePayload,
+  SizeDallE2,
+  SizeDallE3,
+  StyleDallE3,
   Utilities,
 };
