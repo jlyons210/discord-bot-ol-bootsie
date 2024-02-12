@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases:
+- 1.5.x: [1.5.0](#150-2024-02-12)
 - 1.4.x: [1.4.0](#140-2023-11-24)
 - 1.3.x: [1.3.0](#130-2023-11-20)
 - 1.2.x: [1.2.0](#120-2023-11-19), [1.2.1](#121-2023-11-19)
@@ -28,6 +29,15 @@
 - 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.5.0 (2024-02-12)
+- [Issue #147](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/143) - Resolved
+  - Added support for `gpt-4-0125-preview`, `gpt-4-turbo-preview`, and `gpt-3.5-turbo-0125`.
+  - Pruned support for `gpt-4-0314`, `gpt-4-32k-0314`, and `gpt-3.5-turbo-0301`.
+- Updated dependencies:
+  - `openai` 4.20.0 => 4.27.0
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.4.0 (2023-11-24)
 - [Issue #143](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/143) - Resolved
   - Substantially refactored `CreateImage`, and will work on similar refactors for other code soon.
