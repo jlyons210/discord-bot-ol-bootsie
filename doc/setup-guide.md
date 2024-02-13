@@ -47,19 +47,25 @@ Run the application:
  bot_autoEngage_message_minMessages = number 6* \
  bot_autoEngage_message_probability = number 0.05* \
  bot_autoEngage_react_probability = number 0.05* \
- bot_conversation_mode = channel*|user \
+ bot_conversation_mode = mode channel*|user \
  bot_conversation_retainSec = number 900* \
- bot_createImage_enabled = true|false* \
+ bot_createImage_enabled = boolean true|false* \
  bot_createImage_tokens_perUser = number 3* \
  bot_createImage_tokens_ttl = number 3600* \
- bot_log_debug = true|false \
+ bot_log_debug = boolean true|false* \
  discord_botToken = string <api key> \
  openai_api_key = string <api key> \
  openai_api_maxRetries = number 5* \
- openai_chatCompletion_maxTokens = number 1024* \
- openai_chatCompletion_model = model gpt-3.5-turbo-16k-0613* \
+ openai_api_timeoutSec = number 5* \
+ openai_chatCompletion_maxTokens = number 4096* \
+ openai_chatCompletion_model = model gpt-3.5-turbo-16k* \
  openai_chatCompletion_systemPrompt = string (example: "A system prompt that describes how the chat bot should behave") \
  openai_chatCompletion_temperature = number 0.6* \
+ openai_createImage_model = model dall-e-2|dall-e-3* \
+ openai_createImage_dalle2_size = size 256x256|512x512|1024x1024* \
+ openai_createImage_dalle3_quality = hd|standard* \
+ openai_createImage_dalle3_size = size 1024x1024*|1792x1024|1024x1792 \
+ openai_createImage_dalle3_style = style natural|vivid* \
 yarn ts-node src/app.ts
 ```
 
@@ -116,19 +122,25 @@ docker run -d \
   -e bot_autoEngage_message_minMessages = number 6* \
   -e bot_autoEngage_message_probability = number 0.05* \
   -e bot_autoEngage_react_probability = number 0.05* \
-  -e bot_conversation_mode = channel*|user \
+  -e bot_conversation_mode = mode channel*|user \
   -e bot_conversation_retainSec = number 900* \
-  -e bot_createImage_enabled = true|false* \
+  -e bot_createImage_enabled = boolean true|false* \
   -e bot_createImage_tokens_perUser = number 3* \
   -e bot_createImage_tokens_ttl = number 3600* \
-  -e bot_log_debug = true|false \
+  -e bot_log_debug = boolean true|false* \
   -e discord_botToken = string <api key> \
   -e openai_api_key = string <api key> \
   -e openai_api_maxRetries = number 5* \
-  -e openai_chatCompletion_maxTokens = number 1024* \
-  -e openai_chatCompletion_model = model gpt-3.5-turbo-16k-0613* \
+  -e openai_api_timeoutSec = number 5* \
+  -e openai_chatCompletion_maxTokens = number 4096* \
+  -e openai_chatCompletion_model = model gpt-3.5-turbo-16k* \
   -e openai_chatCompletion_systemPrompt = string (example: "A system prompt that describes how the chat bot should behave") \
   -e openai_chatCompletion_temperature = number 0.6* \
+  -e openai_createImage_model = model dall-e-2|dall-e-3* \
+  -e openai_createImage_dalle2_size = size 256x256|512x512|1024x1024* \
+  -e openai_createImage_dalle3_quality = hd|standard* \
+  -e openai_createImage_dalle3_size = size 1024x1024*|1792x1024|1024x1792 \
+  -e openai_createImage_dalle3_style = style natural|vivid* \
 [image-name:image-tag]
 ```
 
