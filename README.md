@@ -40,8 +40,8 @@ Chat bot behavior is highly configurable!
   * OpenAI API parameters can be customized:
     * API key (required)
     * API max retries (default: `5`)
-    * Chat Completion max tokens (default: `1024`)
-    * Chat Completion model (default: `gpt-3.5-turbo-16k-0613`)
+    * Chat Completion max tokens (default: `4096`)
+    * Chat Completion model (default: `gpt-4o`)
     * Chat Completion system prompt: define your own bot persona and behavior! ([examples](https://prompts.chat/))
     * Chat Completion temperature: defines variance in bot responses (default: `0.6`)
   * Debug logging (disabled by default)
