@@ -34,7 +34,7 @@
 - I took a long break from my projects due to a big home move. This project is not dead!
 - Updated configurable OpenAI models to `gpt-4o`, `gpt-4`, `gpt-4-turbo`, `gpt-3.5-turbo`
 - Updated dependencies to clear dependabot alerts on `undici`, `braces`, and `ws`.
-- Pinned `typescript` to `5.4.x` as 5.5 introduces an issue with `EventEmitter` that I haven't figured out yet. I only see [one other report](https://github.com/microsoft/TypeScript/issues/57475#issuecomment-2181361224) online.
+- Pinned `typescript` to `5.4.x` as 5.5 introduces an issue with `EventEmitter` that I haven't figured out yet. I only see [one other report](https://github.com/microsoft/TypeScript/issues/57475#issuecomment-2181361224) online. (edit 2024-07-08: found the issue being [discussed](https://github.com/discordjs/discord.js/issues/10358)).
 
 [:arrow_up: Back to top](#changelog)
 
