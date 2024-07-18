@@ -58,7 +58,7 @@ Run the application:
  openai_api_maxRetries = number 5* \
  openai_api_timeoutSec = number 5* \
  openai_chatCompletion_maxTokens = number 4096* \
- openai_chatCompletion_model = model gpt-4o* \
+ openai_chatCompletion_model = model gpt-4o-mini* \
  openai_chatCompletion_systemPrompt = string (example: "A system prompt that describes how the chat bot should behave") \
  openai_chatCompletion_temperature = number 0.6* \
  openai_createImage_model = model dall-e-2|dall-e-3* \
@@ -133,7 +133,7 @@ docker run -d \
   -e openai_api_maxRetries = number 5* \
   -e openai_api_timeoutSec = number 5* \
   -e openai_chatCompletion_maxTokens = number 4096* \
-  -e openai_chatCompletion_model = model gpt-4o* \
+  -e openai_chatCompletion_model = model gpt-4o-mini* \
   -e openai_chatCompletion_systemPrompt = string (example: "A system prompt that describes how the chat bot should behave") \
   -e openai_chatCompletion_temperature = number 0.6* \
   -e openai_createImage_model = model dall-e-2|dall-e-3* \
