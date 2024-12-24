@@ -1,13 +1,13 @@
 {
   "name": "discord-bot-ol-bootsie",
-  "version": "1.6.1",
+  "version": "1.7.0",
   "description": "Ol' Bootsie is a highly configurable Discord bot that interfaces with the OpenAI API, written for Node.js in Typescript.",
   "main": "app.js",
   "scripts": {
-    "build": "yarn tsc",
+    "build": "npm tsc",
     "cleanup": "rm -rf dist/",
-    "lint": "eslint . --ext .ts",
-    "rebuild": "rm -rf dist/ && yarn tsc",
+    "lint": "eslint .",
+    "rebuild": "rm -rf dist/ && npm tsc",
     "start": "node ./dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,16 +19,20 @@
   },
   "homepage": "https://github.com/jlyons210/discord-bot-ol-bootsie#readme",
   "dependencies": {
-    "discord.js": "^14.15.3",
-    "openai": "^4.52.3"
+    "discord.js": "^14.16.3",
+    "openai": "^4.77.0"
   },
   "devDependencies": {
-    "@types/node": "^20.14.10",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
-    "eslint": "^8.57.0",
-    "eslint-plugin-jsdoc": "^46.10.1",
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^22.10.2",
+    "@typescript-eslint/parser": "^8.18.2",
+    "@typescript-eslint/typescript-estree": "^8.18.2",
+    "eslint": "^9.17.0",
+    "eslint-plugin-jsdoc": "^50.6.1",
+    "eslint-plugin-n": "^17.15.1",
+    "globals": "^15.14.0",
     "ts-node": "^10.9.2",
-    "typescript": "~5.4.0"
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.2"
   }
 }
