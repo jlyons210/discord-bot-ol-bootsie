@@ -13,7 +13,7 @@ import {
   SizeDallE2,
   SizeDallE3,
   StyleDallE3,
-} from './CreateImage';
+} from './CreateImage/index.js';
 
 import {
   CreateChatCompletion,
@@ -21,9 +21,9 @@ import {
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
-} from './CreateChatCompletion';
+} from './CreateChatCompletion/index.js';
 
-import { Utilities } from './Utilities';
+import { Utilities } from './Utilities/index.js';
 
 export {
   CreateChatCompletion,

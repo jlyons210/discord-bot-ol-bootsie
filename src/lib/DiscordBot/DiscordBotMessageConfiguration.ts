@@ -1,4 +1,4 @@
-import { DiscordBotConversationMode } from './index';
+import { DiscordBotConversationMode } from './index.js';
 import { Message } from 'discord.js';
 
 /**

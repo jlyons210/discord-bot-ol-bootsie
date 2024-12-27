@@ -8,6 +8,7 @@ import {
   GatewayIntentBits,
   Message,
   Partials,
+  TextChannel,
 } from 'discord.js';
 
 import {
@@ -26,7 +27,7 @@ import {
   SizeDallE2,
   SizeDallE3,
   StyleDallE3,
-} from '../OpenAI';
+} from '../OpenAI/index.js';
 
 import {
   DiscordBotConversationMode,
@@ -34,7 +35,7 @@ import {
   DiscordBotMessage,
   DiscordBotMessageIntent,
   DiscordBotMessageType,
-} from './index';
+} from './index.js';
 
 import {
   FeatureToken,
@@ -42,11 +43,11 @@ import {
   FeatureTokenBucketMaxUserTokensError,
   HistoryMessage,
   HistoryMessageBucket,
-} from '../ExpirableObject';
+} from '../ExpirableObject/index.js';
 
-import { Config } from '../Config';
+import { Config } from '../Config/index.js';
 import { EventEmitter } from 'events';
-import { Logger } from '../Logger';
+import { Logger } from '../Logger/index.js';
 
 /**
  * This Discord bot listens for channel events and interfaces with the OpenAI API to provide
@@ -73,7 +74,8 @@ export class DiscordBot {
   /**
    * Creates an instance of the DiscordBot class with required configuration to authenticate the
    * bot's Discord client and operate within a channel. Establishes event listeners.
-   * @param botConfig A populated Config object
+   * @param {Config} botConfig
+   *   A populated Config object
    */
   constructor(botConfig: Config) {
     this.botConfig = botConfig;
@@ -83,17 +85,17 @@ export class DiscordBot {
     this.createImageFeatureEnabled = Boolean(settings['bot_createImage_enabled']);
 
     this.openAiCreateChatCompletionConfig = {
-      apiKey:            String(settings['openai_api_key']),
-      maxRetries:        Number(settings['openai_api_maxRetries']),
-      paramMaxTokens:    Number(settings['openai_chatCompletion_maxTokens']),
-      paramModel:        String(settings['openai_chatCompletion_model']),
+      apiKey: String(settings['openai_api_key']),
+      maxRetries: Number(settings['openai_api_maxRetries']),
+      paramMaxTokens: Number(settings['openai_chatCompletion_maxTokens']),
+      paramModel: String(settings['openai_chatCompletion_model']),
       paramSystemPrompt: String(settings['openai_chatCompletion_systemPrompt']),
-      paramTemperature:  Number(settings['openai_chatCompletion_temperature']),
-      timeoutSec:        Number(settings['openai_api_timeoutSec']),
+      paramTemperature: Number(settings['openai_chatCompletion_temperature']),
+      timeoutSec: Number(settings['openai_api_timeoutSec']),
     };
 
     this.openAiCreateImageConfig = {
-      apiKey:     String(settings['openai_api_key']),
+      apiKey: String(settings['openai_api_key']),
       maxRetries: Number(settings['openai_api_maxRetries']),
       timeoutSec: Number(settings['openai_api_timeoutSec']),
     };
@@ -103,7 +105,7 @@ export class DiscordBot {
     });
 
     this.imageCreateTokenBucket = new FeatureTokenBucket({
-      maxTokens:      Number(settings['bot_createImage_tokens_perUser']),
+      maxTokens: Number(settings['bot_createImage_tokens_perUser']),
       tokenExpireSec: Number(settings['bot_createImage_tokens_ttl']),
     });
 
@@ -113,71 +115,73 @@ export class DiscordBot {
 
   /**
    * Construct a chat completion payload using an overridable system prompt and message history.
-   * @param conversationKey string used as conversation key for bot interactions
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of completed chat completion payload
+   * @param {string} conversationKey
+   *   string used as conversation key for bot interactions
+   * @param {string} [systemPromptOverride]
+   *   Optional system prompt override, useful for internal functions.
+   * @returns {Promise<CreateChatCompletionPayloadMessage[]>}
+   *   Promise of completed chat completion payload
    */
   private async constructChatCompletionPayloadFromHistory(
     conversationKey: string,
     systemPromptOverride?: string,
   ): Promise<CreateChatCompletionPayloadMessage[]> {
-
     const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this.constructSystemPrompt(systemPromptOverride));
 
     this.historyMessageBucket.objects
-      .filter(historyMessage =>
-        (historyMessage as HistoryMessage).conversationKey === conversationKey,
+      .filter((historyMessage: HistoryMessage) =>
+        historyMessage.conversationKey === conversationKey,
       )
-      .forEach(historyMessage =>
-        payload.push((historyMessage as HistoryMessage).payload),
+      .forEach((historyMessage: HistoryMessage) =>
+        payload.push(historyMessage.payload as CreateChatCompletionPayloadMessage),
       );
 
     return payload;
-
   }
 
   /**
    * Construct a chat completion payload using an overridable system prompt and single message.
-   * @param messageText string containing message text
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of completed chat completion payload
+   * @param {string} messageText
+   *   string containing message text
+   * @param {string} [systemPromptOverride]
+   *   Optional system prompt override, useful for internal functions.
+   * @returns {Promise<CreateChatCompletionPayloadMessage[]>}
+   *   Promise of completed chat completion payload
    */
   private async constructChatCompletionPayloadFromSingleMessage(
     messageText: string,
     systemPromptOverride?: string,
   ): Promise<CreateChatCompletionPayloadMessage[]> {
-
     const payload: CreateChatCompletionPayloadMessage[] = [];
     payload.push(await this.constructSystemPrompt(systemPromptOverride));
 
     payload.push(new CreateChatCompletionPayloadMessage({
       content: messageText,
-      role:    CreateChatCompletionPayloadMessageRole.User,
+      role: CreateChatCompletionPayloadMessageRole.User,
     }));
 
     return payload;
-
   }
 
   /**
    * Returns a system prompt using the configured or overridden system prompt.
-   * @param systemPromptOverride Optional system prompt override, useful for internal functions.
-   * @returns Promise of PayloadMessage containing the system prompt.
+   * @param {string} [systemPromptOverride]
+   *   Optional system prompt override, useful for internal functions.
+   * @returns {Promise<CreateChatCompletionPayloadMessage>}
+   *   Promise of PayloadMessage containing the system prompt.
    */
   private async constructSystemPrompt(
     systemPromptOverride?: string,
   ): Promise<CreateChatCompletionPayloadMessage> {
-
     const systemPrompt = (systemPromptOverride === undefined)
       ? String(this.botConfig.Settings['openai_chatCompletion_systemPrompt'])
       : systemPromptOverride;
 
     return new CreateChatCompletionPayloadMessage({
       content: systemPrompt,
-      role:    CreateChatCompletionPayloadMessageRole.System,
+      role: CreateChatCompletionPayloadMessageRole.System,
     });
-
   }
 
   /**
@@ -193,7 +197,9 @@ export class DiscordBot {
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
       ],
-      partials: [ Partials.Channel ],
+      partials: [
+        Partials.Channel,
+      ],
     });
 
     this.discordClient.login(botToken);
@@ -201,21 +207,21 @@ export class DiscordBot {
 
   /**
    * Determine a channel message's DiscordBotMessageIntent
-   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
-   * @returns DiscordBotMessageIntent
+   * @param {DiscordBotMessage} discordBotMessage
+   *   DiscordBotMessage processed by MessageCreate handler
+   * @returns {Promise<DiscordBotMessageIntent>}
+   *   DiscordBotMessageIntent
    */
   private async getMessageIntent(
     discordBotMessage: DiscordBotMessage,
   ): Promise<DiscordBotMessageIntent> {
-
     const message = discordBotMessage.DiscordMessage;
 
-    const intentPrompt: CreateChatCompletionPayloadMessage[] =
-      await this.constructChatCompletionPayloadFromSingleMessage(
-        discordBotMessage.MessageContentSanitized,
-        'For the following statement, please use only one of the following to categorize it, '
-        + `with no other commentary, in all lowercase - ${Object.values(DiscordBotMessageIntent)}`,
-      );
+    const intentPrompt: CreateChatCompletionPayloadMessage[] = await this.constructChatCompletionPayloadFromSingleMessage(
+      discordBotMessage.MessageContentSanitized,
+      'For the following statement, please use only one of the following to categorize it, '
+      + `with no other commentary, in all lowercase - ${Object.values(DiscordBotMessageIntent)}`,
+    );
 
     // 1000000000000000000: entering openAiClient.createChatCompletion(promptPayload) to get message intent
     void this.logger.logDebug(
@@ -223,8 +229,7 @@ export class DiscordBot {
     );
 
     const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
-    const intentResponse =
-      (await openAiClient.createChatCompletion(intentPrompt)).content as DiscordBotMessageIntent;
+    const intentResponse = (await openAiClient.createChatCompletion(intentPrompt)).content as DiscordBotMessageIntent;
 
     // 1000000000000000000: exiting openAiClient.createChatCompletion(promptPayload) to get message intent
     void this.logger.logDebug(
@@ -235,14 +240,14 @@ export class DiscordBot {
     void this.logger.logDebug(`${message.id}: getMessageIntent returns: ${intentResponse}`);
 
     return intentResponse;
-
   }
 
   /**
    * Breaks up reponseText into multiple messages up to 2000 characters
-   * @param responseText OpenAI response text
-   * @returns string[] of paragraphs that are each <2000 characters to fit within Discord's message
-   *   size limit.
+   * @param {string} responseText
+   *   OpenAI response text
+   * @returns {string[]}
+   *   Array of paragraphs that are each <2000 characters to fit within Discord's message size limit.
    */
   private getPaginatedResponse(responseText: string): string[] {
     const allParagraphs: string[] = [];
@@ -298,7 +303,8 @@ export class DiscordBot {
 
   /**
    * Event handler for client-ready event
-   * @param client Discord client object
+   * @param {Client} client
+   *   Discord client object
    */
   private async handleClientReady(client: Client): Promise<void> {
     this.Events.emit(
@@ -311,15 +317,14 @@ export class DiscordBot {
 
   /**
    * Event handler for message-create event
-   * @param discordMessage Discord message from event source
+   * @param {Message} discordMessage Discord message from event source
    */
   private async handleMessageCreate(discordMessage: Message): Promise<void> {
-    const botConversationMode =
-      this.botConfig.Settings['bot_conversation_mode'] as DiscordBotConversationMode;
+    const botConversationMode = this.botConfig.Settings['bot_conversation_mode'] as DiscordBotConversationMode;
 
     const discordBotMessage = new DiscordBotMessage({
-      discordMessage:      discordMessage,
-      botUserId:           this.botUserId,
+      discordMessage: discordMessage,
+      botUserId: this.botUserId,
       botConversationMode: botConversationMode,
     });
     const message = discordBotMessage.DiscordMessage;
@@ -334,8 +339,8 @@ export class DiscordBot {
       payload:
         new CreateChatCompletionPayloadMessage({
           content: discordBotMessage.MessageContentSanitized,
-          name:    discordBotMessage.MessageUsername,
-          role:    CreateChatCompletionPayloadMessageRole.User,
+          name: discordBotMessage.MessageUsername,
+          role: CreateChatCompletionPayloadMessageRole.User,
         }),
     }));
 
@@ -397,32 +402,29 @@ export class DiscordBot {
 
   /**
    * Engage with channel messages using configured probability
-   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
+   * @param {DiscordBotMessage} discordBotMessage
+   *   DiscordBotMessage processed by MessageCreate handler
    */
   private async probablyEngageInConversation(discordBotMessage: DiscordBotMessage): Promise<void> {
     const botAutoEngageMinMessages = Number(this.botConfig.Settings['bot_autoEngage_message_minMessages']);
     const message = discordBotMessage.DiscordMessage;
 
-    const messageCount =
-      this.historyMessageBucket.objects
-        .filter(historyMessage =>
-          (historyMessage as HistoryMessage).conversationKey === discordBotMessage.ConversationKey
-        ).length;
+    const messageCount = this.historyMessageBucket.objects.filter(historyMessage =>
+      (historyMessage as HistoryMessage).conversationKey === discordBotMessage.ConversationKey,
+    ).length;
 
     const botWillEngage = (
-      Math.random() < Number(this.botConfig.Settings['bot_autoEngage_message_probability']) &&
-      messageCount >= botAutoEngageMinMessages
+      Math.random() < Number(this.botConfig.Settings['bot_autoEngage_message_probability'])
+      && messageCount >= botAutoEngageMinMessages
     );
 
     // 1000000000000000000: botWillEngage = true
     void this.logger.logDebug(`${message.id}: botWillEngage = ${botWillEngage}`);
 
     if (botWillEngage) {
-      const systemPrompt =
-        `${this.botConfig.Settings['openai_chatCompletion_systemPrompt']} `
+      const systemPrompt = `${this.botConfig.Settings['openai_chatCompletion_systemPrompt']} `
         + 'For the provided list of statements, provide an insight, or a question, or a concern. '
         + 'Dont\'t ask if further help is needed.';
-
       const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
       const requestPayload = await this.constructChatCompletionPayloadFromHistory(
         discordBotMessage.ConversationKey,
@@ -444,22 +446,23 @@ export class DiscordBot {
 
         this.historyMessageBucket.add(new HistoryMessage({
           conversationKey: discordBotMessage.ConversationKey,
-          payload:         responsePayload,
+          payload: responsePayload,
         }));
 
         // 1000000000000000000: sending unprompted response to channel
         void this.logger.logDebug(`${message.id}: sending unprompted response to channel`);
-
-        await message.channel.send(responsePayload);
+        await (message.channel as TextChannel).send(responsePayload);
       }
       catch (e) {
         if (e instanceof Error) {
           // 1000000000000000000: I am an unexpected error.
           void this.logger.logError(e.message);
 
-          await message.channel.send(
-            'There was an issue sending my response. The error logs might have some clues.',
-          );
+          if (message.channel.isTextBased()) {
+            await (message.channel as TextChannel).send(
+              'There was an issue sending my response. The error logs might have some clues.',
+            );
+          }
         }
       }
     }
@@ -467,7 +470,8 @@ export class DiscordBot {
 
   /**
    * React to channel messages using configured probability
-   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
+   * @param {DiscordBotMessage} discordBotMessage
+   *   DiscordBotMessage processed by MessageCreate handler
    */
   private async probablyReactToMessage(discordBotMessage: DiscordBotMessage): Promise<void> {
     const botReactProbability = Number(this.botConfig.Settings['bot_autoEngage_react_probability']);
@@ -478,8 +482,7 @@ export class DiscordBot {
     void this.logger.logDebug(`${message.id}: botWillReact = ${botWillReact}`);
 
     if (botWillReact) {
-      const systemPrompt =
-        `${this.botConfig.Settings['openai_chatCompletion_systemPrompt']} `
+      const systemPrompt = `${this.botConfig.Settings['openai_chatCompletion_systemPrompt']} `
         + 'You are instructed to only respond to my statements using a single emoji, no words.';
 
       const openAiClient = new CreateChatCompletion(this.openAiCreateChatCompletionConfig);
@@ -507,7 +510,7 @@ export class DiscordBot {
         // 1000000000000000000: emojiResponse = '😸😻'
         void this.logger.logDebug(`${message.id}: emojiResponse = '${emojiResponse}'`);
 
-        Array.from(emojiResponse).forEach(async emoji => {
+        Array.from(emojiResponse).forEach(async (emoji) => {
           lastEmoji = emoji;
           // 1000000000000000000: reacting to message with '😸'
           void this.logger.logDebug(`${message.id}: reacting to message with '${emoji}'`);
@@ -540,18 +543,19 @@ export class DiscordBot {
    * Register bot event handlers
    */
   private registerEventHandlers(): void {
-    this.discordClient.once(Events.ClientReady, async client => {
+    this.discordClient.once(Events.ClientReady, async (client) => {
       await this.handleClientReady(client);
     });
 
-    this.discordClient.on(Events.MessageCreate, async message => {
+    this.discordClient.on(Events.MessageCreate, async (message) => {
       await this.handleMessageCreate(message);
     });
   }
 
   /**
    * Sanitizes and submits conversation for an OpenAI Chat Completion response
-   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
+   * @param {DiscordBotMessage} discordBotMessage
+   *   DiscordBotMessage processed by MessageCreate handler
    */
   private async sendChatCompletionResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     const message = discordBotMessage.DiscordMessage;
@@ -587,16 +591,16 @@ export class DiscordBot {
 
       this.historyMessageBucket.add(new HistoryMessage({
         conversationKey: discordBotMessage.ConversationKey,
-        payload:         responsePayload,
+        payload: responsePayload,
       }));
 
       // 1000000000000000000: sending chat completion response to channel
       void this.logger.logDebug(`${message.id}: sending chat completion response to channel`);
 
-      discordResponse.forEach(async responseText => {
+      discordResponse.forEach(async (responseText) => {
         try {
           (discordBotMessage.MessageType === DiscordBotMessageType.DirectMessage)
-            ? await message.channel.send(responseText)
+            ? await (message.channel as TextChannel).send(responseText)
             : await message.reply(responseText);
         }
         catch (e) {
@@ -612,7 +616,7 @@ export class DiscordBot {
         // 1000000000000000000: I am an unexpected error.
         void this.logger.logError(e.message);
 
-        await message.channel.send(
+        await (message.channel as TextChannel).send(
           'There was an issue sending my response. The error logs might have some clues.',
         );
       }
@@ -620,9 +624,9 @@ export class DiscordBot {
   }
 
   /**
-   * Send an image generated by the OpenAI CreateImage API from a prompt received in a Discord
-   * message
-   * @param discordBotMessage DiscordBotMessage processed by MessageCreate handler
+   * Send an image generated by the OpenAI CreateImage API from a prompt received in a Discord message
+   * @param {DiscordBotMessage} discordBotMessage
+   *   DiscordBotMessage processed by MessageCreate handler
    */
   private async sendCreateImageResponse(discordBotMessage: DiscordBotMessage): Promise<void> {
     const settings = this.botConfig.Settings;
@@ -657,25 +661,25 @@ export class DiscordBot {
       switch (model) {
         case ImageModel.DallE2:
           requestPayload = {
-            model:           ImageModel.DallE2,
-            n:               1,
-            prompt:          imagePrompt,
+            model: ImageModel.DallE2,
+            n: 1,
+            prompt: imagePrompt,
             response_format: ResponseFormat.B64Json,
-            size:            String(settings['openai_createImage_dalle2_size']) as SizeDallE2,
-            user:            discordBotMessage.MessageUsername,
+            size: String(settings['openai_createImage_dalle2_size']) as SizeDallE2,
+            user: discordBotMessage.MessageUsername,
           } as RequestOptionsDallE2;
           break;
 
         case ImageModel.DallE3:
           requestPayload = {
-            model:           ImageModel.DallE3,
-            n:               1,
-            prompt:          imagePrompt,
-            quality:         String(settings['openai_createImage_dalle3_quality']) as QualityDallE3,
+            model: ImageModel.DallE3,
+            n: 1,
+            prompt: imagePrompt,
+            quality: String(settings['openai_createImage_dalle3_quality']) as QualityDallE3,
             response_format: ResponseFormat.B64Json,
-            size:            String(settings['openai_createImage_dalle3_size']) as SizeDallE3,
-            style:           String(settings['openai_createImage_dalle3_style']) as StyleDallE3,
-            user:            discordBotMessage.MessageUsername,
+            size: String(settings['openai_createImage_dalle3_size']) as SizeDallE3,
+            style: String(settings['openai_createImage_dalle3_style']) as StyleDallE3,
+            user: discordBotMessage.MessageUsername,
           } as RequestOptionsDallE3;
           break;
       }
@@ -694,41 +698,41 @@ export class DiscordBot {
 
       if (model === ImageModel.DallE3) {
         embed.addFields({
-          name:   'Revised prompt:',
-          value:  String(response.data[0].revised_prompt),
+          name: 'Revised prompt:',
+          value: String(response.data[0].revised_prompt),
           inline: false,
         });
       }
 
       embed.addFields({
-        name:   'Generated by:',
-        value:  String(discordBotMessage.MessageUsername),
+        name: 'Generated by:',
+        value: String(discordBotMessage.MessageUsername),
         inline: true,
       })
         .setFooter({
-          text:    `github.com/jlyons210/discord-bot-ol-bootsie (v${process.env['npm_package_version']})`,
+          text: `github.com/jlyons210/discord-bot-ol-bootsie (v${process.env['npm_package_version']})`,
           iconURL: 'https://grumple.cloud/assets/discord-bot-ol-bootsie/icon-github.png',
         }).addFields((this.imageCreateTokenBucket.tokensRemaining(message.author.username))
           ? {
-            name:   'Tokens remaining:',
-            value:  String(this.imageCreateTokenBucket.tokensRemaining(
-              message.author.username,
-            )),
-            inline: true,
-          }
+              name: 'Tokens remaining:',
+              value: String(this.imageCreateTokenBucket.tokensRemaining(
+                message.author.username,
+              )),
+              inline: true,
+            }
           : {
-            name:   'Next token available:',
-            value:  this.imageCreateTokenBucket.nextTokenTime(
-              message.author.username,
-            ),
-            inline: true,
-          })
+              name: 'Next token available:',
+              value: this.imageCreateTokenBucket.nextTokenTime(
+                message.author.username,
+              ),
+              inline: true,
+            })
         .addFields({
-          name:   'Model:',
-          value:  String(model as ImageModel)
+          name: 'Model:',
+          value: String(model as ImageModel)
             + ((model === ImageModel.DallE3)
               ? ` (${String((requestPayload as RequestOptionsDallE3).quality)},`
-                + ` ${String((requestPayload as RequestOptionsDallE3).style)})`
+              + ` ${String((requestPayload as RequestOptionsDallE3).style)})`
               : ''),
           inline: true,
         });
@@ -761,18 +765,18 @@ export class DiscordBot {
       // 1000000000000000000: sending embedded image response to channel
       void this.logger.logDebug(`${message.id}: sending embedded image response to channel`);
 
-      await message.channel.send({ embeds: [ embed ], files: files });
+      await (message.channel as TextChannel).send({ embeds: [embed], files: files });
     }
     catch (e) {
       if (e instanceof FeatureTokenBucketMaxUserTokensError) {
-        await message.channel.send(e.message);
+        await (message.channel as TextChannel).send(e.message);
       }
       else if (e instanceof Error) {
         // 1000000000000000000: I am an unexpected error.
         void this.logger.logError(`${message.id}: ${e.message}`);
 
         if (!(e instanceof DiscordAPIError)) {
-          await message.channel.send(
+          await (message.channel as TextChannel).send(
             'There was an issue sending my response. The error logs might have some clues.',
           );
         }

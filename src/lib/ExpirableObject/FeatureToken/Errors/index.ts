@@ -1,3 +1,3 @@
-import { FeatureTokenBucketMaxUserTokensError } from './FeatureTokenBucketMaxUserTokensError';
+import { FeatureTokenBucketMaxUserTokensError } from './FeatureTokenBucketMaxUserTokensError.js';
 
 export { FeatureTokenBucketMaxUserTokensError };

@@ -1,10 +1,10 @@
-import { DiscordBot } from './DiscordBot';
-import { DiscordBotConversationMode } from './DiscordBotConversationMode';
-import { DiscordBotEvents } from './DiscordBotEvents';
-import { DiscordBotMessage } from './DiscordBotMessage';
-import { DiscordBotMessageConfiguration } from './DiscordBotMessageConfiguration';
-import { DiscordBotMessageIntent } from './DiscordBotMessageIntent';
-import { DiscordBotMessageType } from './DiscordBotMessageType';
+import { DiscordBot } from './DiscordBot.js';
+import { DiscordBotConversationMode } from './DiscordBotConversationMode.js';
+import { DiscordBotEvents } from './DiscordBotEvents.js';
+import { DiscordBotMessage } from './DiscordBotMessage.js';
+import { DiscordBotMessageConfiguration } from './DiscordBotMessageConfiguration.js';
+import { DiscordBotMessageIntent } from './DiscordBotMessageIntent.js';
+import { DiscordBotMessageType } from './DiscordBotMessageType.js';
 
 export {
   DiscordBot,

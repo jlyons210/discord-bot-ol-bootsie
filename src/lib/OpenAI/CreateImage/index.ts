@@ -12,9 +12,9 @@ import {
   SizeDallE2,
   SizeDallE3,
   StyleDallE3,
-} from './CreateImage.types';
+} from './CreateImage.types.js';
 
-import { CreateImage } from './CreateImage';
+import { CreateImage } from './CreateImage.js';
 
 export {
   ClientOptions,

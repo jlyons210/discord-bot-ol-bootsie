@@ -2,7 +2,7 @@ import {
   CreateChatCompletionConfiguration,
   CreateChatCompletionPayloadMessage,
   CreateChatCompletionPayloadMessageRole,
-} from '../index';
+} from '../index.js';
 
 import { OpenAI } from 'openai';
 
@@ -15,33 +15,33 @@ export class CreateChatCompletion {
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
-   * @param config A populated OpenAIConfig
+   * @param {CreateChatCompletionConfiguration} config A populated CreateChatCompletionConfiguration
    */
   public constructor(config: CreateChatCompletionConfiguration) {
     this.config = config;
     this.client = new OpenAI({
-      apiKey:     config.apiKey,
+      apiKey: config.apiKey,
       maxRetries: config.maxRetries,
-      timeout:    config.timeoutSec * 1000,
+      timeout: config.timeoutSec * 1000,
     });
   }
 
   /**
    * Creates a model response for the given chat conversation.
    *   (https://platform.openai.com/docs/api-reference/chat/create)
-   * @param payload A list of PayloadMessage describing the conversation so far. These should be
+   * @param {CreateChatCompletionPayloadMessage[]} payload
+   *   A list of PayloadMessage describing the conversation so far. These should be
    *   cumulative from the system prompt to the starting user prompt, interleaved with all
    *   assistant responses in order to maintain conversation flow.
-   * @returns Returns an assistant response
+   * @returns {CreateChatCompletionPayloadMessage} Returns an assistant response
    */
   public async createChatCompletion(
     payload: CreateChatCompletionPayloadMessage[],
   ): Promise<CreateChatCompletionPayloadMessage> {
-
     const response = await this.client.chat.completions.create({
-      max_tokens:  this.config.paramMaxTokens,
-      model:       this.config.paramModel,
-      messages:    payload,
+      max_tokens: this.config.paramMaxTokens,
+      model: this.config.paramModel,
+      messages: payload,
       temperature: this.config.paramTemperature,
     });
 
@@ -49,8 +49,7 @@ export class CreateChatCompletion {
 
     return new CreateChatCompletionPayloadMessage({
       content: String(responseMessage.content),
-      role:    CreateChatCompletionPayloadMessageRole.Assistant,
+      role: CreateChatCompletionPayloadMessageRole.Assistant,
     });
-
   }
 }

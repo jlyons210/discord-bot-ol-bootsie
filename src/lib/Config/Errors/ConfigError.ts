@@ -4,7 +4,7 @@
 export class ConfigError extends Error {
   /**
    * Constructs a ConfigError
-   * @param message Error message
+   * @param {string} message Error message
    */
   constructor(message: string) {
     super(message);

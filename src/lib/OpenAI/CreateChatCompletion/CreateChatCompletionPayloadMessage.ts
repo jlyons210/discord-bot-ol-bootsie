@@ -2,7 +2,7 @@ import {
   CreateChatCompletionPayloadMessageConfiguration,
   CreateChatCompletionPayloadMessageRole,
   Utilities,
-} from '../index';
+} from '../index.js';
 
 /**
  * Controls message adherence to the OpenAI payload specification.
@@ -15,7 +15,8 @@ export class CreateChatCompletionPayloadMessage {
 
   /**
    * Construcs a PayloadMessage object
-   * @param payload PayloadMessage
+   * @param {CreateChatCompletionPayloadMessageConfiguration} payload
+   *   A configuration object for the PayloadMessage
    */
   constructor(payload: CreateChatCompletionPayloadMessageConfiguration) {
     this.content = payload.content;

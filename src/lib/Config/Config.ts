@@ -1,6 +1,6 @@
-import { ConfigError } from './index';
-import { ConfigTemplate } from './ConfigTemplate.json';
-import { Logger } from '../Logger';
+import { ConfigError } from './index.js';
+import ConfigTemplateJson from './ConfigTemplate.json' assert { type: 'json' };
+import { Logger } from '../Logger/index.js';
 
 /**
  * Loads the Discord bot's running configuration from environment variables and validates against
@@ -23,13 +23,13 @@ export class Config {
   private validateStartupSettings(): void {
     let validationFailed = false;
 
-    ConfigTemplate.forEach(setting => {
+    ConfigTemplateJson.ConfigTemplate.forEach((setting) => {
       /*
        * All environment variables come in as strings. Setting userValue to the correct type up
        * front saves a lot of type-checking later.
        */
-      const userValue =
-        this.isNumber(process.env[setting.name])
+      const userValue
+        = this.isNumber(process.env[setting.name])
           ? Number(process.env[setting.name])
           : process.env[setting.name];
 
@@ -87,8 +87,8 @@ export class Config {
 
   /**
    * Validates a value as numeric
-   * @param value value to validate
-   * @returns true if value is numeric
+   * @param {string|number|undefined} value value to validate
+   * @returns {boolean} true if value is numeric
    */
   private isNumber(value: string | number | undefined): boolean {
     return (!Number.isNaN(Number(value)));
@@ -96,9 +96,9 @@ export class Config {
 
   /**
    * Validates a user setting value against allowed values in the configuration template
-   * @param userValue string or number defined at app startup
-   * @param allowedValues Values allowed by the template allowedValues parameter
-   * @returns true if user value is valid
+   * @param {string|number} userValue string or number defined at app startup
+   * @param {string|number|object} allowedValues Values allowed by the template allowedValues parameter
+   * @returns {boolean} true if user value is valid
    */
   private isAllowedValue(userValue: string | number, allowedValues: string | number | object): boolean {
     switch (typeof allowedValues) {
@@ -110,8 +110,8 @@ export class Config {
 
       case 'object':
         return (
-          (allowedValues instanceof Array && allowedValues.includes(userValue)) ||
-          (allowedValues instanceof Array && allowedValues.includes(Boolean(userValue)))
+          (allowedValues instanceof Array && allowedValues.includes(userValue))
+          || (allowedValues instanceof Array && allowedValues.includes(Boolean(userValue)))
         );
 
       default:
@@ -121,7 +121,7 @@ export class Config {
 
   /**
    * Returns populated configuration settings
-   * @returns Record of configuration settings
+   * @returns {Record<string, string|number|boolean>} Record of configuration settings
    */
   get Settings(): Record<string, string | number | boolean> {
     return this.settings;

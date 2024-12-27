@@ -2,9 +2,9 @@ import {
   FeatureToken,
   FeatureTokenBucketConfiguration,
   FeatureTokenBucketMaxUserTokensError,
-} from '../index';
+} from '../index.js';
 
-import { ExpirableObjectBucket } from '../ExpirableObjectBucket';
+import { ExpirableObjectBucket } from '../ExpirableObjectBucket.js';
 
 /**
  * Constructs a FeatureTokenBucket, used for rate limiting user activities that may be expensive.
@@ -14,7 +14,7 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Constructs a new FeatureTokenBucket
-   * @param config FeatureTokenBucketConfiguration
+   * @param {FeatureTokenBucketConfiguration} config FeatureTokenBucketConfiguration
    */
   constructor(config: FeatureTokenBucketConfiguration) {
     super({
@@ -25,7 +25,7 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Add token to bucket
-   * @param token FeatureToken
+   * @param {FeatureToken} token FeatureToken
    * @throws FeatureTokenBucketMaxUserTokensError
    */
   public add(token: FeatureToken): void {
@@ -35,20 +35,20 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
     else {
       throw new FeatureTokenBucketMaxUserTokensError(
         `${token.username} is out of tokens. Please wait until `
-        + `${this.nextTokenTime(token.username)} before trying again.`
+        + `${this.nextTokenTime(token.username)} before trying again.`,
       );
     }
   }
 
   /**
    * Returns the most recent token submitted for a username
-   * @param username string
-   * @returns username's most recent FeatureToken
+   * @param {string} username string
+   * @returns {FeatureToken|undefined} username's most recent FeatureToken
    */
   public newestToken(username: string): FeatureToken | undefined {
     let lastToken: FeatureToken | undefined;
     this.spentTokens(username)
-      .forEach(token => {
+      .forEach((token) => {
         lastToken = token;
       });
 
@@ -57,8 +57,8 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Returns a time string for when the next token will be available for a username
-   * @param username string
-   * @returns string with a timestamp
+   * @param {string} username string
+   * @returns {string} string with a timestamp
    */
   public nextTokenTime(username: string): string {
     return new Date(Date.now() + (this.oldestToken(username)?.ttl || 0))
@@ -67,13 +67,13 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Returns the oldest token for a given username
-   * @param username string
-   * @returns Oldest FeatureToken, or undefined
+   * @param {string} username string
+   * @returns {FeatureToken|undefined} Oldest FeatureToken, or undefined
    */
   public oldestToken(username: string): FeatureToken | undefined {
     let tokenTtl = Infinity, returnToken;
     this.spentTokens(username)
-      .forEach(token => {
+      .forEach((token) => {
         if (token.ttl <= tokenTtl) {
           tokenTtl = token.ttl;
           returnToken = token;
@@ -86,7 +86,7 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
   /**
    * Removes the last token spent by a user. Useful in error-handling scenarios where a token
    * should be refunded.
-   * @param username string
+   * @param {string} username string
    */
   public removeNewestToken(username: string): void {
     const refundToken = this.newestToken(username);
@@ -95,7 +95,7 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Removes a token from the bucket.
-   * @param token FeatureToken to be removed from the bucket
+   * @param {FeatureToken} token FeatureToken to be removed from the bucket
    */
   public remove(token: FeatureToken): void {
     const tokenIndex = (super.objects).findIndex(object => (object === token));
@@ -106,8 +106,8 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Returns tokens spent by a specified username
-   * @param username string
-   * @returns FeatureToken array
+   * @param {string} username string
+   * @returns {FeatureToken[]} FeatureToken array
    */
   public spentTokens(username: string): FeatureToken[] {
     return (super.objects as FeatureToken[])
@@ -116,8 +116,8 @@ export class FeatureTokenBucket extends ExpirableObjectBucket {
 
   /**
    * Returns a remaining token count for a given username
-   * @param username string
-   * @returns number of tokens remaining in a bucket
+   * @param {string} username string
+   * @returns {number} number of tokens remaining in a bucket
    */
   public tokensRemaining(username: string): number {
     return this.maxTokensPerUser - this.spentTokens(username).length;

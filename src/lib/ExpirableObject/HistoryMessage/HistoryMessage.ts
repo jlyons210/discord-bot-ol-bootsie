@@ -1,6 +1,6 @@
-import { CreateChatCompletionPayloadMessage } from '../../OpenAI';
-import { ExpirableObject } from '../ExpirableObject';
-import { HistoryMessageConfiguration } from '../index';
+import { CreateChatCompletionPayloadMessage } from '../../OpenAI/index.js';
+import { ExpirableObject } from '../ExpirableObject.js';
+import { HistoryMessageConfiguration } from '../index.js';
 
 /**
  * A message that is used as history for chaining conversations with the OpenAI API.
@@ -10,7 +10,7 @@ export class HistoryMessage extends ExpirableObject {
 
   /**
    * Constructs a HistoryMessage object
-   * @param config A populated HistoryMessageConfiguration
+   * @param {HistoryMessageConfiguration} config A populated HistoryMessageConfiguration
    */
   constructor(config: HistoryMessageConfiguration) {
     super();
@@ -19,7 +19,7 @@ export class HistoryMessage extends ExpirableObject {
 
   /**
    * Gets conversationKey
-   * @returns string
+   * @returns {string} Conversation key
    */
   get conversationKey(): string {
     return this.config.conversationKey;
@@ -27,7 +27,7 @@ export class HistoryMessage extends ExpirableObject {
 
   /**
    * Gets payload
-   * @returns OpenAI PayloadMessage
+   * @returns {CreateChatCompletionPayloadMessage} OpenAI PayloadMessage
    */
   get payload(): CreateChatCompletionPayloadMessage {
     return this.config.payload;

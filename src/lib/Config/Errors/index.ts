@@ -1,3 +1,3 @@
-import { ConfigError } from './ConfigError';
+import { ConfigError } from './ConfigError.js';
 
 export { ConfigError };

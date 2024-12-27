@@ -1,5 +1,5 @@
-import { ExpirableObject } from '../ExpirableObject';
-import { FeatureTokenConfiguration } from './index';
+import { ExpirableObject } from '../ExpirableObject.js';
+import { FeatureTokenConfiguration } from './index.js';
 
 /**
  * A token that is used to rate limit client activities
@@ -9,7 +9,8 @@ export class FeatureToken extends ExpirableObject {
 
   /**
    * Constructs a FeatureToken object
-   * @param config A populated FeatureTokenConfiguration
+   * @param {FeatureTokenConfiguration} config
+   *   A populated FeatureTokenConfiguration
    */
   constructor(config: FeatureTokenConfiguration) {
     super();
@@ -18,7 +19,7 @@ export class FeatureToken extends ExpirableObject {
 
   /**
    * Gets username
-   * @returns string
+   * @returns {string} username
    */
   get username(): string {
     return this.config.username;

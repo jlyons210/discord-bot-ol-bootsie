@@ -1,4 +1,4 @@
-import { ExpirableObjectConfiguration } from '../index';
+import { ExpirableObjectConfiguration } from '../index.js';
 
 /**
  * Specifies a configuration for a new FeatureToken

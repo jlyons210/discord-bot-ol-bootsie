@@ -1,5 +1,5 @@
-import { Config } from './Config';
-import { ConfigError } from './Errors';
+import { Config } from './Config.js';
+import { ConfigError } from './Errors/index.js';
 
 export {
   Config,

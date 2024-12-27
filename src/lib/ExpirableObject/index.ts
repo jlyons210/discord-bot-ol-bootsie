@@ -4,21 +4,20 @@ import {
   FeatureTokenBucketConfiguration,
   FeatureTokenBucketMaxUserTokensError,
   FeatureTokenConfiguration,
-} from './FeatureToken';
+} from './FeatureToken/index.js';
 
 import {
   HistoryMessage,
   HistoryMessageBucket,
   HistoryMessageBucketConfiguration,
   HistoryMessageConfiguration,
-} from './HistoryMessage';
+} from './HistoryMessage/index.js';
 
-import { ExpirableObject } from './ExpirableObject';
-import { ExpirableObjectBucket } from './ExpirableObjectBucket';
-import { ExpirableObjectBucketConfiguration } from './ExpirableObjectBucketConfiguration';
-import { ExpirableObjectConfiguration } from './ExpirableObjectConfiguration';
-import { ExpirableObjectEvents } from './ExpirableObjectEvents';
-
+import { ExpirableObject } from './ExpirableObject.js';
+import { ExpirableObjectBucket } from './ExpirableObjectBucket.js';
+import { ExpirableObjectBucketConfiguration } from './ExpirableObjectBucketConfiguration.js';
+import { ExpirableObjectConfiguration } from './ExpirableObjectConfiguration.js';
+import { ExpirableObjectEvents } from './ExpirableObjectEvents.js';
 
 export {
   ExpirableObject,

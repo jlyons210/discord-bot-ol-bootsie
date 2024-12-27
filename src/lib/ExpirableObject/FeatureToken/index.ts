@@ -1,8 +1,8 @@
-import { FeatureToken } from './FeatureToken';
-import { FeatureTokenBucket } from './FeatureTokenBucket';
-import { FeatureTokenBucketConfiguration } from './FeatureTokenBucketConfiguration';
-import { FeatureTokenBucketMaxUserTokensError } from './Errors';
-import { FeatureTokenConfiguration } from './FeatureTokenConfiguration';
+import { FeatureToken } from './FeatureToken.js';
+import { FeatureTokenBucket } from './FeatureTokenBucket.js';
+import { FeatureTokenBucketConfiguration } from './FeatureTokenBucketConfiguration.js';
+import { FeatureTokenBucketMaxUserTokensError } from './Errors/index.js';
+import { FeatureTokenConfiguration } from './FeatureTokenConfiguration.js';
 
 export {
   FeatureToken,

@@ -1,6 +1,7 @@
 # Changelog
 
 ## Releases:
+- 1.7.x: [1.7.0](#170-2024-12-24)
 - 1.6.x: [1.6.0](#160-2024-07-07), [1.6.1](#161-2024-07-18)
 - 1.5.x: [1.5.0](#150-2024-02-12)
 - 1.4.x: [1.4.0](#140-2023-11-24)
@@ -30,6 +31,17 @@
 - 0.1.x: [0.1.0](#010-2023-04-14)
 
 ---
+## 1.7.0 (2024-12-24)
+- [Issue #153](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/154) - Resolved
+  - Updated all dependencies
+    - Started with fresh tsconfig.json
+    - Ported ESLint configuration to new format
+    - 195 eslint problems fixed after upgrades
+  - Moved back to npm instead of yarn
+  - Updated Dockerfile
+
+[:arrow_up: Back to top](#changelog)
+
 ## 1.6.1 (2024-07-18)
 - [Issue #154](https://github.com/jlyons210/discord-bot-ol-bootsie/issues/154) - Resolved
   - Added support for `gpt-4o-mini`, set as default model.

@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { ExpirableObjectEvents } from './index';
+import { ExpirableObjectEvents } from './index.js';
 
 /**
  * Generic base class for an expirable object, like a history message or a feature token
@@ -28,7 +28,7 @@ export class ExpirableObject {
 
   /**
    * Gets expireSec
-   * @returns number (of seconds after creation to expire)
+   * @returns {number} number (of seconds after creation to expire)
    */
   get expireSec(): number {
     return this._expireSec;
@@ -36,7 +36,7 @@ export class ExpirableObject {
 
   /**
    * Sets expireSec
-   * @param expireSec number of seconds
+   * @param {number} expireSec number of seconds
    */
   set expireSec(expireSec: number) {
     this._expireSec = expireSec;
@@ -44,7 +44,7 @@ export class ExpirableObject {
 
   /**
    * Gets timestamp
-   * @returns number (Unix epoch time)
+   * @returns {number} number (Unix epoch time)
    */
   get timestamp(): number {
     return this._timestamp;
@@ -52,7 +52,7 @@ export class ExpirableObject {
 
   /**
    * Gets ttl
-   * @returns number (of milliseconds before expiry)
+   * @returns {number} number (of milliseconds before expiry)
    */
   get ttl(): number {
     const expireTime = this.timestamp + (this.expireSec * 1000);

@@ -8,8 +8,8 @@ export class Logger {
 
   /**
    * Creates a Logger instance and sets debug logging enabled state
-   * @param debugLoggingIsEnabled boolean indicating whether or not debug logging is to be
-   *   enabled.
+   * @param {boolean} [debugLoggingIsEnabled]
+   *   boolean indicating whether or not debug logging is to be enabled.
    */
   constructor(debugLoggingIsEnabled = false) {
     this.debugLoggingIsEnabled = debugLoggingIsEnabled;
@@ -18,7 +18,7 @@ export class Logger {
   /**
    * Logs a debug message to console if debug logging is enabled. Checks break-glass debug
    * configuration on every run as the DEBUG file may be created or deleted at any time.
-   * @param message string containing debug message to log
+   * @param {string} message string containing debug message to log
    */
   public async logDebug(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
@@ -29,7 +29,7 @@ export class Logger {
 
   /**
    * Logs an error message to console.
-   * @param message string containing error message to log
+   * @param {string} message string containing error message to log
    */
   public async logError(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
@@ -38,7 +38,7 @@ export class Logger {
 
   /**
    * Logs an info message to console.
-   * @param message string containing info message to log
+   * @param {string} message string containing info message to log
    */
   public async logInfo(message: string): Promise<void> {
     const timestamp = new Date().toISOString();
@@ -52,14 +52,14 @@ export class Logger {
    * To enable within a running container:
    *   docker exec -it <container_name> /bin/sh
    *   /usr/src/app # touch DEBUG
-   * @returns boolean indicating whether or not the DEBUG file exists
+   * @returns {boolean} boolean indicating whether or not the DEBUG file exists
    */
   private async breakGlassDebugLoggingIsEnabled(): Promise<boolean> {
     try {
       await access(process.cwd() + '/DEBUG');
       return true;
     }
-    catch (e) {
+    catch {
       return false;
     }
   }
