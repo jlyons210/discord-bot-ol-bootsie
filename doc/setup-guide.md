@@ -17,7 +17,7 @@
 
 ### Local execution
 
-:bulb: Requires the `git`, `nodejs`, and `yarn` packages.
+:bulb: Requires the `git`, `nodejs`, and `npm` packages.
 
 ---
 
@@ -32,7 +32,7 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 Install dependencies:
 
 ```shell
-yarn install
+npm install
 ```
 
 ---
@@ -66,7 +66,7 @@ Run the application:
  openai_createImage_dalle3_quality = hd|standard* \
  openai_createImage_dalle3_size = size 1024x1024*|1792x1024|1024x1792 \
  openai_createImage_dalle3_style = style natural|vivid* \
-yarn ts-node src/app.ts
+npm start ts-node src/app.ts
 ```
 
 [:arrow_up: Back to top](#setup-guide)

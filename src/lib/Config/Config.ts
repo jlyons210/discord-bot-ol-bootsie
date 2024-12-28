@@ -1,5 +1,5 @@
 import { ConfigError } from './index.js';
-import ConfigTemplateJson from './ConfigTemplate.json' assert { type: 'json' };
+import ConfigTemplateJson from './ConfigTemplate.json' with { type: 'json' };
 import { Logger } from '../Logger/index.js';
 
 /**
