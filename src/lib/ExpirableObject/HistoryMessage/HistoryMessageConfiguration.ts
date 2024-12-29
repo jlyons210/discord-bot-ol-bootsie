@@ -1,4 +1,4 @@
-import { CreateChatCompletionPayloadMessage } from '../../OpenAI';
+import { CreateChatCompletionPayloadMessage } from '../../OpenAI/index.js';
 
 /**
  * Specifies a configuration for a new HistoryMessage

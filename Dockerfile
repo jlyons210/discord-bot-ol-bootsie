@@ -1,25 +1,31 @@
 # Build stage
-FROM node:lts-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN yarn install
+RUN npm ci
 
 COPY . .
 
-RUN yarn run build
+RUN npm run build
 
 # Production stage
-FROM node:lts-alpine AS production
+FROM node:22-alpine AS production
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+RUN addgroup -g 1001 nodejs && \
+    adduser -S -u 1001 -G nodejs nodejs
 
-RUN yarn install --production
+COPY --chown=nodejs:nodejs package*.json ./
 
-COPY --from=build /usr/src/app/dist ./dist
+RUN npm ci --production && \
+    npm cache clean --force
 
-CMD ["yarn", "start"]
+COPY --chown=nodejs:nodejs --from=build /usr/src/app/dist ./dist
+
+USER nodejs
+
+CMD ["npm", "start"]

@@ -63,7 +63,7 @@ export type ResponsePayload = {
       b64_json: string,
       revised_prompt?: string
     }[];
-}
+};
 
 export enum SizeDallE2 {
   Small = '256x256',

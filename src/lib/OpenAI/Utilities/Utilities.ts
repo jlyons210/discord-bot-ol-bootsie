@@ -4,8 +4,8 @@
 export class Utilities {
   /**
    * Sanitizes Discord usernames to fit OpenAI's name field requirements
-   * @param name Unchecked username
-   * @returns Sanitized username
+   * @param {string} name Unchecked username
+   * @returns {string|undefined} Sanitized username
    */
   public static sanitizeName(name: string | undefined): string | undefined {
     if (name) {

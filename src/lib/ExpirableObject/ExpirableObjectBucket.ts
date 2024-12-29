@@ -2,7 +2,7 @@ import {
   ExpirableObject,
   ExpirableObjectBucketConfiguration,
   ExpirableObjectEvents,
-} from './index';
+} from './index.js';
 
 /**
  * Generic base class for an expirable object bucket
@@ -12,7 +12,7 @@ export class ExpirableObjectBucket {
 
   /**
    * Creates a new ExpirableObjectBucket
-   * @param config ExpireableObjectBucketConfiguration
+   * @param {ExpirableObjectBucketConfiguration} config ExpireableObjectBucketConfiguration
    */
   constructor(config: ExpirableObjectBucketConfiguration) {
     this.objectExpireSec = config.objectExpireSec;
@@ -20,7 +20,7 @@ export class ExpirableObjectBucket {
 
   /**
    * Adds a new ExpirableObject to the bucket with an expiration event handler
-   * @param object ExpirableObject to add to the bucket
+   * @param {ExpirableObject} object ExpirableObject to add to the bucket
    */
   public add(object: ExpirableObject): void {
     object.expireSec = this.objectExpireSec;
@@ -32,7 +32,7 @@ export class ExpirableObjectBucket {
 
   /**
    * Gets objects
-   * @returns ExpirableObject[]
+   * @returns {ExpirableObject[]} ExpirableObject[]
    */
   get objects(): ExpirableObject[] {
     return this._objects;

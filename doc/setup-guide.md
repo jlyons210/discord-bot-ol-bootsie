@@ -17,7 +17,7 @@
 
 ### Local execution
 
-:bulb: Requires the `git`, `nodejs`, and `yarn` packages.
+:bulb: Requires the `git`, `nodejs`, and `npm` packages.
 
 ---
 
@@ -32,7 +32,7 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 Install dependencies:
 
 ```shell
-yarn install
+npm install
 ```
 
 ---
@@ -43,7 +43,10 @@ Run the application:
 
 :bulb: It can be helpful to store bot-start configurations in a shell script. Since it will contain API keys, store them in a secure location.
 
+:bulb: Remove the spaces between both sides of the equals sign when assigning environment variables. Spaces are included for readability.
+
 ```shell
+npm run build && \
  bot_autoEngage_message_minMessages = number 6* \
  bot_autoEngage_message_probability = number 0.05* \
  bot_autoEngage_react_probability = number 0.05* \
@@ -66,7 +69,7 @@ Run the application:
  openai_createImage_dalle3_quality = hd|standard* \
  openai_createImage_dalle3_size = size 1024x1024*|1792x1024|1024x1792 \
  openai_createImage_dalle3_style = style natural|vivid* \
-yarn ts-node src/app.ts
+npm start
 ```
 
 [:arrow_up: Back to top](#setup-guide)
@@ -81,16 +84,11 @@ yarn ts-node src/app.ts
 
 #### Pulling the container from Docker Hub
 
-Intel/AMD (x86):
+A multi-architecture image is now build that covers `linux/amd64` and `linux/arm64`
+
 
 ```shell
-docker pull jlyons210/discord-bot-ol-bootsie:latest
-```
-
-ARM64 (aarch64):
-
-```shell
-docker pull jlyons210/discord-bot-ol-bootsie:latest-arm64
+docker pull ghcr.io/jlyons210/discord-bot-ol-bootsie:latest
 ```
 
 ---
@@ -106,7 +104,7 @@ git clone https://github.com/jlyons210/discord-bot-ol-bootsie.git
 Build container image:
 
 ```shell
-docker build -t discord-bot-ol-bootsie:latest .
+docker buildx build -t discord-bot-ol-bootsie:latest .
 ```
 
 ---
@@ -116,6 +114,9 @@ docker build -t discord-bot-ol-bootsie:latest .
 :bulb: Configuration settings with acceptable defaults may be omitted.
 
 :bulb: It can be helpful to store bot-start configurations in a shell script. Since it will contain API keys, store them in a secure location.
+
+:bulb: Remove the spaces between both sides of the equals sign when assigning environment variables. Spaces are included for readability.
+
 
 ```shell
 docker run -d \

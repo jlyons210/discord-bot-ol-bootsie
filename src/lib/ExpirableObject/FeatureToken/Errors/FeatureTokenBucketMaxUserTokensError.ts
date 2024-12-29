@@ -4,7 +4,7 @@
 export class FeatureTokenBucketMaxUserTokensError extends Error {
   /**
    * Constructs a FeatureTokenBucketMaxUserTokensError
-   * @param message Error message
+   * @param {string} message Error message
    */
   constructor(message: string) {
     super(message);

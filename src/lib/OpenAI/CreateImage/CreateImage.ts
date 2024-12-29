@@ -3,7 +3,7 @@ import {
   RequestOptions,
   ResponseFormat,
   ResponsePayload,
-} from './CreateImage.types';
+} from './CreateImage.types.js';
 
 import { OpenAI } from 'openai';
 
@@ -15,7 +15,7 @@ export class CreateImage {
 
   /**
    * Creates an instance of the OpenAI class with required configuration to use the OpenAI API.
-   * @param options ClientOptions
+   * @param {ClientOptions} options ClientOptions
    */
   constructor(options: ClientOptions) {
     this.client = new OpenAI({ ...options });
@@ -24,8 +24,8 @@ export class CreateImage {
   /**
    * Generates an image for the given prompt.
    *   (https://platform.openai.com/docs/api-reference/images/create)
-   * @param request RequestPayloadOptions
-   * @returns Promise<ResponsePayload>
+   * @param {RequestOptions} request RequestOptions
+   * @returns {Promise<ResponsePayload>} ResponsePayload
    */
   public async createImage(request: RequestOptions): Promise<ResponsePayload> {
     const response = await this.client.images.generate({ ...request });
@@ -34,15 +34,15 @@ export class CreateImage {
       created: response.created,
       data: (request.response_format === ResponseFormat.URL)
         ? response.data.map(data =>
-          ({
-            url: String(data.url),
-            revised_prompt: String(data.revised_prompt),
-          }))
+            ({
+              url: String(data.url),
+              revised_prompt: String(data.revised_prompt),
+            }))
         : response.data.map(data =>
-          ({
-            b64_json: String(data.b64_json),
-            revised_prompt: String(data.revised_prompt),
-          })),
+            ({
+              b64_json: String(data.b64_json),
+              revised_prompt: String(data.revised_prompt),
+            })),
     };
 
     return responsePayload;
