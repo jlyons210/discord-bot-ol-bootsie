@@ -4,11 +4,11 @@
   "description": "Ol' Bootsie is a highly configurable Discord bot that interfaces with the OpenAI API, written for Node.js in Typescript.",
   "main": "app.js",
   "scripts": {
-    "build": "npx tsc",
-    "cleanup": "rm -rf dist/",
+    "build": "tsc",
+    "cleanup": "rimraf dist",
     "lint": "eslint .",
-    "rebuild": "rm -rf dist/ && npx tsc",
-    "start": "node ./dist/app.js",
+    "rebuild": "npm run cleanup && npm run build",
+    "start": "node dist/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "git+https://github.com/jlyons210/discord-bot-ol-bootsie.git",
@@ -32,8 +32,7 @@
     "eslint-plugin-jsdoc": "^50.6.1",
     "eslint-plugin-n": "^17.15.1",
     "globals": "^15.14.0",
-    "ts-node": "^10.9.2",
-    "tsx": "^4.19.2",
+    "rimraf": "^6.0.1",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.18.2"
   }

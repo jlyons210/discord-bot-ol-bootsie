@@ -36,9 +36,10 @@
   - Updated all dependencies
     - Started with fresh tsconfig.json
     - Ported ESLint configuration to new format
-    - 195 eslint problems fixed after upgrades
+    - Fixed sooooo many linting issues after the upgrades
   - Moved back to npm instead of yarn
   - Updated Dockerfile
+  - Functionally, nothing should have changed
 
 [:arrow_up: Back to top](#changelog)
 
