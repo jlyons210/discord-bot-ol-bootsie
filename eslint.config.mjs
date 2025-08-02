@@ -12,7 +12,7 @@ export default [
   eslintJsdoc.configs['flat/recommended'],
   eslintNode.configs['flat/recommended'],
   ...eslintTs.configs['recommended'],
-  stylisticJs.configs['recommended-flat'],
+  stylisticJs.configs['recommended'],
   {
     files: [
       '**/*.{js,mjs,cjs,ts}',
