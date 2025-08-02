@@ -30,6 +30,10 @@ export class CreateImage {
   public async createImage(request: RequestOptions): Promise<ResponsePayload> {
     const response = await this.client.images.generate({ ...request });
 
+    if (!response || !response.data) {
+      throw new Error('No data returned from OpenAI API');
+    }
+
     const responsePayload: ResponsePayload = {
       created: response.created,
       data: (request.response_format === ResponseFormat.URL)
